@@ -1,0 +1,101 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "API Documentation Field Reservation System",
+      "description": "by Rofif Fairuz Hawary",
+      "contact": {
+        "email": "rofifhawary@gmail.com"
+      },
+      "version": "1.0.11"
+    },
+    "externalDocs": {
+      "description": "Find out more about Swagger",
+      "url": "http://swagger.io"
+    },
+    "servers": [
+      {
+        "url": "http://localhost/"
+      }
+    ],
+    "tags": [
+      {
+        "name": "player",
+        "description": "Everything about your Player API"
+      }
+    ],
+    "paths": {
+      "/login": {
+        "post": {
+          "tags": [
+            "player"
+          ],
+          "summary": "Login user Player",
+          "description": "Login user Player",
+          "operationId": "loginPlayer",
+          "requestBody": {
+            "description": "Created user object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerLoginBody"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PlayerLoginResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+                "description": "invalid input"
+            },
+            "404": {
+                "description": "not found"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "PlayerLoginBody": {
+          "required": [
+            "email",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "example": "email@example.com"
+            },
+            "password": {
+              "type": "string",
+              "example": "examplepassword123"
+            }
+          },
+          "xml": {
+            "name": "PlayerLoginBody"
+          }
+        },
+        "PlayerLoginResponse": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            },
+            "xml": {
+              "name": "PlayerLoginResponse"
+            }
+          }
+      }
+    }
+  }
