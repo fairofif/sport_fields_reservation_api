@@ -26,10 +26,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-        DB_USER: ${{ vars.DB_USER }}
-        DB_PASSWORD: ${{ vars.DB_PASSWORD }}
-        DB_NAME: ${{ vars.DB_NAME }}
-        DB_HOST: ${{ vars.DB_HOST }}
+        DB_USER_: ${{ vars.DB_USER_ }}
+        DB_PASSWORD_: ${{ vars.DB_PASSWORD_ }}
+        DB_NAME_: ${{ vars.DB_NAME_ }}
+        DB_HOST_: ${{ vars.DB_HOST_ }}
 
     steps:
       - uses: actions/checkout@v2
