@@ -22,8 +22,8 @@ def test_login():
     url = '/login'
 
     mock_request_body = {
-        'username': 'fairofif',
-        'password': 'wakacipuy'
+        'username': 'devexample',
+        'password': 'examplepass'
     }
 
     response = client.post(url, json=mock_request_body)
