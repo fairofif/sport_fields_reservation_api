@@ -15,7 +15,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    env:
+      DEFAULT_AVA_PATH: ${{ vars.DEFAULT_AVA_PATH }}
     #
     steps:
       - uses: actions/checkout@v2
@@ -30,6 +31,7 @@ jobs:
         DB_PASSWORD_: ${{ vars.DB_PASSWORD_ }}
         DB_NAME_: ${{ vars.DB_NAME_ }}
         DB_HOST_: ${{ vars.DB_HOST_ }}
+        DEFAULT_AVA_PATH: ${{ vars.DEFAULT_AVA_PATH }}
 
     steps:
       - uses: actions/checkout@v2

@@ -24,20 +24,20 @@
     }
   ],
   "paths": {
-    "/login": {
+    "/player/auth/register": {
       "post": {
         "tags": [
           "player"
         ],
-        "summary": "Login user Player",
-        "description": "Login user Player",
-        "operationId": "loginPlayer",
+        "summary": "Register user Player",
+        "description": "Register user Player",
+        "operationId": "registerPlayer",
         "requestBody": {
           "description": "Created user object",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PlayerLoginBody"
+                "$ref": "#/components/schemas/PlayerRegisterBody"
               }
             }
           }
@@ -48,7 +48,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PlayerLoginResponse"
+                  "$ref": "#/components/schemas/PlayerRegisterResponse"
                 }
               }
             }
@@ -65,10 +65,11 @@
   },
   "components": {
     "schemas": {
-      "PlayerLoginBody": {
+      "PlayerRegisterBody": {
         "required": [
           "username",
-          "password"
+          "password",
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -79,21 +80,28 @@
           "password": {
             "type": "string",
             "example": "examplepass"
+          },
+          "name": {
+            "type": "string",
+            "example": "Dev Example"
           }
         },
         "xml": {
-          "name": "PlayerLoginBody"
+          "name": "PlayerRegisterBody"
         }
       },
-      "PlayerLoginResponse": {
+      "PlayerRegisterResponse": {
           "type": "object",
           "properties": {
             "message": {
               "type": "string"
+            },
+            "register_status": {
+              "type": "boolean"
             }
           },
           "xml": {
-            "name": "PlayerLoginResponse"
+            "name": "PlayerRegisterResponse"
           }
         }
     }
