@@ -8,7 +8,7 @@ def generateToken():
         [chr(i) for i in range(97, 123)] +
         [str(i) for i in range(10)] +
         [chr(i) for i in range(65, 91)] +
-        [chr(i) for i in range(33, 48)]) for _ in range(128)
+        [chr(i) for i in range(40, 64)]) for _ in range(128)
     )
 
 def getPlayerTokenList():

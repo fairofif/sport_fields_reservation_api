@@ -16,7 +16,7 @@ def configure_routes(app):
         SWAGGER_URL,  # Swagger UI static files will be mapped to '{SWAGGER_URL}/dist/'
         API_URL,
         config={  # Swagger UI config overrides
-            'app_name': "Test application"
+            'app_name': "API DOCUMENTATION"
     },
     )
 

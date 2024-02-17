@@ -54,10 +54,87 @@
             }
           },
           "400": {
-              "description": "invalid input"
+            "description": "invalid input"
           },
           "404": {
-              "description": "not found"
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/auth/login": {
+      "post": {
+        "tags": [
+          "player"
+        ],
+        "summary": "Login user Player",
+        "description": "Login user Player",
+        "operationId": "loginPlayer",
+        "requestBody": {
+          "description": "Login user Player",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerLoginBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/auth/relogin": {
+      "get": {
+        "tags": [
+          "player"
+        ],
+        "summary": "Relogin when opening app again for user Player",
+        "description": "Relogin user Player",
+        "operationId": "reloginPlayer",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerReloginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
           }
         }
       }
@@ -91,19 +168,85 @@
         }
       },
       "PlayerRegisterResponse": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "string"
-            },
-            "register_status": {
-              "type": "boolean"
-            }
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
           },
-          "xml": {
-            "name": "PlayerRegisterResponse"
+          "register_status": {
+            "type": "boolean"
           }
+        },
+        "xml": {
+          "name": "PlayerRegisterResponse"
         }
+      },
+      "PlayerLoginBody": {
+        "required": [
+          "username",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "devexample"
+          },
+          "password": {
+            "type": "string",
+            "example": "devexample"
+          }
+        },
+        "xml": {
+          "name": "PlayerLoginBody"
+        }
+      },
+      "PlayerLoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "login_status": {
+            "type": "boolean"
+          },
+          "ava_url": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "PlayerLoginResponse"
+        }
+      },
+      "PlayerReloginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "relogin_status": {
+            "type": "boolean"
+          },
+          "ava_url": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "PlayerReloginResponse"
+        }
+      }
     }
   }
 }
