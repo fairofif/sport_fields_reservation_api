@@ -1,10 +1,6 @@
-from app import app
-import pymysql
 from flask import (
-    jsonify,
-    request
+    jsonify
 )
-from db_config import mysql
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
