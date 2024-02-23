@@ -1,7 +1,9 @@
 from appflask import app
 from routes import configure_routes
 from routes_auth_player import player_auth_configure_routes
+from routes_device import device_configure_routes
 
+device_configure_routes(app)
 configure_routes(app)
 player_auth_configure_routes(app)
 

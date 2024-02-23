@@ -47,6 +47,7 @@ def player_auth_configure_routes(app):
         data = request.json
         username = data['username']
         password = data['password']
+        virtual_device_id = data['virtual_device_id']
         query = "SELECT username FROM Player WHERE username = '"+username+"'"
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -83,12 +84,12 @@ def player_auth_configure_routes(app):
                 ## login valid
                 token = newPlayerToken()
 
-                ## delete existing token within username
-                query = "DELETE FROM Player_Login_Token WHERE Player_username='"+username+"'"
+                ## delete existing token within device ID
+                query = "DELETE FROM Player_Login_Token WHERE Virtual_Device_ID_id='"+virtual_device_id+"'"
                 cursor.execute(query)
                 conn.commit()
 
-                query = "INSERT INTO Player_Login_Token VALUES ('"+token+"', '"+username+"', CURRENT_TIMESTAMP())"
+                query = "INSERT INTO Player_Login_Token VALUES ('"+token+"', '"+username+"', CURRENT_TIMESTAMP(), '"+virtual_device_id+"')"
 
                 cursor.execute(query)
                 conn.commit()
@@ -107,7 +108,7 @@ def player_auth_configure_routes(app):
                     "name": read_row['name'],
                     "ava_url": read_row['ava_url']
                 }
-        return response
+        return jsonify(response)
 
     @app.route('/player/auth/relogin', methods=['GET'])
     def player_relogin():
@@ -142,4 +143,22 @@ def player_auth_configure_routes(app):
         cursor.close()
         conn.close()
 
-        return response
+        return jsonify(response)
+
+    @app.route('/player/auth/logout', methods=['DELETE'])
+    def player_logout():
+        header = request.headers
+        token = header['token']
+        query = "DELETE FROM Player_Login_Token WHERE token = '"+token+"'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        response = {
+            "logout_status": True,
+            "message": "Logout user in this device is successfully"
+        }
+
+        return jsonify(response)

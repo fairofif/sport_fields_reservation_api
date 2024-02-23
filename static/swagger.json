@@ -19,11 +19,81 @@
   ],
   "tags": [
     {
+      "name": "device",
+      "description": "Everything about device API"
+    },
+    {
       "name": "player",
       "description": "Everything about your Player API"
     }
   ],
   "paths": {
+    "/device/register": {
+      "post": {
+        "tags": [
+          "device"
+        ],
+        "summary": "Register new device to DB",
+        "description": "Get new virtual device id when opening app for the first time",
+        "operationId": "registerDevice",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceRegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/device/delete": {
+      "delete": {
+        "tags": [
+          "device"
+        ],
+        "summary": "Delete device id from register app",
+        "description": "Delete virtual_device_id from DB when app uninstalled",
+        "operationId": "deleteDevice",
+        "requestBody": {
+          "description": "Deleted device_id",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceDeleteBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceDeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/player/auth/register": {
       "post": {
         "tags": [
@@ -138,10 +208,85 @@
           }
         }
       }
+    },
+    "/player/auth/logout": {
+      "delete": {
+        "tags": [
+          "player"
+        ],
+        "summary": "Logout session user player on used device",
+        "description": "Would delete row in Player_Login_Token on device that used",
+        "operationId": "logoutPlayer",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerLogoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "DeviceRegisterResponse": {
+        "type": "object",
+        "properties": {
+          "virtual_device_id": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "DeviceRegisterResponse"
+        }
+      },
+      "DeviceDeleteBody": {
+        "type": "object",
+        "properties": {
+          "virtual_device_id": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "DeviceDeleteBody"
+        }
+      },
+      "DeviceDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "delete_status": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "DeviceDeleteResponse"
+        }
+      },
       "PlayerRegisterBody": {
         "required": [
           "username",
@@ -184,7 +329,8 @@
       "PlayerLoginBody": {
         "required": [
           "username",
-          "password"
+          "password",
+          "virtual_device_id"
         ],
         "type": "object",
         "properties": {
@@ -195,6 +341,10 @@
           "password": {
             "type": "string",
             "example": "devexample"
+          },
+          "virtual_device_id": {
+            "type": "string",
+            "example": "some_device_id"
           }
         },
         "xml": {
@@ -245,6 +395,20 @@
         },
         "xml": {
           "name": "PlayerReloginResponse"
+        }
+      },
+      "PlayerLogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "logout_status": {
+            "type": "boolean"
+          }
+        },
+        "xml": {
+          "name": "PlayerLogoutResponse"
         }
       }
     }

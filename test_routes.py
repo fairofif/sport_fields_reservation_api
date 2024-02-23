@@ -1,6 +1,3 @@
-from flask import jsonify
-import json
-
 from app import app
 
 def test_swagger_success():
