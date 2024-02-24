@@ -9,8 +9,8 @@
     "version": "1.0.11"
   },
   "externalDocs": {
-    "description": "Find out more about Swagger",
-    "url": "http://swagger.io"
+    "description": "Github repository of this project",
+    "url": "https://github.com/fairofif/sport_fields_reservation_api"
   },
   "servers": [
     {
