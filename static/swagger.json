@@ -24,7 +24,11 @@
     },
     {
       "name": "player",
-      "description": "Everything about your Player API"
+      "description": "Everything about your Player AUTH API"
+    },
+    {
+      "name": "admin",
+      "description": "Everything about your Admin AUTH API"
     }
   ],
   "paths": {
@@ -247,6 +251,160 @@
           }
         }
       }
+    },
+    "/admin/auth/register": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Register user Admin",
+        "description": "Register user Admin",
+        "operationId": "registerAdmin",
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRegisterBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/auth/login": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Login user Admin",
+        "description": "Login user Admin",
+        "operationId": "loginAdmin",
+        "requestBody": {
+          "description": "Login user Admin",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/auth/relogin": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Relogin when opening app again for user Admin",
+        "description": "Relogin user Admin",
+        "operationId": "reloginAdmin",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminReloginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/auth/logout": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Logout session user admin on used device",
+        "description": "Would delete row in Admin_Login_Token on device that used",
+        "operationId": "logoutAdmin",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLogoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -409,6 +567,141 @@
         },
         "xml": {
           "name": "PlayerLogoutResponse"
+        }
+      },
+      "AdminRegisterBody": {
+        "required": [
+          "username",
+          "password",
+          "name",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "devexample"
+          },
+          "password": {
+            "type": "string",
+            "example": "examplepass"
+          },
+          "name": {
+            "type": "string",
+            "example": "Dev Example"
+          },
+          "phone": {
+            "type": "string",
+            "example": "08123456789"
+          }
+        },
+        "xml": {
+          "name": "AdminRegisterBody"
+        }
+      },
+      "AdminRegisterResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "register_status": {
+            "type": "boolean"
+          }
+        },
+        "xml": {
+          "name": "AdminRegisterResponse"
+        }
+      },
+      "AdminLoginBody": {
+        "required": [
+          "username",
+          "password",
+          "virtual_device_id"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "devexample"
+          },
+          "password": {
+            "type": "string",
+            "example": "devexample"
+          },
+          "virtual_device_id": {
+            "type": "string",
+            "example": "some_device_id"
+          }
+        },
+        "xml": {
+          "name": "AdminLoginBody"
+        }
+      },
+      "AdminLoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "login_status": {
+            "type": "boolean"
+          },
+          "ava_url": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "AdminLoginResponse"
+        }
+      },
+      "AdminReloginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "relogin_status": {
+            "type": "boolean"
+          },
+          "ava_url": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "xml": {
+          "name": "AdminReloginResponse"
+        }
+      },
+      "AdminLogoutResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "logout_status": {
+            "type": "boolean"
+          }
+        },
+        "xml": {
+          "name": "AdminLogoutResponse"
         }
       }
     }
