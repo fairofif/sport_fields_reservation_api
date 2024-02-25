@@ -202,7 +202,7 @@ def test_auth_admin_relogin_token_valid():
     assert response.status_code == 200
     assert response.get_json()['relogin_status'] == True
     assert response.get_json()['message'] == "Token is valid, relogin successfully"
-    assert response.get_json()['username'] == "unittest"
+    assert response.get_json()['data']['username'] == "unittest"
 
 def test_auth_admin_relogin_token_invalid():
     """Testing relogin with invalid token"""
@@ -225,7 +225,7 @@ def test_auth_admin_relogin_token_invalid():
     assert response.status_code == 200
     assert response.get_json()['relogin_status'] == False
     assert response.get_json()['message'] == "Token is already expired"
-    assert response.get_json()['username'] == None
+    assert response.get_json()['data']['username'] == None
 
 def test_auth_admin_logout():
     """Testing logout admin"""

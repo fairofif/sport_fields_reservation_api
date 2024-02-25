@@ -56,11 +56,13 @@ def admin_auth_configure_routes(app):
             response = {
                 "login_status": False,
                 "message": "Username not found",
-                "token": None,
-                "username": None,
-                "name": None,
-                "ava_url": None,
-                "phone": None
+                "data": {
+                    "token": None,
+                    "username": None,
+                    "name": None,
+                    "ava_url": None,
+                    "phone": None
+                }
             }
             cursor.close()
             conn.close()
@@ -73,10 +75,13 @@ def admin_auth_configure_routes(app):
                 response = {
                     "login_status": False,
                     "message": "Password doesn't match",
-                    "token": None,
-                    "username": None,
-                    "name": None,
-                    "ava_url": None
+                    "data": {
+                        "token": None,
+                        "username": None,
+                        "name": None,
+                        "ava_url": None,
+                        "phone": None
+                    }
                 }
                 cursor.close()
                 conn.close()
@@ -103,11 +108,13 @@ def admin_auth_configure_routes(app):
                 response = {
                     "login_status": True,
                     "message": "Login Successfully",
-                    "token": token,
-                    "username": username,
-                    "name": read_row['name'],
-                    "ava_url": read_row['ava_url'],
-                    "phone": read_row['phone']
+                    "data": {
+                        "token": token,
+                        "username": username,
+                        "name": read_row['name'],
+                        "ava_url": read_row['ava_url'],
+                        "phone": read_row['phone']
+                    }
                 }
         return jsonify(response)
 
@@ -122,11 +129,13 @@ def admin_auth_configure_routes(app):
         if cursor.rowcount == 0:
             response = {
                 "relogin_status": False,
-                "username": None,
-                "name": None,
-                "ava_url": None,
-                "phone": None,
-                "message": "Token is already expired"
+                "message": "Token is already expired",
+                "data": {
+                    "username": None,
+                    "name": None,
+                    "ava_url": None,
+                    "phone": None
+                }
             }
         else:
             query = ("SELECT Admin.username, Admin.name, Admin.ava_url, Admin.phone, Admin_Login_Token.token FROM Admin"
@@ -137,11 +146,13 @@ def admin_auth_configure_routes(app):
             read_row = cursor.fetchone()
             response = {
                 "relogin_status": True,
-                "username": read_row['username'],
-                "name": read_row['name'],
-                "ava_url": read_row['ava_url'],
-                "phone": read_row['phone'],
-                "message": "Token is valid, relogin successfully"
+                "message": "Token is valid, relogin successfully",
+                "data": {
+                    "username": read_row['username'],
+                    "name": read_row['name'],
+                    "ava_url": read_row['ava_url'],
+                    "phone": read_row['phone']
+                }
             }
         cursor.close()
         conn.close()

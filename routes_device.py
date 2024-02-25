@@ -21,7 +21,11 @@ def device_configure_routes(app):
         conn.close()
 
         response = {
-            "virtual_device_id": device_id
+            "register_status": True,
+            "message": "Register device successfully",
+            "data": {
+                "virtual_device_id": device_id
+            }
         }
         return jsonify(response)
 

@@ -33,10 +33,10 @@ def test_device_register():
 
     response = client.post(url)
 
-    deleteUnitTestDevice(response.get_json()['virtual_device_id'])
+    deleteUnitTestDevice(response.get_json()['data']['virtual_device_id'])
 
     assert response.status_code == 200
-    assert response.get_json()['virtual_device_id'] != None
+    assert response.get_json()['data']['virtual_device_id'] != None
 
 def test_device_delete():
     """Test register delete device"""

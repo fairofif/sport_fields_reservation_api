@@ -57,10 +57,12 @@ def player_auth_configure_routes(app):
             response = {
                 "login_status": False,
                 "message": "Username not found",
-                "token": None,
-                "username": None,
-                "name": None,
-                "ava_url": None
+                "data": {
+                    "token": None,
+                    "username": None,
+                    "name": None,
+                    "ava_url": None
+                }
             }
             cursor.close()
             conn.close()
@@ -73,10 +75,12 @@ def player_auth_configure_routes(app):
                 response = {
                     "login_status": False,
                     "message": "Password doesn't match",
-                    "token": None,
-                    "username": None,
-                    "name": None,
-                    "ava_url": None
+                    "data": {
+                        "token": None,
+                        "username": None,
+                        "name": None,
+                        "ava_url": None
+                    }
                 }
                 cursor.close()
                 conn.close()
@@ -103,10 +107,12 @@ def player_auth_configure_routes(app):
                 response = {
                     "login_status": True,
                     "message": "Login Successfully",
-                    "token": token,
-                    "username": username,
-                    "name": read_row['name'],
-                    "ava_url": read_row['ava_url']
+                    "data": {
+                        "token": token,
+                        "username": username,
+                        "name": read_row['name'],
+                        "ava_url": read_row['ava_url']
+                    }
                 }
         return jsonify(response)
 
@@ -121,10 +127,12 @@ def player_auth_configure_routes(app):
         if cursor.rowcount == 0:
             response = {
                 "relogin_status": False,
-                "username": None,
-                "name": None,
-                "ava_url": None,
-                "message": "Token is already expired"
+                "message": "Token is already expired",
+                "data": {
+                    "username": None,
+                    "name": None,
+                    "ava_url": None
+                }
             }
         else:
             query = ("SELECT Player.username, Player.name, Player.ava_url, Player_Login_Token.token FROM Player"
@@ -135,10 +143,12 @@ def player_auth_configure_routes(app):
             read_row = cursor.fetchone()
             response = {
                 "relogin_status": True,
-                "username": read_row['username'],
-                "name": read_row['name'],
-                "ava_url": read_row['ava_url'],
-                "message": "Token is valid, relogin successfully"
+                "message": "Token is valid, relogin successfully",
+                "data": {
+                    "username": read_row['username'],
+                    "name": read_row['name'],
+                    "ava_url": read_row['ava_url']
+                }
             }
         cursor.close()
         conn.close()

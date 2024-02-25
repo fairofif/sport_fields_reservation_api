@@ -29,6 +29,14 @@
     {
       "name": "admin",
       "description": "Everything about your Admin AUTH API"
+    },
+    {
+      "name": "sportKind",
+      "description": "Everything about sport kind API"
+    },
+    {
+      "name": "sportVenue",
+      "description": "Everything about sport venues management (admin)"
     }
   ],
   "paths": {
@@ -405,6 +413,83 @@
           }
         }
       }
+    },
+    "/admin/sportVenue/register": {
+      "post": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Register managed sport venue by admin (1 admin 1 venue)",
+        "description": "Register managed sport venue by admin (1 admin 1 venue)",
+        "operationId": "registerSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRegisterVenueBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRegisterVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/sport_kinds": {
+      "get": {
+        "tags": [
+          "sportKind"
+        ],
+        "summary": "Return all of sport kinds exists",
+        "description": "Return all of sport kinds exists",
+        "operationId": "returnSportKinds",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SportKindResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -412,8 +497,19 @@
       "DeviceRegisterResponse": {
         "type": "object",
         "properties": {
-          "virtual_device_id": {
+          "register_status": {
+            "type": "boolean"
+          },
+          "message": {
             "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "virtual_device_id": {
+                "type": "string"
+              }
+            }
           }
         },
         "xml": {
@@ -518,14 +614,19 @@
           "login_status": {
             "type": "boolean"
           },
-          "ava_url": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
+          "data": {
+            "type":"object",
+            "properties": {
+              "ava_url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
           }
         },
         "xml": {
@@ -541,14 +642,19 @@
           "relogin_status": {
             "type": "boolean"
           },
-          "ava_url": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
+          "data": {
+            "type":"object",
+            "properties": {
+              "ava_url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
           }
         },
         "xml": {
@@ -647,17 +753,22 @@
           "login_status": {
             "type": "boolean"
           },
-          "ava_url": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "phone": {
-            "type": "string"
+          "data": {
+            "type": "object",
+            "properties": {
+              "ava_url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              }
+            }
           }
         },
         "xml": {
@@ -673,17 +784,22 @@
           "relogin_status": {
             "type": "boolean"
           },
-          "ava_url": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "phone": {
-            "type": "string"
+          "data": {
+            "type": "object",
+            "properties": {
+              "ava_url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              }
+            }
           }
         },
         "xml": {
@@ -702,6 +818,118 @@
         },
         "xml": {
           "name": "AdminLogoutResponse"
+        }
+      },
+      "AdminRegisterVenueBody": {
+        "required": [
+          "username",
+          "sport_kind_uuid",
+          "name",
+          "geo_coordinate",
+          "is_bike_parking",
+          "is_car_parking",
+          "is_public",
+          "description",
+          "rules",
+          "time_open",
+          "time_closed",
+          "price_per_hour"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "devexample"
+          },
+          "sport_kind_uuid": {
+            "type": "string",
+            "example": "c234176a-d3e0-11ee-921f-02284a7d1cf2"
+          },
+          "name": {
+            "type": "string",
+            "example": "Gor Gears"
+          },
+          "geo_coordinate": {
+            "type": "string",
+            "example": "-6.300012, 107.164228"
+          },
+          "is_bike_parking": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_car_parking": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_public": {
+            "type": "boolean",
+            "example": false
+          },
+          "description": {
+            "type": "string",
+            "example": "Lapang Badminton dengan 3 lapang yang sudah menggunakan karpet sintetis"
+          },
+          "rules": {
+            "type": "string",
+            "example": "Wajib menggunakan sepatu badminton, tidak boleh menggunakan sepatu berdebu"
+          },
+          "time_open": {
+            "type": "string",
+            "example": "08:00:00"
+          },
+          "time_closed": {
+            "type": "string",
+            "example": "23:00:00"
+          },
+          "price_per_hour": {
+            "type": "integer",
+            "example": 40000
+          }
+        },
+        "xml": {
+          "name": "AdminLoginBody"
+        }
+      },
+      "AdminRegisterVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "register_status": {
+            "type": "boolean"
+          }
+        },
+        "xml": {
+          "name": "AdminLoginResponse"
+        }
+      },
+      "SportKindResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status_get": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "name": {
+                  "type":"string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminReloginResponse"
         }
       }
     }
