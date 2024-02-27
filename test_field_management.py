@@ -6,7 +6,7 @@ load_dotenv()
 import os
 from token_generator import newAdminToken
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID
 
 def insert_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
@@ -84,24 +84,42 @@ def delete_unittest_sport_kind(uuid):
     cursor.close()
     conn.close()
 
+def insert_unittest_sport_venue(venue_id, sport_kind_id):
+    query = "INSERT INTO Sport_Field VALUES ('"+venue_id+"', 'unittest', '"+sport_kind_id+"', 'unittest', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), '-6.300012, 107.164228', 1, 1, 0, 'unittest', 'unittest', '08:00:00', '23:00:00', 40000)"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_unittest_sport_venue(venue_id):
+    query = "DELETE FROM Sport_Field WHERE id = '"+venue_id+"'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 ### =========================== UNIT TEST =========================== ###
 
 def test_get_all_sport_kind():
-    sport_kind_uuid = insert_unittest_sport_kind()
+    Sport_Kind_id = insert_unittest_sport_kind()
 
     client = app.test_client()
     url = "/sport_kinds"
 
     response = client.get(url)
 
-    delete_unittest_sport_kind(sport_kind_uuid)
+    delete_unittest_sport_kind(Sport_Kind_id)
 
     assert response.status_code == 200
 
 def test_register_sport_venue():
     device = newVirtualDeviceID()
     token = newAdminToken()
-    sport_kind_uuid = insert_unittest_sport_kind()
+    Sport_Kind_id = insert_unittest_sport_kind()
 
     insert_unittest_user()
     insert_unittest_device(device)
@@ -116,7 +134,7 @@ def test_register_sport_venue():
 
     body_request = {
         "username": "unittest",
-        "sport_kind_uuid": sport_kind_uuid,
+        "Sport_Kind_id": Sport_Kind_id,
         "name": "Unit Test Venue",
         "geo_coordinate": "-6.300012, 107.164228",
         "is_bike_parking": True,
@@ -132,8 +150,51 @@ def test_register_sport_venue():
     response = client.post(url, json=body_request, headers=header)
 
     delete_unittest_user()
-    delete_unittest_sport_kind(sport_kind_uuid)
+    delete_unittest_sport_kind(Sport_Kind_id)
     delete_unittest_device(device)
 
     assert response.status_code == 200
     assert response.get_json()['status_register'] == True
+
+def test_edit_sport_venue():
+    device = newVirtualDeviceID()
+    token = newAdminToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = 'admin/sportVenue/edit'
+
+    header = {
+        "token": token
+    }
+
+    body = {
+        "id": sport_venue,
+        "Sport_Kind_id": None,
+        "name": "Edited Name Venue",
+        "geo_coordinate": None,
+        "is_bike_parking": None,
+        "is_car_parking": None,
+        "is_public": True,
+        "description": None,
+        "rules": None,
+        "time_open": None,
+        "time_closed": None,
+        "price_per_hour": 40000
+    }
+
+    response = client.put(url, headers=header, json=body)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['update_status'] == True

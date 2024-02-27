@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 28/02/2024 04:04:10",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
@@ -463,6 +463,55 @@
         }
       }
     },
+    "/admin/sportVenue/edit": {
+      "put": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Edit managed sport venue by admin (1 admin 1 venue)",
+        "description": "Edit managed sport venue by admin (1 admin 1 venue)",
+        "operationId": "EditSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Field yang ga mau diedit dikasih nilai null aja",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminEditVenueBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEditVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -823,7 +872,7 @@
       "AdminRegisterVenueBody": {
         "required": [
           "username",
-          "sport_kind_uuid",
+          "Sport_Kind_id",
           "name",
           "geo_coordinate",
           "is_bike_parking",
@@ -887,7 +936,7 @@
           }
         },
         "xml": {
-          "name": "AdminLoginBody"
+          "name": "AdminRegisterVenueBody"
         }
       },
       "AdminRegisterVenueResponse": {
@@ -898,10 +947,183 @@
           },
           "register_status": {
             "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type":"string"
+              },
+              "Sport_Kind_id": {
+                "type": "string"
+              },
+              "Sport_Kind_Name": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "last_edited": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "rules": {
+                "type": "string"
+              },
+              "gro_coordinate": {
+                "type": "string"
+              },
+              "is_bike_parking": {
+                "type": "boolean"
+              },
+              "is_car_parking": {
+                "type": "boolean"
+              },
+              "is_public": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string"
+              },
+              "time_open": {
+                "type": "string"
+              },
+              "time_closed": {
+                "type": "string"
+              },
+              "price_per_hour": {
+                "type": "integer"
+              }
+            }
           }
         },
         "xml": {
-          "name": "AdminLoginResponse"
+          "name": "AdminRegisterVenueResponse"
+        }
+      },
+      "AdminEditVenueBody": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+          },
+          "Sport_Kind_id": {
+            "type": "string",
+            "example": "2b607252-3c94-432f-9275-a86304363cf3"
+          },
+          "name": {
+            "type": "string",
+            "example": "Gor Gears"
+          },
+          "geo_coordinate": {
+            "type": "string",
+            "example": null
+          },
+          "is_bike_parking": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_car_parking": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_public": {
+            "type": "boolean",
+            "example": false
+          },
+          "description": {
+            "type": "string",
+            "example": "Lapang Badminton dengan 3 lapang yang sudah menggunakan karpet sintetis"
+          },
+          "rules": {
+            "type": "string",
+            "example": "Wajib menggunakan sepatu badminton, tidak boleh menggunakan sepatu berdebu"
+          },
+          "time_open": {
+            "type": "string",
+            "example": null
+          },
+          "time_closed": {
+            "type": "string",
+            "example": null
+          },
+          "price_per_hour": {
+            "type": "integer",
+            "example": 37500
+          }
+        },
+        "xml": {
+          "name": "AdminEditVenueBody"
+        }
+      },
+      "AdminEditVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "edit_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type":"string"
+              },
+              "Sport_Kind_id": {
+                "type": "string"
+              },
+              "Sport_Kind_Name": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "last_edited": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "rules": {
+                "type": "string"
+              },
+              "gro_coordinate": {
+                "type": "string"
+              },
+              "is_bike_parking": {
+                "type": "boolean"
+              },
+              "is_car_parking": {
+                "type": "boolean"
+              },
+              "is_public": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string"
+              },
+              "time_open": {
+                "type": "string"
+              },
+              "time_closed": {
+                "type": "string"
+              },
+              "price_per_hour": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminEditVenueResponse"
         }
       },
       "SportKindResponse": {
