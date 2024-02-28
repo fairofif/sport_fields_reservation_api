@@ -6,7 +6,7 @@ load_dotenv()
 import os
 from token_generator import newAdminToken
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID, newSportFieldUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID
 
 def insert_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
@@ -102,6 +102,24 @@ def delete_unittest_sport_venue(venue_id):
     cursor.close()
     conn.close()
 
+def insert_unittest_field_to_venue(field_id, venue_id, number):
+    query = "INSERT INTO Fields VALUES ('"+field_id+"', '"+venue_id+"', "+str(number)+", CURRENT_TIMESTAMP())"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_unittest_field_from_venue(field_id):
+    query = "DELETE FROM Fields WHERE id = '"+field_id+"'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 ### =========================== UNIT TEST =========================== ###
 
 def test_get_all_sport_kind():
@@ -115,6 +133,63 @@ def test_get_all_sport_kind():
     delete_unittest_sport_kind(Sport_Kind_id)
 
     assert response.status_code == 200
+
+def test_get_sport_venue_success():
+    device = newVirtualDeviceID()
+    token = newAdminToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = "/admin/sportVenue"
+
+    header = {
+        "token": token,
+        "Sport_Venue_id": sport_venue
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+
+def test_get_sport_venue_failed():
+    device = newVirtualDeviceID()
+    token = newAdminToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+
+    client = app.test_client()
+    url = "/admin/sportVenue"
+
+    header = {
+        "token": token,
+        "Sport_Venue_id": sport_venue
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == False
+
 
 def test_register_sport_venue():
     device = newVirtualDeviceID()
@@ -168,7 +243,7 @@ def test_edit_sport_venue():
     insert_unittest_sport_venue(sport_venue, sport_kind)
 
     client = app.test_client()
-    url = 'admin/sportVenue/edit'
+    url = '/admin/sportVenue/edit'
 
     header = {
         "token": token
@@ -198,3 +273,72 @@ def test_edit_sport_venue():
 
     assert response.status_code == 200
     assert response.get_json()['update_status'] == True
+
+def test_add_fields_to_venue_success():
+    device = newVirtualDeviceID()
+    token = newAdminToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = '/admin/sportVenue/fields/add'
+
+    header = {
+        "token": token
+    }
+
+    body = {
+        "Sport_Venue_id": sport_venue,
+        "field_number": 1
+    }
+
+    response = client.post(url, headers=header, json=body)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['add_status'] == True
+
+def test_add_fields_to_venue_failed():
+    device = newVirtualDeviceID()
+    token = newAdminToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    client = app.test_client()
+    url = '/admin/sportVenue/fields/add'
+
+    header = {
+        "token": token
+    }
+
+    body = {
+        "Sport_Venue_id": sport_venue,
+        "field_number": 1
+    }
+
+    response = client.post(url, headers=header, json=body)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['add_status'] == False

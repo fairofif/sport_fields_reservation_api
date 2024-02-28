@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 28/02/2024 04:04:10",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 29/02/2024 02:05:04",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
@@ -463,6 +463,54 @@
         }
       }
     },
+    "/admin/sportVenue": {
+      "get": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Get managed sport venue by admin (1 admin 1 venue)",
+        "description": "Get managed sport venue by admin (1 admin 1 venue)",
+        "operationId": "getSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Sport_Venue_id",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/admin/sportVenue/edit": {
       "put": {
         "tags": [
@@ -499,6 +547,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminEditVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/sportVenue/fields/add": {
+      "post": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Add field to managed sport venue by admin (1 admin 1 venue)",
+        "description": "Add field tor managed sport venue by admin (1 admin 1 venue)",
+        "operationId": "addFieldToSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminAddFieldToVenueBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAddFieldToVenueResponse"
                 }
               }
             }
@@ -1001,6 +1098,121 @@
         },
         "xml": {
           "name": "AdminRegisterVenueResponse"
+        }
+      },
+      "AdminAddFieldToVenueBody": {
+        "required": [
+          "Sport_Venue_id",
+          "field_number"
+        ],
+        "type": "object",
+        "properties": {
+          "Sport_Venue_id": {
+            "type": "string",
+            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+          },
+          "field_number": {
+            "type": "integer",
+            "example": 1
+          }
+        },
+        "xml": {
+          "name": "AdminAddFieldToVenueBody"
+        }
+      },
+      "AdminAddFieldToVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "add_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Sport_Field_id": {
+                  "type":"string"
+                },
+                "number": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetVenueResponse"
+        }
+      },
+      "AdminGetVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type":"string"
+              },
+              "Sport_Kind_id": {
+                "type": "string"
+              },
+              "Sport_Kind_Name": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "last_edited": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "rules": {
+                "type": "string"
+              },
+              "gro_coordinate": {
+                "type": "string"
+              },
+              "is_bike_parking": {
+                "type": "boolean"
+              },
+              "is_car_parking": {
+                "type": "boolean"
+              },
+              "is_public": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string"
+              },
+              "time_open": {
+                "type": "string"
+              },
+              "time_closed": {
+                "type": "string"
+              },
+              "price_per_hour": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetVenueResponse"
         }
       },
       "AdminEditVenueBody": {
