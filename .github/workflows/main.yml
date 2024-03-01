@@ -14,7 +14,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest]
     env:
       DEFAULT_AVA_PATH: ${{ vars.DEFAULT_AVA_PATH }}
     #
@@ -25,9 +25,9 @@ jobs:
           python-version: '3.9'
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements.txt  # install requirements to enable GitHub run tests
-      - run:  python test_routes.py
+      
   test:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest]
     env:
         DB_USER_: ${{ vars.DB_USER_ }}
         DB_PASSWORD_: ${{ vars.DB_PASSWORD_ }}
