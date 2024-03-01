@@ -4,7 +4,7 @@ from app import app
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from token_generator import newAdminToken
+from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
 
 def insert_unittest_user():
@@ -184,9 +184,9 @@ def test_auth_admin_login_password_wrong():
 def test_auth_admin_relogin_token_valid():
     """Testing relogin with valid token"""
     client = app.test_client()
-    url = '/admin/auth/relogin'
+    url = '/auth/relogin'
 
-    token = newAdminToken()
+    token = newUserToken()
     insert_unittest_user()
     device_id = newVirtualDeviceID()
     insert_unittest_device(device_id)
@@ -203,19 +203,20 @@ def test_auth_admin_relogin_token_valid():
     assert response.get_json()['relogin_status'] == True
     assert response.get_json()['message'] == "Token is valid, relogin successfully"
     assert response.get_json()['data']['username'] == "unittest"
+    assert response.get_json()['data']['role'] == "admin"
 
 def test_auth_admin_relogin_token_invalid():
     """Testing relogin with invalid token"""
     client = app.test_client()
-    url = '/admin/auth/relogin'
+    url = '/auth/relogin'
 
-    token = newAdminToken()
+    token = newUserToken()
     insert_unittest_user()
     device_id = newVirtualDeviceID()
     insert_unittest_device(device_id)
     insert_unittest_token(token, device_id)
     header = {
-        "token": newAdminToken()
+        "token": newUserToken()
     }
     response = client.get(url, headers=header)
 
@@ -235,7 +236,7 @@ def test_auth_admin_logout():
     device_id = newVirtualDeviceID()
     insert_unittest_device(device_id)
     insert_unittest_user()
-    token = newAdminToken()
+    token = newUserToken()
     insert_unittest_token(token, device_id)
 
     header = {

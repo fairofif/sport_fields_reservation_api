@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 29/02/2024 02:05:04",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 02/03/2024 02:21:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
@@ -29,6 +29,10 @@
     {
       "name": "admin",
       "description": "Everything about your Admin AUTH API"
+    },
+    {
+      "name": "relogintoken",
+      "description": "relogin token for admin and player"
     },
     {
       "name": "sportKind",
@@ -182,45 +186,6 @@
         }
       }
     },
-    "/player/auth/relogin": {
-      "get": {
-        "tags": [
-          "player"
-        ],
-        "summary": "Relogin when opening app again for user Player",
-        "description": "Relogin user Player",
-        "operationId": "reloginPlayer",
-        "parameters": [
-          {
-            "name": "token",
-            "in": "header",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PlayerReloginResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "invalid input"
-          },
-          "404": {
-            "description": "not found"
-          }
-        }
-      }
-    },
     "/player/auth/logout": {
       "delete": {
         "tags": [
@@ -336,14 +301,14 @@
         }
       }
     },
-    "/admin/auth/relogin": {
+    "/auth/relogin": {
       "get": {
         "tags": [
-          "admin"
+          "relogintoken"
         ],
-        "summary": "Relogin when opening app again for user Admin",
-        "description": "Relogin user Admin",
-        "operationId": "reloginAdmin",
+        "summary": "Relogin when opening app again for user Admin and Player",
+        "description": "Relogin user Admin and Player",
+        "operationId": "relogin",
         "parameters": [
           {
             "name": "token",
@@ -361,7 +326,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AdminReloginResponse"
+                  "$ref": "#/components/schemas/ReloginResponse"
                 }
               }
             }
@@ -691,7 +656,8 @@
         "required": [
           "username",
           "password",
-          "name"
+          "name",
+          "phone"
         ],
         "type": "object",
         "properties": {
@@ -706,6 +672,10 @@
           "name": {
             "type": "string",
             "example": "Dev Example"
+          },
+          "phone": {
+            "type": "string",
+            "example": "08123456789"
           }
         },
         "xml": {
@@ -771,6 +741,9 @@
               },
               "name": {
                 "type": "string"
+              },
+              "phone": {
+                "type": "string"
               }
             }
           }
@@ -779,7 +752,7 @@
           "name": "PlayerLoginResponse"
         }
       },
-      "PlayerReloginResponse": {
+      "ReloginResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -799,12 +772,18 @@
               },
               "name": {
                 "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
               }
             }
           }
         },
         "xml": {
-          "name": "PlayerReloginResponse"
+          "name": "ReloginResponse"
         }
       },
       "PlayerLogoutResponse": {
@@ -919,37 +898,6 @@
         },
         "xml": {
           "name": "AdminLoginResponse"
-        }
-      },
-      "AdminReloginResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "relogin_status": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "ava_url": {
-                "type": "string"
-              },
-              "username": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "phone": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "xml": {
-          "name": "AdminReloginResponse"
         }
       },
       "AdminLogoutResponse": {
@@ -1363,7 +1311,7 @@
           }
         },
         "xml": {
-          "name": "AdminReloginResponse"
+          "name": "SportKindResponse"
         }
       }
     }

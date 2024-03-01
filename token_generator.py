@@ -33,14 +33,18 @@ def getAdminTokenList():
     conn.close()
     return read_row
 
-def newPlayerToken():
-    """generate new player token that doesn't exist in DB"""
-    listToken = getPlayerTokenList()
+def newUserToken():
+    """generate new token unique both from admin and player"""
+    list_token_admin = getAdminTokenList()
+    list_token_player = getPlayerTokenList()
+    list_all_token = list_token_admin + list_token_player
+
     new_token = generateToken()
+
     i = 0
     found = False
-    while found == False and i < len(listToken):
-        if new_token == listToken[i]['token']:
+    while found == False and i < len(list_all_token):
+        if new_token == list_all_token[i]['token']:
             found = True
         i += 1
 
@@ -48,21 +52,5 @@ def newPlayerToken():
     if found == False:
         return new_token
     else:
-        return newPlayerToken()
+        return newUserToken()
 
-def newAdminToken():
-    """generate new admin token that doesn't exist in DB"""
-    listToken = getAdminTokenList()
-    new_token = generateToken()
-    i = 0
-    found = False
-    while found == False and i < len(listToken):
-        if new_token == listToken[i]['token']:
-            found = True
-        i += 1
-
-    ## recursion
-    if found == False:
-        return new_token
-    else:
-        return newAdminToken()

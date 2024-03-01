@@ -4,7 +4,7 @@ from app import app
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from token_generator import newPlayerToken
+from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
 
 # ============================= Local Function ==============================
@@ -12,7 +12,7 @@ from virtual_device_id_generator import newVirtualDeviceID
 def insert_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
 
-    query = 'INSERT INTO Player VALUES("unittest", "unittest", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())'
+    query = 'INSERT INTO Player VALUES("unittest", "unittest", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), "08123456789")'
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -75,7 +75,8 @@ def test_auth_player_register():
     mock_request_body = {
         "username": "unittest",
         "password": "unittest",
-        "name": "Unit Test"
+        "name": "Unit Test",
+        "phone": "08123456789"
     }
 
     response = client.post(url, json=mock_request_body)
@@ -101,7 +102,8 @@ def test_auth_player_register_failed():
     mock_request_body = {
         "username": "unittest",
         "password": "unittest",
-        "name": "Unit Test"
+        "name": "Unit Test",
+        "phone": "08123456789"
     }
 
     response = client.post(url, json=mock_request_body)
@@ -184,9 +186,9 @@ def test_auth_player_login_password_wrong():
 def test_auth_player_relogin_token_valid():
     """Testing relogin with valid token"""
     client = app.test_client()
-    url = '/player/auth/relogin'
+    url = '/auth/relogin'
 
-    token = newPlayerToken()
+    token = newUserToken()
     insert_unittest_user()
     device_id = newVirtualDeviceID()
     insert_unittest_device(device_id)
@@ -203,19 +205,20 @@ def test_auth_player_relogin_token_valid():
     assert response.get_json()['relogin_status'] == True
     assert response.get_json()['message'] == "Token is valid, relogin successfully"
     assert response.get_json()['data']['username'] == "unittest"
+    assert response.get_json()['data']['role'] == "player"
 
 def test_auth_player_relogin_token_invalid():
     """Testing relogin with invalid token"""
     client = app.test_client()
-    url = '/player/auth/relogin'
+    url = '/auth/relogin'
 
-    token = newPlayerToken()
+    token = newUserToken()
     insert_unittest_user()
     device_id = newVirtualDeviceID()
     insert_unittest_device(device_id)
     insert_unittest_token(token, device_id)
     header = {
-        "token": newPlayerToken()
+        "token": newUserToken()
     }
     response = client.get(url, headers=header)
 
@@ -235,7 +238,7 @@ def test_auth_player_logout():
     device_id = newVirtualDeviceID()
     insert_unittest_device(device_id)
     insert_unittest_user()
-    token = newPlayerToken()
+    token = newUserToken()
     insert_unittest_token(token, device_id)
 
     header = {

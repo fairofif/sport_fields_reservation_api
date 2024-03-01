@@ -4,7 +4,7 @@ from app import app
 from dotenv import load_dotenv
 load_dotenv()
 import os
-from token_generator import newAdminToken
+from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
 from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID
 
@@ -136,7 +136,7 @@ def test_get_all_sport_kind():
 
 def test_get_sport_venue_success():
     device = newVirtualDeviceID()
-    token = newAdminToken()
+    token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
     sport_venue = newSportFieldUUID()
 
@@ -165,7 +165,7 @@ def test_get_sport_venue_success():
 
 def test_get_sport_venue_failed():
     device = newVirtualDeviceID()
-    token = newAdminToken()
+    token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
     sport_venue = newSportFieldUUID()
 
@@ -193,7 +193,7 @@ def test_get_sport_venue_failed():
 
 def test_register_sport_venue():
     device = newVirtualDeviceID()
-    token = newAdminToken()
+    token = newUserToken()
     Sport_Kind_id = insert_unittest_sport_kind()
 
     insert_unittest_user()
@@ -233,7 +233,7 @@ def test_register_sport_venue():
 
 def test_edit_sport_venue():
     device = newVirtualDeviceID()
-    token = newAdminToken()
+    token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
     sport_venue = newSportFieldUUID()
 
@@ -276,7 +276,7 @@ def test_edit_sport_venue():
 
 def test_add_fields_to_venue_success():
     device = newVirtualDeviceID()
-    token = newAdminToken()
+    token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
     sport_venue = newSportFieldUUID()
 
@@ -309,7 +309,7 @@ def test_add_fields_to_venue_success():
 
 def test_add_fields_to_venue_failed():
     device = newVirtualDeviceID()
-    token = newAdminToken()
+    token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
     sport_venue = newSportFieldUUID()
 

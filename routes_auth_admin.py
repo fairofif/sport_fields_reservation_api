@@ -4,7 +4,7 @@ from flask import (
     request
 )
 from db_config import mysql
-from token_generator import newAdminToken
+from token_generator import newUserToken
 from dotenv import load_dotenv
 load_dotenv()
 import os
@@ -87,7 +87,7 @@ def admin_auth_configure_routes(app):
                 conn.close()
             else:
                 ## login valid
-                token = newAdminToken()
+                token = newUserToken()
 
                 ## delete existing token within device ID
                 query = "DELETE FROM Admin_Login_Token WHERE Virtual_Device_ID_id='"+virtual_device_id+"'"
@@ -116,47 +116,6 @@ def admin_auth_configure_routes(app):
                         "phone": read_row['phone']
                     }
                 }
-        return jsonify(response)
-
-    @app.route('/admin/auth/relogin', methods=['GET'])
-    def admin_relogin():
-        header = request.headers
-        token = header['token']
-        query = "SELECT token FROM Admin_Login_Token WHERE token = '"+token+"'"
-        conn = mysql.connect()
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute(query)
-        if cursor.rowcount == 0:
-            response = {
-                "relogin_status": False,
-                "message": "Token is already expired",
-                "data": {
-                    "username": None,
-                    "name": None,
-                    "ava_url": None,
-                    "phone": None
-                }
-            }
-        else:
-            query = ("SELECT Admin.username, Admin.name, Admin.ava_url, Admin.phone, Admin_Login_Token.token FROM Admin"
-                     + " INNER JOIN Admin_Login_Token ON"
-                     + " (Admin_Login_Token.Admin_username = Admin.username)"
-                     + " WHERE Admin_Login_Token.token = '"+token+"'")
-            cursor.execute(query)
-            read_row = cursor.fetchone()
-            response = {
-                "relogin_status": True,
-                "message": "Token is valid, relogin successfully",
-                "data": {
-                    "username": read_row['username'],
-                    "name": read_row['name'],
-                    "ava_url": read_row['ava_url'],
-                    "phone": read_row['phone']
-                }
-            }
-        cursor.close()
-        conn.close()
-
         return jsonify(response)
 
     @app.route('/admin/auth/logout', methods=['DELETE'])
