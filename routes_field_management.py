@@ -77,7 +77,7 @@ def field_management_configure_routes(app):
     def get_sport_venue():
         header = request.headers
         token = header['token']
-        venue_id = header['Sport_Venue_id']
+        venue_id = header['Sport-Venue-id']
 
         if checkAdminToken(token):
             if isSportVenueExist(venue_id):
@@ -119,45 +119,13 @@ def field_management_configure_routes(app):
                 response = {
                     "get_status": False,
                     "message": "Venue id "+venue_id+" is not registered yet",
-                    "data": {
-                        "id": None,
-                        "Sport_Kind_id": None,
-                        "Sport_Kind_Name": None,
-                        "name": None,
-                        "created_at": None,
-                        "last_edited": None,
-                        "geo_coordinate": None,
-                        "is_bike_parking": None,
-                        "is_car_parking": None,
-                        "is_public": None,
-                        "description": None,
-                        "rules": None,
-                        "time_open": None,
-                        "time_closed": None,
-                        "price_per_hour": None
-                    }
+                    "data": None
                 }
         else:
             response = {
                 "get_status": False,
                 "message": "Token is expired",
-                "data": {
-                    "id": None,
-                    "Sport_Kind_id": None,
-                    "Sport_Kind_Name": None,
-                    "name": None,
-                    "created_at": None,
-                    "last_edited": None,
-                    "geo_coordinate": None,
-                    "is_bike_parking": None,
-                    "is_car_parking": None,
-                    "is_public": None,
-                    "description": None,
-                    "rules": None,
-                    "time_open": None,
-                    "time_closed": None,
-                    "price_per_hour": None
-                }
+                "data": None
             }
 
         return jsonify(response)
@@ -233,23 +201,7 @@ def field_management_configure_routes(app):
             response = {
                 "status_register": False,
                 "message": "Token is expired",
-                "data": {
-                    "id": None,
-                    "Sport_Kind_id": None,
-                    "Sport_Kind_Name": None,
-                    "name": None,
-                    "created_at": None,
-                    "last_edited": None,
-                    "geo_coordinate": None,
-                    "is_bike_parking": None,
-                    "is_car_parking": None,
-                    "is_public": None,
-                    "description": None,
-                    "rules": None,
-                    "time_open": None,
-                    "time_closed": None,
-                    "price_per_hour": None
-                }
+                "data": None
             }
 
         return jsonify(response)
@@ -281,7 +233,6 @@ def field_management_configure_routes(app):
                 elif data[columns[i]] != None and type(data[columns[i]]) == bool:
                     query = query + columns[i] + " = '" + str(int(data[columns[i]])) + "', "
 
-                print(query)
             query = query + "last_edited = CURRENT_TIMESTAMP() "
             query = query + "WHERE id = '" + data['id'] + "'"
 
@@ -409,5 +360,77 @@ def field_management_configure_routes(app):
             }
         cursor.close()
         conn.close()
+
+        return jsonify(response)
+
+    @app.route('/admin/sportVenue/fields/delete', methods=['DELETE'])
+    def delete_field_from_venue():
+        token = request.headers['token']
+        data = request.json
+        field_id = data['field_id']
+        venue_id = data['Sport_Venue_id']
+
+        if checkAdminToken(token):
+            query = "DELETE FROM Fields WHERE id = '"+field_id+"'"
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query)
+            conn.commit()
+
+            query = "SELECT id, Sport_Field_id, number FROM Fields WHERE Sport_Field_id = '"+venue_id+"'"
+            cursor.execute(query)
+            read_row = cursor.fetchall()
+
+            response = {
+                "delete_status": True,
+                "message": "Field with id "+field_id+" has been removed successfully",
+                "data": read_row
+            }
+
+            cursor.close()
+            conn.close()
+
+        else:
+            response = {
+                "delete_status": False,
+                "message": "Token is expired",
+                "data": None
+            }
+
+        return jsonify(response)
+
+    @app.route('/admin/sportVenue/fields', methods=['GET'])
+    def get_fields_from_venue():
+        header = request.headers
+        token = header['token']
+        venue_id = header['Sport-Venue-id']
+
+        if checkAdminToken(token):
+            if isSportVenueExist(venue_id):
+                query = "SELECT id, Sport_Field_id, number FROM Fields WHERE Sport_Field_id = '"+venue_id+"'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                read_row = cursor.fetchall()
+
+                response = {
+                    "get_status": True,
+                    "message": "Retrieve data fields from venue "+venue_id+" successfully",
+                    "data": read_row
+                }
+                cursor.close()
+                conn.close()
+            else:
+                response = {
+                    "get_status": False,
+                    "message": "There is no Venue with id "+ venue_id,
+                    "data": None
+                }
+        else:
+            response = {
+                "get_status": False,
+                "message": "Token is expired",
+                "data": None
+            }
 
         return jsonify(response)

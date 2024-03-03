@@ -123,6 +123,7 @@ def delete_unittest_field_from_venue(field_id):
 ### =========================== UNIT TEST =========================== ###
 
 def test_get_all_sport_kind():
+    """Test to get all of sport kind"""
     Sport_Kind_id = insert_unittest_sport_kind()
 
     client = app.test_client()
@@ -135,6 +136,7 @@ def test_get_all_sport_kind():
     assert response.status_code == 200
 
 def test_get_sport_venue_success():
+    """Test to get managed venue information by admin with valid request"""
     device = newVirtualDeviceID()
     token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
@@ -150,7 +152,7 @@ def test_get_sport_venue_success():
 
     header = {
         "token": token,
-        "Sport_Venue_id": sport_venue
+        "Sport-Venue-id": sport_venue
     }
 
     response = client.get(url, headers=header)
@@ -164,6 +166,7 @@ def test_get_sport_venue_success():
     assert response.get_json()['get_status'] == True
 
 def test_get_sport_venue_failed():
+    """test to get managed venue information by admin but with failed request"""
     device = newVirtualDeviceID()
     token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
@@ -178,7 +181,7 @@ def test_get_sport_venue_failed():
 
     header = {
         "token": token,
-        "Sport_Venue_id": sport_venue
+        "Sport-Venue-id": sport_venue
     }
 
     response = client.get(url, headers=header)
@@ -192,6 +195,7 @@ def test_get_sport_venue_failed():
 
 
 def test_register_sport_venue():
+    """Test to register managed venue by admin"""
     device = newVirtualDeviceID()
     token = newUserToken()
     Sport_Kind_id = insert_unittest_sport_kind()
@@ -232,6 +236,7 @@ def test_register_sport_venue():
     assert response.get_json()['status_register'] == True
 
 def test_edit_sport_venue():
+    """Test to edit managed sport venue by admin"""
     device = newVirtualDeviceID()
     token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
@@ -275,6 +280,7 @@ def test_edit_sport_venue():
     assert response.get_json()['update_status'] == True
 
 def test_add_fields_to_venue_success():
+    """Test add fields to some venue that managed by admin and success response"""
     device = newVirtualDeviceID()
     token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
@@ -308,6 +314,7 @@ def test_add_fields_to_venue_success():
     assert response.get_json()['add_status'] == True
 
 def test_add_fields_to_venue_failed():
+    """Test add fields to some venue that managed by admin but failed"""
     device = newVirtualDeviceID()
     token = newUserToken()
     sport_kind = insert_unittest_sport_kind()
@@ -342,3 +349,106 @@ def test_add_fields_to_venue_failed():
 
     assert response.status_code == 200
     assert response.get_json()['add_status'] == False
+
+def test_get_fields_from_venue_success():
+    """Test getting field list from managed venue by admin with valid request"""
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    header = {
+        "token": token,
+        "Sport-Venue-id": sport_venue
+    }
+
+    client = app.test_client()
+    url = '/admin/sportVenue/fields'
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+
+def test_get_fields_from_venue_failed():
+    """Test getting field list from managed venue by admin with invalid request"""
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    header = {
+        "token": token,
+        "Sport-Venue-id": newSportFieldUUID()
+    }
+
+    client = app.test_client()
+    url = '/admin/sportVenue/fields'
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == False
+
+def test_delete_field_from_venue_success():
+    """Test deleting a field from managed venue by admin with valid request"""
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    header = {
+        "token": token
+    }
+
+    body = {
+        "field_id": field_id,
+        "Sport_Venue_id": sport_venue
+    }
+
+    client = app.test_client()
+    url = '/admin/sportVenue/fields/delete'
+
+    response = client.delete(url, headers=header, json=body)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['delete_status'] == True

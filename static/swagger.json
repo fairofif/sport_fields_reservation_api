@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 02/03/2024 02:21:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 03/03/2024 21:15:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.0.11"
+    "version": "1.2.6"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -447,7 +447,7 @@
             }
           },
           {
-            "name": "Sport_Venue_id",
+            "name": "Sport-Venue-id",
             "in": "header",
             "required": true,
             "description": "",
@@ -496,7 +496,7 @@
           }
         ],
         "requestBody": {
-          "description": "Field yang ga mau diedit dikasih nilai null aja",
+          "description": "id = Venue id yang mau diedit, sisanya adalah field editable, Field yang ga mau diedit dikasih nilai null aja (kecuali id)",
           "content": {
             "application/json": {
               "schema": {
@@ -512,6 +512,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminEditVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/sportVenue/fields": {
+      "get": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Get List field from managed sport venue by admin (1 admin 1 venue)",
+        "description": "Get List field from managed sport venue by admin (1 admin 1 venue)",
+        "operationId": "getFieldFromSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Sport-Venue-id",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetFieldFromVenueResponse"
                 }
               }
             }
@@ -561,6 +609,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminAddFieldToVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/sportVenue/fields/delete": {
+      "delete": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Delete a field from managed sport venue by admin (1 admin 1 venue)",
+        "description": "Delete a field from managed sport venue by admin (1 admin 1 venue)",
+        "operationId": "deleteFieldFromSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDeleteFieldFromVenueBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeleteFieldFromVenueResponse"
                 }
               }
             }
@@ -935,7 +1032,7 @@
             "type": "string",
             "example": "devexample"
           },
-          "sport_kind_uuid": {
+          "Sport_Kind_id": {
             "type": "string",
             "example": "c234176a-d3e0-11ee-921f-02284a7d1cf2"
           },
@@ -1048,6 +1145,37 @@
           "name": "AdminRegisterVenueResponse"
         }
       },
+      "AdminGetFieldFromVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Sport_Field_id": {
+                  "type":"string"
+                },
+                "number": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetFieldFromVenueResponse"
+        }
+      },
       "AdminAddFieldToVenueBody": {
         "required": [
           "Sport_Venue_id",
@@ -1096,7 +1224,58 @@
           }
         },
         "xml": {
-          "name": "AdminGetVenueResponse"
+          "name": "AdminAddFieldToVenueResponse"
+        }
+      },
+      "AdminDeleteFieldFromVenueBody": {
+        "required": [
+          "Sport_Venue_id",
+          "field_id"
+        ],
+        "type": "object",
+        "properties": {
+          "Sport_Venue_id": {
+            "type": "string",
+            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+          },
+          "field_id": {
+            "type": "string",
+            "example": "h22aa20b-d982-4b53-b56d-7307a4410339"
+          }
+        },
+        "xml": {
+          "name": "AdminDeleteFieldFromVenueBody"
+        }
+      },
+      "AdminDeleteFieldFromVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "delete_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Sport_Field_id": {
+                  "type":"string"
+                },
+                "number": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminDeleteFieldFromVenueResponse"
         }
       },
       "AdminGetVenueResponse": {
