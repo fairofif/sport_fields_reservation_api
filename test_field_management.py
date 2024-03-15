@@ -7,6 +7,7 @@ import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
 from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID
+import pytest
 
 def insert_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
@@ -452,3 +453,44 @@ def test_delete_field_from_venue_success():
 
     assert response.status_code == 200
     assert response.get_json()['delete_status'] == True
+
+def test_add_blacklist_schedule_from_a_field_success():
+    """Test adding a blacklist schedule from a fields with valid request"""
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    header = {
+        "token": token
+    }
+
+    body = {
+        "Field_id": field_id,
+        "date": "2024-05-20",
+        "fromTime": "08:00:00",
+        "toTime": "10:59:59",
+        "reason": "Cuti Perayaan",
+        "is_every_week": False
+    }
+
+    client = app.test_client()
+    url = '/admin/sportVenue/fields/schedule/blacklist'
+
+    response = client.post(url, headers=header, json=body)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['blacklist_status'] == True

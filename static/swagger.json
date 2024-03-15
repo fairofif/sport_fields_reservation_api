@@ -671,6 +671,55 @@
         }
       }
     },
+    "/admin/sportVenue/fields/schedule/blacklist": {
+      "post": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Blacklist a field date and time from managed Venue",
+        "description": "Blacklist a field date and time from managed Venue",
+        "operationId": "addBlacklistSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminAddBlacklistScheduleBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAddBlacklistScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -1463,6 +1512,60 @@
         },
         "xml": {
           "name": "AdminEditVenueResponse"
+        }
+      },
+      "AdminAddBlacklistScheduleBody": {
+        "required": [
+          "Field_id",
+          "date",
+          "fromTime",
+          "toTime",
+          "is_every_week",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "Field_id": {
+            "type": "string",
+            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+          },
+          "date": {
+            "type": "string",
+            "example": "2024-03-29"
+          },
+          "fromTime": {
+            "type": "string",
+            "example": "08:00:00"
+          },
+          "toTime": {
+            "type": "string",
+            "example": "13:00:00"
+          },
+          "is_every_week": {
+            "type": "boolean",
+            "example": true
+          },
+          "reason": {
+            "type": "string",
+            "example": "Jadwal Sholat Jumat"
+          }
+        },
+        "xml": {
+          "name": "AdminAddBlacklistScheduleBody"
+        }
+      },
+      "AdminAddBlacklistScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "blacklist_status": {
+            "type": "boolean"
+          }
+        },
+        "xml": {
+          "name": "AdminAddBlacklistScheduleResponse"
         }
       },
       "SportKindResponse": {

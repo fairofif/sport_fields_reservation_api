@@ -5,7 +5,8 @@ from flask import (
 )
 from db_config import mysql
 from dotenv import load_dotenv
-from uuid_generator import newSportFieldUUID, newFieldUUID
+from uuid_generator import newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
+from datetime import datetime
 load_dotenv()
 
 def field_management_configure_routes(app):
@@ -53,6 +54,11 @@ def field_management_configure_routes(app):
             cursor.close()
             conn.close()
             return True
+
+    def get_day_of_week(date_string):
+        date_object = datetime.strptime(date_string, "%Y-%m-%d")
+        day_of_week = date_object.strftime("%A")
+        return day_of_week
 
     ### ================ ROUTES ==================== ###
 
@@ -431,6 +437,45 @@ def field_management_configure_routes(app):
                 "get_status": False,
                 "message": "Token is expired",
                 "data": None
+            }
+
+        return jsonify(response)
+
+    @app.route('/admin/sportVenue/fields/schedule/blacklist', methods=['POST'])
+    def add_blacklist_schedule():
+        header = request.headers
+        token = header['token']
+        data = request.json
+        field_id = data['Field_id']
+        date = data['date']
+        from_time = data['fromTime']
+        to_time = data['toTime']
+        is_every_week = data['is_every_week']
+        reason = data['reason']
+
+        if checkAdminToken(token):
+            query = f"INSERT INTO Blacklist_Schedule Values('{newBlacklistScheduleUUID()}', '{field_id}', '{date}', '{from_time}', '{to_time}', '{int(is_every_week)}', '{reason}', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query)
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            if is_every_week == False:
+                response = {
+                    "blacklist_status": True,
+                    "message": f"Schedule on {date} is already in blacklist schedule"
+                }
+            else:
+                response = {
+                    "blacklist_status": True,
+                    "message": f"Every {get_day_of_week(date)} from {from_time} to {to_time} is in blacklist schedule"
+                }
+        else:
+            response = {
+                "blacklist_status": False,
+                "message": "Token is expired"
             }
 
         return jsonify(response)
