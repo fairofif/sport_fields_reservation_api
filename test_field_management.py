@@ -6,7 +6,7 @@ load_dotenv()
 import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
 import pytest
 
 def insert_unittest_user():
@@ -114,6 +114,33 @@ def insert_unittest_field_to_venue(field_id, venue_id, number):
 
 def delete_unittest_field_from_venue(field_id):
     query = "DELETE FROM Fields WHERE id = '"+field_id+"'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_unittest_blacklist_one_time_only(blacklist_id, field_id):
+    query = f"INSERT INTO Blacklist_Schedule VALUES ('{blacklist_id}', '{field_id}', '2024-07-20', '08:00:00', '11:00:00', 0, 'Cuti Khusus', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP)"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_unittest_blacklist_every_week(blacklist_id, field_id):
+    query = f"INSERT INTO Blacklist_Schedule VALUES ('{blacklist_id}', '{field_id}', '2024-07-20', '08:00:00', '11:00:00', 1, 'Cuti Khusus', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP)"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_unittest_delete_blacklist(blacklist_id):
+    query = f"DELETE FROM Blacklist_Schedule WHERE id = '{blacklist_id}'"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -494,3 +521,116 @@ def test_add_blacklist_schedule_from_a_field_success():
 
     assert response.status_code == 200
     assert response.get_json()['blacklist_status'] == True
+
+@pytest.mark.specify
+def test_get_blacklist_schedule_one_time_only():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    blacklist_id = newBlacklistScheduleUUID()
+    insert_unittest_blacklist_one_time_only(blacklist_id, field_id)
+
+    header = {
+        "token": token,
+        "field_id": field_id,
+        "month": 7,
+        "year": 2024
+    }
+
+    url = 'admin/sportVenue/fields/schedule/blacklist'
+    client = app.test_client()
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['data'] != None
+
+@pytest.mark.specify
+def test_get_blacklist_schedule_every_week():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    blacklist_id = newBlacklistScheduleUUID()
+    insert_unittest_blacklist_every_week(blacklist_id, field_id)
+
+    header = {
+        "token": token,
+        "field_id": field_id,
+        "month": 9,
+        "year": 2024
+    }
+
+    url = 'admin/sportVenue/fields/schedule/blacklist'
+    client = app.test_client()
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['data'] != None
+    assert len(response.get_json()['data']) > 1
+
+@pytest.mark.specify
+def test_get_blacklist_schedule_every_week_failed():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    blacklist_id = newBlacklistScheduleUUID()
+    insert_unittest_blacklist_every_week(blacklist_id, field_id)
+
+    header = {
+        "token": token,
+        "field_id": field_id,
+        "month": 5,
+        "year": 2019
+    }
+
+    url = 'admin/sportVenue/fields/schedule/blacklist'
+    client = app.test_client()
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert len(response.get_json()['data']) == 0

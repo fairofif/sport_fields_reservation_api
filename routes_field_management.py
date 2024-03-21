@@ -6,7 +6,8 @@ from flask import (
 from db_config import mysql
 from dotenv import load_dotenv
 from uuid_generator import newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
-from datetime import datetime
+import datetime
+import calendar
 load_dotenv()
 
 def field_management_configure_routes(app):
@@ -56,10 +57,23 @@ def field_management_configure_routes(app):
             return True
 
     def get_day_of_week(date_string):
-        date_object = datetime.strptime(date_string, "%Y-%m-%d")
+        date_object = datetime.datetime.strptime(date_string, "%Y-%m-%d")
         day_of_week = date_object.strftime("%A")
         return day_of_week
 
+    def isThereAnyBlacklistSchedule(field_id):
+        query = f"SELECT * FROM Blacklist_Schedule WHERE Field_id = '{field_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return False
+        else:
+            cursor.close()
+            conn.close()
+            return True
     ### ================ ROUTES ==================== ###
 
     @app.route('/sport_kinds', methods=['GET'])
@@ -478,4 +492,84 @@ def field_management_configure_routes(app):
                 "message": "Token is expired"
             }
 
+        return jsonify(response)
+
+    @app.route('/admin/sportVenue/fields/schedule/blacklist', methods=['GET'])
+    def get_blacklist_schedule_from_month_and_year():
+        header = request.headers
+        token = header['token']
+        field_id = header['field_id']
+        month = int(header['month'])
+        year = int(header['year'])
+
+        if checkAdminToken(token):
+            if isThereAnyBlacklistSchedule(field_id):
+                data = []
+                query = f"SELECT id blacklist_id, date, fromTime, toTime, reason FROM Blacklist_Schedule WHERE Field_id = '{field_id}' AND MONTH(date) = {month} AND YEAR(date) = {year} AND is_every_week = 0"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                query_resp = cursor.fetchall()
+                for i in range(cursor.rowcount):
+                    item = {
+                        "blacklist_id": query_resp[i]['blacklist_id'],
+                        "date": str(query_resp[i]['date']),
+                        "fromTime": str(query_resp[i]['fromTime']),
+                        "toTime": str(query_resp[i]['toTime']),
+                        "reason": query_resp[i]['reason']
+                    }
+                    data = data + [item]
+                cursor.close()
+                conn.close()
+
+                query = f"SELECT id blacklist_id, date, fromTime, toTime, reason FROM Blacklist_Schedule WHERE Field_id = '{field_id}' AND is_every_week = 1"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                if cursor.rowcount != 0:
+                    query_resp = cursor.fetchall()
+                    for i in range(cursor.rowcount):
+                        format_date = datetime.datetime.strptime(str(query_resp[i]['date']), "%Y-%m-%d")
+                        day_date = format_date.strftime("%A")
+                        if format_date.month == month and format_date.year == year:
+                            num_days = calendar.monthrange(year, month)[1]
+                            date_in_a_month = [datetime.date(year, month, day) for day in range(1, num_days+1)]
+                            for j in range(len(date_in_a_month)):
+                                print(i, j)
+                                if date_in_a_month[j].day >= format_date.day and date_in_a_month[j].strftime("%A") == day_date:
+                                    item = {
+                                        "blacklist_id": str(query_resp[i]['blacklist_id']),
+                                        "date": str(date_in_a_month[j].strftime('%Y-%m-%d')),
+                                        "fromTime": str(query_resp[i]['fromTime']),
+                                        "toTime": str(query_resp[i]['toTime']),
+                                        "reason": str(query_resp[i]['reason'])
+                                        }
+                                    print(1, item)
+                                    data = data + [item]
+                        elif (format_date.month < month and format_date.year <= year) or (format_date.month >= month and format_date.year < year):
+                            num_days = calendar.monthrange(year, month)[1]
+                            date_in_a_month = [datetime.date(year, month, day) for day in range(1, num_days+1)]
+                            for j in range(len(date_in_a_month)):
+                                if date_in_a_month[j].strftime("%A") == day_date:
+                                    item = {
+                                        "blacklist_id": str(query_resp[i]['blacklist_id']),
+                                        "date": str(date_in_a_month[j].strftime('%Y-%m-%d')),
+                                        "fromTime": str(query_resp[i]['fromTime']),
+                                        "toTime": str(query_resp[i]['toTime']),
+                                        "reason": str(query_resp[i]['reason'])
+                                        }
+                                    data = data + [item]
+                response = {
+                    "get_status": True,
+                    "message": "get blacklist schedule on this field is successfully",
+                    "data": data
+                }
+                cursor.close()
+                conn.close()
+        else:
+            response = {
+                "get_status": False,
+                "message": "token is expired",
+                "data": None
+            }
         return jsonify(response)

@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/03/2024 02:54:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/03/2024 22:50:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.2.6"
+    "version": "1.2.8"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -707,6 +707,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminAddBlacklistScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Get Blacklisted schedule in a month (with parameter year and month)",
+        "description": "Get Blacklisted schedule in a month (with parameter year and month)",
+        "operationId": "getBlacklistSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Field_id",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "year",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetBlacklistScheduleResponse"
                 }
               }
             }
@@ -1566,6 +1630,43 @@
         },
         "xml": {
           "name": "AdminAddBlacklistScheduleResponse"
+        }
+      },
+      "AdminGetBlacklistScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "blacklist_id": {
+                  "type":"string"
+                },
+                "date": {
+                  "type":"string"
+                },
+                "fromTime": {
+                  "type": "string"
+                },
+                "toTime": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetBlacklistScheduleResponse"
         }
       },
       "SportKindResponse": {
