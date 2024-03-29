@@ -1735,12 +1735,14 @@
             "type": "boolean"
           },
           "data": {
-            "type": "array",
-            "deleted_blacklist": {
-              "type":"object",
-              "properties": {
-                "blacklist_id": {
-                  "type":"string"
+            "type": "object",
+            "properties": {
+              "deleted_blacklist": {
+                "type":"object",
+                "properties": {
+                  "blacklist_id": {
+                    "type":"string"
+                  }
                 }
               }
             }

@@ -616,7 +616,11 @@ def field_management_configure_routes(app):
             response = {
                 "delete_status": True,
                 "message": f"Blacklist with id = {blacklist_id} deleted successfully",
-                "data": None
+                "data": {
+                    "deleted_blacklist": {
+                        "blacklist_id": blacklist_id
+                    }
+                }
             }
         else:
             response = {
