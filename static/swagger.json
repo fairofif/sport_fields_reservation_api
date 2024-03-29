@@ -2,17 +2,20 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/03/2024 22:50:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 29/03/2024 12:28:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.2.8"
+    "version": "1.2.9"
   },
   "externalDocs": {
     "description": "Github repository of this project",
     "url": "https://github.com/fairofif/sport_fields_reservation_api"
   },
   "servers": [
+    {
+      "url": "http://rofif.my.id/"
+    },
     {
       "url": "http://localhost:5000/"
     }
@@ -445,15 +448,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "Sport-Venue-id",
-            "in": "header",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -771,6 +765,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminGetBlacklistScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Delete Blacklist Schedule with blacklist_id",
+        "description": "Delete Blacklist Schedule with blacklist_id",
+        "operationId": "deleteBlacklistSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDeleteBlacklistScheduleBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeleteBlacklistScheduleResponse"
                 }
               }
             }
@@ -1660,6 +1701,46 @@
                 },
                 "reason": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetBlacklistScheduleResponse"
+        }
+      },
+      "AdminDeleteBlacklistScheduleBody": {
+        "required": [
+          "blacklist_id"
+        ],
+        "type": "object",
+        "properties": {
+          "blacklist_id": {
+            "type": "string",
+            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+          }
+        },
+        "xml": {
+          "name": "AdminDeleteBlacklistScheduleBody"
+        }
+      },
+      "AdminDeleteBlacklistScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "delete_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "deleted_blacklist": {
+              "type":"object",
+              "properties": {
+                "blacklist_id": {
+                  "type":"string"
                 }
               }
             }

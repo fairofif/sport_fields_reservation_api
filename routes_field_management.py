@@ -74,6 +74,30 @@ def field_management_configure_routes(app):
             cursor.close()
             conn.close()
             return True
+
+    def findUsernameFromToken(token):
+        query = f"SELECT Admin_username FROM Admin_Login_Token WHERE token = '{token}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        data = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return data['Admin_username']
+
+    def adminHasVenue(username):
+        query = "SELECT * FROM Sport_Field WHERE Admin_username = '"+username+"'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return False
+        else:
+            cursor.close()
+            conn.close()
+            return True
     ### ================ ROUTES ==================== ###
 
     @app.route('/sport_kinds', methods=['GET'])
@@ -97,16 +121,16 @@ def field_management_configure_routes(app):
     def get_sport_venue():
         header = request.headers
         token = header['token']
-        venue_id = header['Sport-Venue-id']
 
         if checkAdminToken(token):
-            if isSportVenueExist(venue_id):
+            admin_username = findUsernameFromToken(token)
+            if (adminHasVenue(admin_username)):
                 query = ("SELECT Sport_Field.id, Sport_Field.Sport_Kind_id, Sport_Kind.name Sport_Kind_Name, Sport_Field.name, "
                         +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, "
                         +"Sport_Field.is_bike_parking, Sport_Field.is_car_parking, Sport_Field.is_public, "
                         +"Sport_Field.description, Sport_Field.rules, Sport_Field.time_open, Sport_Field.time_closed, "
                         +"Sport_Field.price_per_hour FROM Sport_Field INNER JOIN Sport_Kind ON "
-                        +"(Sport_Field.Sport_Kind_id = Sport_Kind.id) WHERE Sport_Field.id = '"+venue_id+"'")
+                        +"(Sport_Field.Sport_Kind_id = Sport_Kind.id) WHERE Sport_Field.Admin_username = '"+admin_username+"'")
                 conn = mysql.connect()
                 cursor = conn.cursor(pymysql.cursors.DictCursor)
                 cursor.execute(query)
@@ -138,7 +162,7 @@ def field_management_configure_routes(app):
             else:
                 response = {
                     "get_status": False,
-                    "message": "Venue id "+venue_id+" is not registered yet",
+                    "message": "Admin Has Not Registered any Venue",
                     "data": None
                 }
         else:
@@ -570,6 +594,35 @@ def field_management_configure_routes(app):
             response = {
                 "get_status": False,
                 "message": "token is expired",
+                "data": None
+            }
+        return jsonify(response)
+
+    @app.route('/admin/sportVenue/fields/schedule/blacklist', methods=['DELETE'])
+    def delete_blacklist_schedule():
+        header = request.headers
+        body = request.json
+        token = header['token']
+        blacklist_id = body['blacklist_id']
+
+        if checkAdminToken(token):
+            query = f"DELETE FROM Blacklist_Schedule WHERE id = '{blacklist_id}'"
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query)
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            response = {
+                "delete_status": True,
+                "message": f"Blacklist with id = {blacklist_id} deleted successfully",
+                "data": None
+            }
+        else:
+            response = {
+                "deleted_status": False,
+                "message": "Token is expired",
                 "data": None
             }
         return jsonify(response)
