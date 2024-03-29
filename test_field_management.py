@@ -163,6 +163,7 @@ def test_get_all_sport_kind():
 
     assert response.status_code == 200
 
+@pytest.mark.specify
 def test_get_sport_venue_success():
     """Test to get managed venue information by admin with valid request"""
     device = newVirtualDeviceID()
@@ -192,6 +193,7 @@ def test_get_sport_venue_success():
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
 
+@pytest.mark.specify
 def test_get_sport_venue_failed():
     """test to get managed venue information by admin but with failed request"""
     device = newVirtualDeviceID()

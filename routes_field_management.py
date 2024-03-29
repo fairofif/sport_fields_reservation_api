@@ -134,28 +134,30 @@ def field_management_configure_routes(app):
                 conn = mysql.connect()
                 cursor = conn.cursor(pymysql.cursors.DictCursor)
                 cursor.execute(query)
-                read_row = cursor.fetchone()
-
+                read_row = cursor.fetchall()
+                datas = []
+                for i in range(cursor.rowcount):
+                    data = {
+                        "id": read_row[i]['id'],
+                        "Sport_Kind_id": read_row[i]['Sport_Kind_id'],
+                        "Sport_Kind_Name": read_row[i]['Sport_Kind_Name'],
+                        "name": read_row[i]['name'],
+                        "created_at": str(read_row[i]['created_at']),
+                        "last_edited": str(read_row[i]['last_edited']),
+                        "geo_coordinate": str(read_row[i]['geo_coordinate']),
+                        "is_bike_parking": read_row[i]['is_bike_parking'],
+                        "is_car_parking": read_row[i]["is_car_parking"],
+                        "is_public": read_row[i]['is_public'],
+                        "description": read_row[i]['description'],
+                        "rules": read_row[i]['rules'],
+                        "time_open": str(read_row[i]['time_open']),
+                        "time_closed": str(read_row[i]['time_closed']),
+                        "price_per_hour": read_row[i]['price_per_hour']
+                    }
                 response = {
                     "get_status": True,
                     "message": "Retrieve Sport Venue Successfully",
-                    "data": {
-                        "id": read_row['id'],
-                        "Sport_Kind_id": read_row['Sport_Kind_id'],
-                        "Sport_Kind_Name": read_row['Sport_Kind_Name'],
-                        "name": read_row['name'],
-                        "created_at": str(read_row['created_at']),
-                        "last_edited": str(read_row['last_edited']),
-                        "geo_coordinate": str(read_row['geo_coordinate']),
-                        "is_bike_parking": read_row['is_bike_parking'],
-                        "is_car_parking": read_row["is_car_parking"],
-                        "is_public": read_row['is_public'],
-                        "description": read_row['description'],
-                        "rules": read_row['rules'],
-                        "time_open": str(read_row['time_open']),
-                        "time_closed": str(read_row['time_closed']),
-                        "price_per_hour": read_row['price_per_hour']
-                    }
+                    "data": datas
                 }
                 cursor.close()
                 conn.close()
@@ -193,9 +195,10 @@ def field_management_configure_routes(app):
         price_per_hour = data['price_per_hour']
 
         if checkAdminToken(token):
+            new_id_venue = newSportFieldUUID()
             query = ("INSERT INTO Sport_Field (id, Admin_username, Sport_Kind_id, name, created_at, last_edited, geo_coordinate"
                     + ", is_bike_parking, is_car_parking, is_public, description, rules, time_open, time_closed, price_per_hour)"
-                    + " VALUES ('"+newSportFieldUUID()+"', '"+username+"', '"+Sport_Kind_id+"', '"+name+"', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), '"+geo_coordinate+"', "
+                    + " VALUES ('"+new_id_venue+"', '"+username+"', '"+Sport_Kind_id+"', '"+name+"', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), '"+geo_coordinate+"', "
                     + str(is_bike_parking)+", "+str(is_car_parking)+", "+str(is_public)+", '"+description+"', '"+rules+"', '"+time_open
                     + "', '"+time_closed+"', "+ str(price_per_hour)+")"
                     )
@@ -204,16 +207,12 @@ def field_management_configure_routes(app):
             cursor.execute(query)
             conn.commit()
 
-            query = "SELECT id, Admin_username FROM Sport_Field WHERE Admin_username = '"+username+"'"
-            cursor.execute(query)
-            read_row = cursor.fetchone()
-
             query = ("SELECT Sport_Field.id, Sport_Field.Sport_Kind_id, Sport_Kind.name Sport_Kind_Name, Sport_Field.name, "
                     +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, "
                     +"Sport_Field.is_bike_parking, Sport_Field.is_car_parking, Sport_Field.is_public, "
                     +"Sport_Field.description, Sport_Field.rules, Sport_Field.time_open, Sport_Field.time_closed, "
                     +"Sport_Field.price_per_hour FROM Sport_Field INNER JOIN Sport_Kind ON "
-                    +"(Sport_Field.Sport_Kind_id = Sport_Kind.id) WHERE Sport_Field.id = '"+read_row['id']+"'")
+                    +"(Sport_Field.Sport_Kind_id = Sport_Kind.id) WHERE Sport_Field.id = '"+new_id_venue+"'")
 
             cursor.execute(query)
             read_row = cursor.fetchone()

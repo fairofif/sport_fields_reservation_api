@@ -17,10 +17,11 @@ def getPlayerTokenList():
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
+    count = cursor.rowcount
     read_row = cursor.fetchall()
     cursor.close()
     conn.close()
-    return read_row
+    return read_row if count != 0 else []
 
 def getAdminTokenList():
     """function to get list of existing admin token in DB"""
@@ -28,10 +29,11 @@ def getAdminTokenList():
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
+    count = cursor.rowcount
     read_row = cursor.fetchall()
     cursor.close()
     conn.close()
-    return read_row
+    return read_row if count != 0 else []
 
 def newUserToken():
     """generate new token unique both from admin and player"""

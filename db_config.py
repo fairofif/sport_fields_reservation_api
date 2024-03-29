@@ -1,7 +1,7 @@
 from appflask import app
 from flaskext.mysql import MySQL
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 import os
 
 
