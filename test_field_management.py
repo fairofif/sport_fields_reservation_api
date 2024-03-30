@@ -163,7 +163,6 @@ def test_get_all_sport_kind():
 
     assert response.status_code == 200
 
-@pytest.mark.specify
 def test_get_sport_venue_success():
     """Test to get managed venue information by admin with valid request"""
     device = newVirtualDeviceID()
@@ -193,7 +192,6 @@ def test_get_sport_venue_success():
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
 
-@pytest.mark.specify
 def test_get_sport_venue_failed():
     """test to get managed venue information by admin but with failed request"""
     device = newVirtualDeviceID()
@@ -221,7 +219,7 @@ def test_get_sport_venue_failed():
     assert response.status_code == 200
     assert response.get_json()['get_status'] == False
 
-
+@pytest.mark.specify
 def test_register_sport_venue():
     """Test to register managed venue by admin"""
     device = newVirtualDeviceID()
@@ -240,7 +238,6 @@ def test_register_sport_venue():
     }
 
     body_request = {
-        "username": "unittest",
         "Sport_Kind_id": Sport_Kind_id,
         "name": "Unit Test Venue",
         "geo_coordinate": "-6.300012, 107.164228",

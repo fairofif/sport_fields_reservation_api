@@ -181,7 +181,6 @@ def field_management_configure_routes(app):
         header = request.headers
         data = request.json
         token = header['token']
-        username = data['username']
         Sport_Kind_id = data['Sport_Kind_id']
         name = data['name']
         geo_coordinate = data['geo_coordinate']
@@ -195,6 +194,7 @@ def field_management_configure_routes(app):
         price_per_hour = data['price_per_hour']
 
         if checkAdminToken(token):
+            username = findUsernameFromToken(token)
             new_id_venue = newSportFieldUUID()
             query = ("INSERT INTO Sport_Field (id, Admin_username, Sport_Kind_id, name, created_at, last_edited, geo_coordinate"
                     + ", is_bike_parking, is_car_parking, is_public, description, rules, time_open, time_closed, price_per_hour)"

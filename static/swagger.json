@@ -1167,7 +1167,6 @@
       },
       "AdminRegisterVenueBody": {
         "required": [
-          "username",
           "Sport_Kind_id",
           "name",
           "geo_coordinate",
@@ -1182,10 +1181,6 @@
         ],
         "type": "object",
         "properties": {
-          "username": {
-            "type": "string",
-            "example": "devexample"
-          },
           "Sport_Kind_id": {
             "type": "string",
             "example": "c234176a-d3e0-11ee-921f-02284a7d1cf2"
