@@ -319,7 +319,7 @@ def test_get_venue_info_with_sorting_option():
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
 
-def test_get_venue_info_with_conditional_filters():
+def test_get_venue_info_with_conditional_filters_and_sort():
     ## ============ admin prerequirement ============= #
 
     admin_device = newVirtualDeviceID()
