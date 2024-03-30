@@ -5,6 +5,7 @@ from routes_device import device_configure_routes
 from routes_auth_admin import admin_auth_configure_routes
 from routes_field_management import field_management_configure_routes
 from routes_auth_relogin import relogin_configure_routes
+from routes_player_venue_info import player_venue_info_cofigure_routes
 
 device_configure_routes(app)
 configure_routes(app)
@@ -12,6 +13,7 @@ player_auth_configure_routes(app)
 admin_auth_configure_routes(app)
 field_management_configure_routes(app)
 relogin_configure_routes(app)
+player_venue_info_cofigure_routes(app)
 
 
 if __name__ == "__main__":

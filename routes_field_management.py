@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from uuid_generator import newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
 import datetime
 import calendar
-load_dotenv()
+load_dotenv(override=True)
 
 def field_management_configure_routes(app):
     ### ================ STATIC METHOD ==================== ###
@@ -154,6 +154,7 @@ def field_management_configure_routes(app):
                         "time_closed": str(read_row[i]['time_closed']),
                         "price_per_hour": read_row[i]['price_per_hour']
                     }
+                    datas = datas = [data]
                 response = {
                     "get_status": True,
                     "message": "Retrieve Sport Venue Successfully",

@@ -6,7 +6,7 @@ from flask import (
 from db_config import mysql
 from virtual_device_id_generator import newVirtualDeviceID
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 def device_configure_routes(app):
     @app.route('/device/register', methods=['POST'])

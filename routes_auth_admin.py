@@ -6,7 +6,7 @@ from flask import (
 from db_config import mysql
 from token_generator import newUserToken
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 import os
 
 def admin_auth_configure_routes(app):

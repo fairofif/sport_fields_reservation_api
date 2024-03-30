@@ -17,3 +17,4 @@ urllib3            == 1.26.13
 pytest
 python-dotenv
 flask-swagger-ui
+haversine

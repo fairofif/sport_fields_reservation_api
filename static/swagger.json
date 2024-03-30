@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 29/03/2024 12:28:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 31/03/2024 03:31:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.2.9"
+    "version": "1.2.10"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -44,6 +44,10 @@
     {
       "name": "sportVenue",
       "description": "Everything about sport venues management (admin)"
+    },
+    {
+      "name": "playerVenueInfo",
+      "description": "Everything about Venue Information (listing to details) from user player"
     }
   ],
   "paths": {
@@ -825,6 +829,55 @@
         }
       }
     },
+    "/player/sportVenue": {
+      "post": {
+        "tags": [
+          "playerVenueInfo"
+        ],
+        "summary": "Return all of Venue list based on filter and sorting",
+        "description": "Return all of Venue list based on filter and sorting",
+        "operationId": "playerGetSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Fill field with null values if not used, there are 2 sort kinds ('distance' or 'price')",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerGetSportVenueListBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetSportVenueListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -1263,7 +1316,7 @@
               "rules": {
                 "type": "string"
               },
-              "gro_coordinate": {
+              "geo_coordinate": {
                 "type": "string"
               },
               "is_bike_parking": {
@@ -1437,52 +1490,55 @@
             "type": "boolean"
           },
           "data": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type":"string"
-              },
-              "Sport_Kind_id": {
-                "type": "string"
-              },
-              "Sport_Kind_Name": {
-                "type": "string"
-              },
-              "created_at": {
-                "type": "string"
-              },
-              "last_edited": {
-                "type": "string"
-              },
-              "description": {
-                "type": "string"
-              },
-              "rules": {
-                "type": "string"
-              },
-              "gro_coordinate": {
-                "type": "string"
-              },
-              "is_bike_parking": {
-                "type": "boolean"
-              },
-              "is_car_parking": {
-                "type": "boolean"
-              },
-              "is_public": {
-                "type": "boolean"
-              },
-              "name": {
-                "type": "string"
-              },
-              "time_open": {
-                "type": "string"
-              },
-              "time_closed": {
-                "type": "string"
-              },
-              "price_per_hour": {
-                "type": "integer"
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Sport_Kind_id": {
+                  "type": "string"
+                },
+                "Sport_Kind_Name": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "last_edited": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "rules": {
+                  "type": "string"
+                },
+                "geo_coordinate": {
+                  "type": "string"
+                },
+                "is_bike_parking": {
+                  "type": "boolean"
+                },
+                "is_car_parking": {
+                  "type": "boolean"
+                },
+                "is_public": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "time_open": {
+                  "type": "string"
+                },
+                "time_closed": {
+                  "type": "string"
+                },
+                "price_per_hour": {
+                  "type": "integer"
+                }
               }
             }
           }
@@ -1583,7 +1639,7 @@
               "rules": {
                 "type": "string"
               },
-              "gro_coordinate": {
+              "geo_coordinate": {
                 "type": "string"
               },
               "is_bike_parking": {
@@ -1745,6 +1801,108 @@
         },
         "xml": {
           "name": "AdminGetBlacklistScheduleResponse"
+        }
+      },
+      "PlayerGetSportVenueListBody": {
+        "type": "object",
+        "properties": {
+          "is_car_parking": {
+            "type": "boolean",
+            "example": null
+          },
+          "is_bike_parking": {
+            "type": "boolean",
+            "example": true
+          },
+          "name": {
+            "type": "string",
+            "example": null
+          },
+          "Sport_Kind_id": {
+            "type": "string",
+            "example": null
+          },
+          "sort_by": {
+            "type": "string",
+            "example": "distance"
+          },
+          "coordinate": {
+            "type": "string",
+            "example": "-6.894797, 107.610590"
+          }
+        },
+        "xml": {
+          "name": "PlayerGetSportVenueListBody"
+        }
+      },
+      "PlayerGetSportVenueListResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Sport_Kind_id": {
+                  "type": "string"
+                },
+                "Sport_Kind_Name": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "last_edited": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "rules": {
+                  "type": "string"
+                },
+                "geo_coordinate": {
+                  "type": "string"
+                },
+                "distance": {
+                  "type": "float"
+                },
+                "is_bike_parking": {
+                  "type": "boolean"
+                },
+                "is_car_parking": {
+                  "type": "boolean"
+                },
+                "is_public": {
+                  "type": "boolean"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "time_open": {
+                  "type": "string"
+                },
+                "time_closed": {
+                  "type": "string"
+                },
+                "price_per_hour": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetSportVenueListResponse"
         }
       },
       "SportKindResponse": {
