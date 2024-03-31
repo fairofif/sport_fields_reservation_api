@@ -443,11 +443,11 @@ def field_management_configure_routes(app):
 
         return jsonify(response)
 
-    @app.route('/admin/sportVenue/fields', methods=['GET'])
-    def get_fields_from_venue():
+    @app.route('/admin/sportVenue/fields/<Sport_Venue_id>', methods=['GET'])
+    def get_fields_from_venue(Sport_Venue_id):
         header = request.headers
         token = header['token']
-        venue_id = header['Sport-Venue-id']
+        venue_id = Sport_Venue_id
 
         if checkAdminToken(token):
             if isSportVenueExist(venue_id):
@@ -518,13 +518,13 @@ def field_management_configure_routes(app):
 
         return jsonify(response)
 
-    @app.route('/admin/sportVenue/fields/schedule/blacklist', methods=['GET'])
-    def get_blacklist_schedule_from_month_and_year():
+    @app.route('/admin/sportVenue/fields/schedule/blacklist/<field_id>/<month>/<year>', methods=['GET'])
+    def get_blacklist_schedule_from_month_and_year(field_id, month, year):
         header = request.headers
         token = header['token']
-        field_id = header['field_id']
-        month = int(header['month'])
-        year = int(header['year'])
+        field_id = field_id
+        month = int(month)
+        year = int(year)
 
         if checkAdminToken(token):
             if isThereAnyBlacklistSchedule(field_id):
@@ -559,7 +559,6 @@ def field_management_configure_routes(app):
                             num_days = calendar.monthrange(year, month)[1]
                             date_in_a_month = [datetime.date(year, month, day) for day in range(1, num_days+1)]
                             for j in range(len(date_in_a_month)):
-                                print(i, j)
                                 if date_in_a_month[j].day >= format_date.day and date_in_a_month[j].strftime("%A") == day_date:
                                     item = {
                                         "blacklist_id": str(query_resp[i]['blacklist_id']),
@@ -568,7 +567,6 @@ def field_management_configure_routes(app):
                                         "toTime": str(query_resp[i]['toTime']),
                                         "reason": str(query_resp[i]['reason'])
                                         }
-                                    print(1, item)
                                     data = data + [item]
                         elif (format_date.month < month and format_date.year <= year) or (format_date.month >= month and format_date.year < year):
                             num_days = calendar.monthrange(year, month)[1]

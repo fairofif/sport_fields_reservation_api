@@ -392,11 +392,10 @@ def test_get_fields_from_venue_success():
 
     header = {
         "token": token,
-        "Sport-Venue-id": sport_venue
     }
 
     client = app.test_client()
-    url = '/admin/sportVenue/fields'
+    url = f"/admin/sportVenue/fields/{sport_venue}"
 
     response = client.get(url, headers=header)
 
@@ -424,12 +423,11 @@ def test_get_fields_from_venue_failed():
     insert_unittest_field_to_venue(field_id, sport_venue, 1)
 
     header = {
-        "token": token,
-        "Sport-Venue-id": newSportFieldUUID()
+        "token": token
     }
 
     client = app.test_client()
-    url = '/admin/sportVenue/fields'
+    url = f"/admin/sportVenue/fields/{newSportFieldUUID()}"
 
     response = client.get(url, headers=header)
 
@@ -537,13 +535,16 @@ def test_get_blacklist_schedule_one_time_only():
     insert_unittest_blacklist_one_time_only(blacklist_id, field_id)
 
     header = {
-        "token": token,
+        "token": token
+    }
+
+    param = {
         "field_id": field_id,
         "month": 7,
         "year": 2024
     }
 
-    url = 'admin/sportVenue/fields/schedule/blacklist'
+    url = f"admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
     client = app.test_client()
 
     response = client.get(url, headers=header)
@@ -574,13 +575,16 @@ def test_get_blacklist_schedule_every_week():
     insert_unittest_blacklist_every_week(blacklist_id, field_id)
 
     header = {
-        "token": token,
+        "token": token
+    }
+
+    param = {
         "field_id": field_id,
         "month": 9,
         "year": 2024
     }
 
-    url = 'admin/sportVenue/fields/schedule/blacklist'
+    url = f"admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
     client = app.test_client()
     response = client.get(url, headers=header)
 
@@ -611,13 +615,16 @@ def test_get_blacklist_schedule_every_week_failed():
     insert_unittest_blacklist_every_week(blacklist_id, field_id)
 
     header = {
-        "token": token,
+        "token": token
+    }
+
+    param = {
         "field_id": field_id,
         "month": 5,
         "year": 2019
     }
 
-    url = 'admin/sportVenue/fields/schedule/blacklist'
+    url = f"admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
     client = app.test_client()
     response = client.get(url, headers=header)
 

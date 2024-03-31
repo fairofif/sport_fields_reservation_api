@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 31/03/2024 03:31:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 01/04/2024 03:02:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.2.10"
+    "version": "1.2.11"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -523,7 +523,7 @@
         }
       }
     },
-    "/admin/sportVenue/fields": {
+    "/admin/sportVenue/fields/{Sport_Venue_id}": {
       "get": {
         "tags": [
           "sportVenue"
@@ -542,8 +542,8 @@
             }
           },
           {
-            "name": "Sport-Venue-id",
-            "in": "header",
+            "name": "Sport_Venue_id",
+            "in": "path",
             "required": true,
             "description": "",
             "schema": {
@@ -669,6 +669,72 @@
         }
       }
     },
+    "/admin/sportVenue/fields/schedule/blacklist/{field_id}/{month}/{year}": {
+      "get": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Get Blacklisted schedule in a month (with parameter year and month)",
+        "description": "Get Blacklisted schedule in a month (with parameter year and month)",
+        "operationId": "getBlacklistSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetBlacklistScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/admin/sportVenue/fields/schedule/blacklist": {
       "post": {
         "tags": [
@@ -705,70 +771,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminAddBlacklistScheduleResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "invalid input"
-          },
-          "404": {
-            "description": "not found"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "sportVenue"
-        ],
-        "summary": "Get Blacklisted schedule in a month (with parameter year and month)",
-        "description": "Get Blacklisted schedule in a month (with parameter year and month)",
-        "operationId": "getBlacklistSchedule",
-        "parameters": [
-          {
-            "name": "token",
-            "in": "header",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Field_id",
-            "in": "header",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "month",
-            "in": "header",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "year",
-            "in": "header",
-            "required": true,
-            "description": "",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminGetBlacklistScheduleResponse"
                 }
               }
             }
