@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 01/04/2024 03:02:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 02/04/2024 23:02:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.2.11"
+    "version": "1.3.1"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -391,8 +391,8 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Register managed sport venue by admin (1 admin 1 venue)",
-        "description": "Register managed sport venue by admin (1 admin 1 venue)",
+        "summary": "Register managed sport venue by admin",
+        "description": "Register managed sport venue by admin",
         "operationId": "registerSportVenue",
         "parameters": [
           {
@@ -440,8 +440,8 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Get managed sport venue by admin (1 admin 1 venue)",
-        "description": "Get managed sport venue by admin (1 admin 1 venue)",
+        "summary": "Get managed sport venue by admin",
+        "description": "Get managed sport venue by admin",
         "operationId": "getSportVenue",
         "parameters": [
           {
@@ -479,8 +479,8 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Edit managed sport venue by admin (1 admin 1 venue)",
-        "description": "Edit managed sport venue by admin (1 admin 1 venue)",
+        "summary": "Edit managed sport venue by admin",
+        "description": "Edit managed sport venue by admin",
         "operationId": "EditSportVenue",
         "parameters": [
           {
@@ -528,8 +528,8 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Get List field from managed sport venue by admin (1 admin 1 venue)",
-        "description": "Get List field from managed sport venue by admin (1 admin 1 venue)",
+        "summary": "Get List field from managed sport venue by admin",
+        "description": "Get List field from managed sport venue by admin",
         "operationId": "getFieldFromSportVenue",
         "parameters": [
           {
@@ -576,8 +576,8 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Add field to managed sport venue by admin (1 admin 1 venue)",
-        "description": "Add field tor managed sport venue by admin (1 admin 1 venue)",
+        "summary": "Add field to managed sport venue by admin",
+        "description": "Add field tor managed sport venue by admin",
         "operationId": "addFieldToSportVenue",
         "parameters": [
           {
@@ -625,8 +625,8 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Delete a field from managed sport venue by admin (1 admin 1 venue)",
-        "description": "Delete a field from managed sport venue by admin (1 admin 1 venue)",
+        "summary": "Delete a field from managed sport venue by admin",
+        "description": "Delete a field from managed sport venue by admin",
         "operationId": "deleteFieldFromSportVenue",
         "parameters": [
           {
@@ -867,6 +867,120 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerGetSportVenueListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/sportVenue/fields/{Sport_Venue_id}": {
+      "get": {
+        "tags": [
+          "playerVenueInfo"
+        ],
+        "summary": "Get List field from managed sport venue by admin",
+        "description": "Get List field from managed sport venue by admin",
+        "operationId": "getFieldFromSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Sport_Venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetFieldFromVenueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/sportVenue/fields/schedule/blacklist/{field_id}/{month}/{year}": {
+      "get": {
+        "tags": [
+          "playerVenueInfo"
+        ],
+        "summary": "Get Blacklisted schedule in a month (with parameter year and month)",
+        "description": "Get Blacklisted schedule in a month (with parameter year and month)",
+        "operationId": "getBlacklistSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetBlacklistScheduleResponse"
                 }
               }
             }
@@ -1380,6 +1494,37 @@
           "name": "AdminGetFieldFromVenueResponse"
         }
       },
+      "PlayerGetFieldFromVenueResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Sport_Field_id": {
+                  "type":"string"
+                },
+                "number": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetFieldFromVenueResponse"
+        }
+      },
       "AdminAddFieldToVenueBody": {
         "required": [
           "Sport_Venue_id",
@@ -1761,6 +1906,43 @@
         },
         "xml": {
           "name": "AdminGetBlacklistScheduleResponse"
+        }
+      },
+      "PlayerGetBlacklistScheduleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "blacklist_id": {
+                  "type":"string"
+                },
+                "date": {
+                  "type":"string"
+                },
+                "fromTime": {
+                  "type": "string"
+                },
+                "toTime": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetBlacklistScheduleResponse"
         }
       },
       "AdminDeleteBlacklistScheduleBody": {
