@@ -887,7 +887,7 @@
         ],
         "summary": "Get List field from managed sport venue by admin",
         "description": "Get List field from managed sport venue by admin",
-        "operationId": "getFieldFromSportVenue",
+        "operationId": "playerGetFieldFromSportVenue",
         "parameters": [
           {
             "name": "token",
@@ -935,7 +935,7 @@
         ],
         "summary": "Get Blacklisted schedule in a month (with parameter year and month)",
         "description": "Get Blacklisted schedule in a month (with parameter year and month)",
-        "operationId": "getBlacklistSchedule",
+        "operationId": "playerGetBlacklistSchedule",
         "parameters": [
           {
             "name": "token",
