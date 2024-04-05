@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 02/04/2024 23:02:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 06/04/2024 04:33:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.3.1"
+    "version": "1.4.1"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -48,6 +48,10 @@
     {
       "name": "playerVenueInfo",
       "description": "Everything about Venue Information (listing to details) from user player"
+    },
+    {
+      "name": "playerBooking",
+      "description": "Routes that related to Reservation/Booking Player"
     }
   ],
   "paths": {
@@ -981,6 +985,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerGetBlacklistScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/booking": {
+      "post": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Create a new booking",
+        "description": "Create a new booking",
+        "operationId": "playerCreateBooking",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerCreateBookingBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerCreateBookingResponse"
                 }
               }
             }
@@ -2087,6 +2140,104 @@
         },
         "xml": {
           "name": "PlayerGetSportVenueListResponse"
+        }
+      },
+      "PlayerCreateBookingBody": {
+        "required": [
+          "field_id",
+          "name",
+          "mabar_type",
+          "date",
+          "time_start",
+          "time_end"
+        ],
+        "type": "object",
+        "properties": {
+          "field_id": {
+            "type": "string",
+            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+          },
+          "name": {
+            "type": "string",
+            "example": "Mabar Anak Kece HMIF"
+          },
+          "mabar_type": {
+            "type": "string",
+            "description": "Could be filled with 'competitive' or 'friendly'",
+            "example": "competitive"
+          },
+          "date": {
+            "type": "string",
+            "example": "2024-03-20"
+          },
+          "time_start": {
+            "type": "string",
+            "description": "minutes and seconds always 00",
+            "example": "08:00:00"
+          },
+          "time_end": {
+            "type": "string",
+            "description": "minutes and seconds always 59",
+            "example": "13:59:59"
+          }
+        },
+        "xml": {
+          "name": "PlayerCreateBookingBody"
+        }
+      },
+      "PlayerCreateBookingResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "create_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type":"string"
+              },
+              "Field_id": {
+                "type": "string"
+              },
+              "Player_username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "mabar_type": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string"
+              },
+              "time_start": {
+                "type": "string"
+              },
+              "time_end": {
+                "type": "string"
+              },
+              "booking_status": {
+                "type": "string"
+              },
+              "payment_credential_url": {
+                "type": "string"
+              },
+              "is_public": {
+                "type": "boolean"
+              },
+              "is_open_member": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerCreateBookingResponse"
         }
       },
       "SportKindResponse": {
