@@ -167,20 +167,24 @@ def player_booking_configure_routes(app):
         date_object = datetime.datetime.strptime(date_string, '%Y-%m-%d')
 
         # Extract month and year as integers
+        day = date_object.day
         month = date_object.month
         year = date_object.year
 
-        return month, year
+        return day, month, year
 
     def isScheduleNotConflictWithBlacklistSchedule(field_id, date, time_start, time_end):
-        month, year = extract_month_and_year(date)
+        day, month, year = extract_month_and_year(date)
         blacklist = getBlackListScheduleFromMonthAndYear(field_id, month, year)
 
         count_conflict = 0
         i = 0
         while count_conflict == 0 and i < len(blacklist):
-            if check_2_schedule_conflict(time_start, time_end, blacklist[i]['fromTime'], blacklist[i]['toTime']):
-                count_conflict += 1
+            # check date #
+            inner_day, inner_month, inner_year = extract_month_and_year(blacklist[i]['date'])
+            if day == inner_day and month == inner_month and year == inner_year:
+                if check_2_schedule_conflict(time_start, time_end, blacklist[i]['fromTime'], blacklist[i]['toTime']):
+                    count_conflict += 1
             i += 1
 
         if count_conflict == 0:
@@ -212,13 +216,12 @@ def player_booking_configure_routes(app):
         cursor.close()
         conn.close()
 
-        username = findUsernameFromToken(token)
-
         venue_id = query_resp['Sport_Field_id']
         date = body['date']
         time_start = body['time_start']
         time_end = body['time_end']
         if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
             if isScheduleNotConflictWithVenueOpenTime(venue_id, time_start, time_end):
                 if isScheduleNotConflictWithOtherBook(field_id, date, time_start, time_end):
                     if isScheduleNotConflictWithBlacklistSchedule(field_id, date, time_start, time_end):
