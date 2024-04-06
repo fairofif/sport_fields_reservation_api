@@ -6,7 +6,7 @@ load_dotenv()
 import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID
 
 def insert_player_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
@@ -190,6 +190,16 @@ def insert_unittest_device(device_id):
 
 def delete_unittest_device(device_id):
     query = "DELETE FROM Virtual_Device_ID WHERE id = '"+device_id+"'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_booking_unittest(book_id, field_id, date, time_start, time_end):
+    query = "INSERT INTO Reservation (id, Field_id, Player_username, name, mabar_type, date, time_start, time_end, created_at, last_updated) VALUES "
+    query = query + f"('{book_id}', '{field_id}', 'unittest', 'Mabar Orang Ganteng', 'friendly', '{date}', '{time_start}', '{time_end}', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -505,6 +515,60 @@ def test_player_get_blacklist_schedule():
     }
 
     url = f"/player/sportVenue/fields/schedule/blacklist/{field_id}/7/2024"
+    client = app.test_client()
+
+    response = client.get(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+
+def test_player_get_reservation_in_a_fields():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    # ========= CONDITION prereq ================ #
+    insert_booking_unittest(newBookingUUID(), field_id, "2024-05-01", "09:00:00", "10:59:59")
+    insert_booking_unittest(newBookingUUID(), field_id, "2024-05-04", "09:00:00", "10:59:59")
+    insert_booking_unittest(newBookingUUID(), field_id, "2024-05-20", "09:00:00", "10:59:59")
+
+    # ============ TEST ============= #
+
+    header = {
+        "token": player_token
+    }
+
+    url = f"/player/sportVenue/fields/schedule/reservation/{field_id}/5/2024"
     client = app.test_client()
 
     response = client.get(url, headers=header)

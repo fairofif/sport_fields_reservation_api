@@ -202,7 +202,6 @@ def delete_unittest_device(device_id):
 def insert_booking_unittest(book_id, field_id, date, time_start, time_end):
     query = "INSERT INTO Reservation (id, Field_id, Player_username, name, mabar_type, date, time_start, time_end, created_at, last_updated) VALUES "
     query = query + f"('{book_id}', '{field_id}', 'unittest', 'Mabar Orang Ganteng', 'friendly', '{date}', '{time_start}', '{time_end}', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
-    print(query)
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)

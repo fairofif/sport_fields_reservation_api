@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 06/04/2024 04:33:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 07/04/2024 01:05:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.4.1"
+    "version": "1.4.2"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -739,6 +739,72 @@
         }
       }
     },
+    "/admin/sportVenue/fields/schedule/reservation/{field_id}/{month}/{year}": {
+      "get": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Get Reservation schedule in a month (with parameter year and month)",
+        "description": "Get Reservation schedule in a month (with parameter year and month)",
+        "operationId": "getReservationSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetReservationScheduleFieldsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/admin/sportVenue/fields/schedule/blacklist": {
       "post": {
         "tags": [
@@ -985,6 +1051,72 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerGetBlacklistScheduleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/sportVenue/fields/schedule/reservation/{field_id}/{month}/{year}": {
+      "get": {
+        "tags": [
+          "playerVenueInfo"
+        ],
+        "summary": "Get Reservation schedule in a month (with parameter year and month)",
+        "description": "Get Reservation schedule in a month (with parameter year and month)",
+        "operationId": "getReservationSchedule",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetReservationScheduleFieldsResponse"
                 }
               }
             }
@@ -1996,6 +2128,64 @@
         },
         "xml": {
           "name": "PlayerGetBlacklistScheduleResponse"
+        }
+      },
+      "GetReservationScheduleFieldsResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "id": {
+                  "type":"string"
+                },
+                "Field_id": {
+                  "type":"string"
+                },
+                "Player_username": {
+                  "type":"string"
+                },
+                "name": {
+                  "type":"string"
+                },
+                "mabar_type": {
+                  "type":"string"
+                },
+                "date": {
+                  "type":"string"
+                },
+                "time_start": {
+                  "type": "string"
+                },
+                "time_end": {
+                  "type": "string"
+                },
+                "booking_status": {
+                  "type": "string"
+                },
+                "payment_credential_url": {
+                  "type":"string"
+                },
+                "is_public": {
+                  "type":"string"
+                },
+                "is_open_member": {
+                  "type":"string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "GetReservationScheduleFieldsResponse"
         }
       },
       "AdminDeleteBlacklistScheduleBody": {

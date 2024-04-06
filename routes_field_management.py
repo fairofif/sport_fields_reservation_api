@@ -628,3 +628,48 @@ def field_management_configure_routes(app):
                 "data": None
             }
         return jsonify(response)
+
+    @app.route('/admin/sportVenue/fields/schedule/reservation/<field_id>/<month>/<year>', methods=['GET'])
+    def get_fields_reservation_in_a_month_and_year(field_id, month, year):
+        token = request.headers['token']
+        if checkAdminToken(token):
+            query = f"SELECT id, Field_id, Player_username, name, mabar_type, date, time_start, time_end, booking_status, payment_credential_url, is_public, is_open_member FROM Reservation WHERE Field_id = '{field_id}' AND MONTH(date)={month} AND YEAR(date)={year}"
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            rows = cursor.rowcount
+            cursor.close()
+            conn.close()
+
+            datas = []
+            for i in range(rows):
+                item = {
+                    'id': results[i]['id'],
+                    'Field_id': results[i]['Field_id'],
+                    'Player_username': results[i]['Player_username'],
+                    'name': results[i]['name'],
+                    'mabar_type': results[i]['mabar_type'],
+                    'date': results[i]['date'],
+                    'time_start': str(results[i]['time_start']),
+                    'time_end': str(results[i]['time_end']),
+                    'booking_status': results[i]['booking_status'],
+                    'payment_credential_url': results[i]['payment_credential_url'],
+                    'is_public': results[i]['is_public'],
+                    'is_open_member': results[i]['is_open_member']
+                }
+                datas = datas + [item]
+            response = {
+                'get_status': True,
+                'message': f"Retrieve data reservation from field_id={field_id} in month={month} and year={year} successfully",
+                'data': datas
+            }
+            code = 200
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code

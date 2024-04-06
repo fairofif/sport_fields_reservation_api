@@ -6,7 +6,7 @@ load_dotenv()
 import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID
 import pytest
 
 def insert_unittest_user():
@@ -141,6 +141,37 @@ def insert_unittest_blacklist_every_week(blacklist_id, field_id):
 
 def delete_unittest_delete_blacklist(blacklist_id):
     query = f"DELETE FROM Blacklist_Schedule WHERE id = '{blacklist_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+### ============= PLAYER REQUIREMENTS STATIC METHOD ================ ###
+def insert_booking_unittest(book_id, field_id, date, time_start, time_end):
+    query = "INSERT INTO Reservation (id, Field_id, Player_username, name, mabar_type, date, time_start, time_end, created_at, last_updated) VALUES "
+    query = query + f"('{book_id}', '{field_id}', 'unittest', 'Mabar Orang Ganteng', 'friendly', '{date}', '{time_start}', '{time_end}', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_player_unittest_user():
+    ava_url = os.getenv("DEFAULT_AVA_PATH")
+
+    query = 'INSERT INTO Player VALUES("unittest", "unittest", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), "08123456789")'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_player_unittest_user():
+    query = 'DELETE FROM Player WHERE username = "unittest"'
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -672,3 +703,47 @@ def test_delete_blacklist_schedule():
 
     assert response.status_code == 200
     assert response.get_json()['delete_status'] == True
+
+def test_get_reservation_list_in_a_field():
+    ## ==== Admin prerequirement ==== ###
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_unittest_user()
+    insert_unittest_token(admin_token, admin_device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    field_id = newFieldUUID()
+    insert_unittest_field_to_venue(field_id, sport_venue, 1)
+
+    ## Player prerequirements
+    insert_player_unittest_user()
+    insert_booking_unittest(newBookingUUID(), field_id, "2024-05-01", "09:00:00", "10:59:59")
+    insert_booking_unittest(newBookingUUID(), field_id, "2024-05-04", "09:00:00", "10:59:59")
+    insert_booking_unittest(newBookingUUID(), field_id, "2024-05-20", "09:00:00", "10:59:59")
+
+    ## test
+
+    header = {
+        'token': admin_token
+    }
+
+    url = f"admin/sportVenue/fields/schedule/reservation/{field_id}/5/2024"
+
+    client = app.test_client()
+    response = client.get(url, headers=header)
+
+    ## clean prereq
+    delete_unittest_device(admin_device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    delete_player_unittest_user()
+
+    ## validation
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
