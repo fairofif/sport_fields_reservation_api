@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 07/04/2024 01:05:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 10/04/2024 02:40:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.4.2"
+    "version": "1.5.1"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -52,6 +52,10 @@
     {
       "name": "playerBooking",
       "description": "Routes that related to Reservation/Booking Player"
+    },
+    {
+      "name": "adminBooking",
+      "description": "Routes that related to Reservation/Booking Processing Admin"
     }
   ],
   "paths": {
@@ -1166,6 +1170,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerCreateBookingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/reservation/{booking_status}": {
+      "get": {
+        "tags": [
+          "adminBooking"
+        ],
+        "summary": "Get All Reservation based on booking status",
+        "description": "Get All Reservation based on booking status",
+        "operationId": "getBookingListAdmin",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "booking_status",
+            "in": "path",
+            "required": true,
+            "description": "option: payment, waiting_approval, approved, declined",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetReservationListResponse"
                 }
               }
             }
@@ -2330,6 +2382,67 @@
         },
         "xml": {
           "name": "PlayerGetSportVenueListResponse"
+        }
+      },
+      "AdminGetReservationListResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type":"object",
+              "properties": {
+                "field_id": {
+                  "type": "string"
+                },
+                "field_number": {
+                  "type": "integer"
+                },
+                "host_name": {
+                  "type": "string"
+                },
+                "mabar_name": {
+                  "type": "string"
+                },
+                "playing_date": {
+                  "type": "string"
+                },
+                "reservation_id": {
+                  "type": "string"
+                },
+                "sport_kind_id": {
+                  "type": "string"
+                },
+                "sport_kind_name": {
+                  "type": "string"
+                },
+                "time_end": {
+                  "type": "string"
+                },
+                "time_start": {
+                  "type": "string"
+                },
+                "total_price": {
+                  "type": "integer"
+                },
+                "venue_id": {
+                  "type": "string"
+                },
+                "venue_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetReservationListResponse"
         }
       },
       "PlayerCreateBookingBody": {

@@ -7,6 +7,7 @@ from routes_field_management import field_management_configure_routes
 from routes_auth_relogin import relogin_configure_routes
 from routes_player_venue_info import player_venue_info_cofigure_routes
 from routes_player_booking import player_booking_configure_routes
+from routes_admin_booking_system import admin_booking_configure_routes
 
 device_configure_routes(app)
 configure_routes(app)
@@ -16,6 +17,7 @@ field_management_configure_routes(app)
 relogin_configure_routes(app)
 player_venue_info_cofigure_routes(app)
 player_booking_configure_routes(app)
+admin_booking_configure_routes(app)
 
 
 if __name__ == "__main__":
