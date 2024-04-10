@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 11/04/2024 02:01:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 11/04/2024 03:16:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.2"
+    "version": "1.5.3"
   },
   "externalDocs": {
     "description": "Github repository of this project",
