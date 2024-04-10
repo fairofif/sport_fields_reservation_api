@@ -8,10 +8,24 @@ from dotenv import load_dotenv
 import datetime
 import calendar
 from uuid_generator import newBookingUUID
+import urllib.request
+from werkzeug.utils import secure_filename
+import os
 
 load_dotenv(override=True)
 
 def player_booking_configure_routes(app):
+    # ==== SETUP ===== #
+    UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER_PAYMENT")
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    ALLOWED_EXTENSIONS = set(['heic', 'jpg', 'jpeg', 'png', 'gif'])
+    BASE_URL_IMAGE = os.getenv("BASE_URL_IMAGE")
+
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
     # ============ Static Methods ================== #
     def checkPlayerToken(token):
         query = "SELECT token FROM Player_Login_Token WHERE token = '"+token+"'"
@@ -27,6 +41,11 @@ def player_booking_configure_routes(app):
             cursor.close()
             conn.close()
             return True
+
+    def get_current_time_string():
+        current_time = datetime.datetime.now().time()
+        formatted_time = current_time.strftime('%H%M%S%f')[:-3]  # Exclude microseconds
+        return formatted_time
 
     def check_2_schedule_conflict(time_start, time_end, time_start_compare, time_end_compare):
         # Convert string times to datetime objects
@@ -286,4 +305,67 @@ def player_booking_configure_routes(app):
                 'message': 'Token is Expired',
                 'data': None
             }
+        return jsonify(response), code
+
+
+    @app.route('/player/booking/upload/<booking_id>', methods=['POST'])
+    def player_uploads_payment(booking_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if 'file' not in request.files:
+                response = {
+                    'upload_status': False,
+                    'message': 'No file part in request',
+                    'data': None
+                }
+                code = 400
+            else:
+                image = request.files['file']
+
+                if image.filename == '':
+                    response = {
+                        'upload_status': False,
+                        'message': 'No selected file',
+                        'data': None
+                    }
+                    code = 400
+                else:
+                    if image and allowed_file(image.filename):
+                        file_extension = image.filename.rsplit('.', 1)[1].lower()
+                        custom_filename = f"{username}_{booking_id}_{get_current_time_string()}."
+                        filename = custom_filename+file_extension
+                        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                        url_image = f"{BASE_URL_IMAGE}/payments/{filename}"
+
+                        query = f"UPDATE Reservation SET payment_credential_url = '{url_image}', last_updated = CURRENT_TIMESTAMP() WHERE id = '{booking_id}'"
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+                        cursor.execute(query)
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
+
+                        response = {
+                            'upload_status': True,
+                            'message': 'Upload file successfully',
+                            'data': {
+                                'url_image': url_image
+                            }
+                        }
+                        code = 201
+                    else:
+                        response = {
+                            'upload_status': False,
+                            'message': 'Extensions file is not allowed',
+                            'data': None
+                        }
+                        code = 400
+        else:
+            response = {
+                'upload_status': False,
+                'messagge': 'Token is expired',
+                'data': None
+            }
+            code = 401
         return jsonify(response), code

@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 10/04/2024 02:40:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 11/04/2024 02:01:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.1"
+    "version": "1.5.2"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1183,6 +1183,69 @@
         }
       }
     },
+    "/player/booking/upload/{booking_id}": {
+      "post": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Upload payment credential photos",
+        "description": "Upload payment credential photos",
+        "operationId": "playerUploadBookingPayment",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "booking id"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerUploadBookingCredentialResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/admin/reservation/{booking_status}": {
       "get": {
         "tags": [
@@ -1388,7 +1451,7 @@
             "type": "boolean"
           },
           "data": {
-            "type":"object",
+            "type": "object",
             "properties": {
               "ava_url": {
                 "type": "string"
@@ -1419,7 +1482,7 @@
             "type": "boolean"
           },
           "data": {
-            "type":"object",
+            "type": "object",
             "properties": {
               "ava_url": {
                 "type": "string"
@@ -1649,7 +1712,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type":"string"
+                "type": "string"
               },
               "Sport_Kind_id": {
                 "type": "string"
@@ -1712,13 +1775,13 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Sport_Field_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "number": {
                   "type": "integer"
@@ -1743,13 +1806,13 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Sport_Field_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "number": {
                   "type": "integer"
@@ -1794,13 +1857,13 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Sport_Field_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "number": {
                   "type": "integer"
@@ -1845,13 +1908,13 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Sport_Field_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "number": {
                   "type": "integer"
@@ -1876,10 +1939,10 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Sport_Kind_id": {
                   "type": "string"
@@ -2003,7 +2066,7 @@
             "type": "object",
             "properties": {
               "id": {
-                "type":"string"
+                "type": "string"
               },
               "Sport_Kind_id": {
                 "type": "string"
@@ -2120,13 +2183,13 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "blacklist_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "date": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "fromTime": {
                   "type": "string"
@@ -2157,13 +2220,13 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "blacklist_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "date": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "fromTime": {
                   "type": "string"
@@ -2194,25 +2257,25 @@
           "data": {
             "type": "array",
             "items": {
-              "type":"object",
+              "type": "object",
               "properties": {
                 "id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Field_id": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "Player_username": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "name": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "mabar_type": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "date": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "time_start": {
                   "type": "string"
@@ -2224,13 +2287,13 @@
                   "type": "string"
                 },
                 "payment_credential_url": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "is_public": {
-                  "type":"string"
+                  "type": "string"
                 },
                 "is_open_member": {
-                  "type":"string"
+                  "type": "string"
                 }
               }
             }
@@ -2268,10 +2331,10 @@
             "type": "object",
             "properties": {
               "deleted_blacklist": {
-                "type":"object",
+                "type": "object",
                 "properties": {
                   "blacklist_id": {
-                    "type":"string"
+                    "type": "string"
                   }
                 }
               }
@@ -2282,294 +2345,316 @@
           "name": "AdminGetBlacklistScheduleResponse"
         }
       },
-      "PlayerGetSportVenueListBody": {
-        "type": "object",
-        "properties": {
-          "is_car_parking": {
-            "type": "boolean",
-            "example": null
-          },
-          "is_bike_parking": {
-            "type": "boolean",
-            "example": true
-          },
-          "name": {
-            "type": "string",
-            "example": null
-          },
-          "Sport_Kind_id": {
-            "type": "string",
-            "example": null
-          },
-          "sort_by": {
-            "type": "string",
-            "example": "distance"
-          },
-          "coordinate": {
-            "type": "string",
-            "example": "-6.894797, 107.610590"
-          }
-        },
-        "xml": {
-          "name": "PlayerGetSportVenueListBody"
-        }
-      },
-      "PlayerGetSportVenueListResponse": {
+      "PlayerUploadBookingCredentialResponse": {
         "type": "object",
         "properties": {
           "message": {
             "type": "string"
           },
-          "get_status": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "type":"object",
-              "properties": {
-                "id": {
-                  "type":"string"
-                },
-                "Sport_Kind_id": {
-                  "type": "string"
-                },
-                "Sport_Kind_Name": {
-                  "type": "string"
-                },
-                "created_at": {
-                  "type": "string"
-                },
-                "last_edited": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "rules": {
-                  "type": "string"
-                },
-                "geo_coordinate": {
-                  "type": "string"
-                },
-                "distance": {
-                  "type": "float"
-                },
-                "is_bike_parking": {
-                  "type": "boolean"
-                },
-                "is_car_parking": {
-                  "type": "boolean"
-                },
-                "is_public": {
-                  "type": "boolean"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "time_open": {
-                  "type": "string"
-                },
-                "time_closed": {
-                  "type": "string"
-                },
-                "price_per_hour": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        },
-        "xml": {
-          "name": "PlayerGetSportVenueListResponse"
-        }
-      },
-      "AdminGetReservationListResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "get_status": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "type":"object",
-              "properties": {
-                "field_id": {
-                  "type": "string"
-                },
-                "field_number": {
-                  "type": "integer"
-                },
-                "host_name": {
-                  "type": "string"
-                },
-                "mabar_name": {
-                  "type": "string"
-                },
-                "playing_date": {
-                  "type": "string"
-                },
-                "reservation_id": {
-                  "type": "string"
-                },
-                "sport_kind_id": {
-                  "type": "string"
-                },
-                "sport_kind_name": {
-                  "type": "string"
-                },
-                "time_end": {
-                  "type": "string"
-                },
-                "time_start": {
-                  "type": "string"
-                },
-                "total_price": {
-                  "type": "integer"
-                },
-                "venue_id": {
-                  "type": "string"
-                },
-                "venue_name": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "xml": {
-          "name": "AdminGetReservationListResponse"
-        }
-      },
-      "PlayerCreateBookingBody": {
-        "required": [
-          "field_id",
-          "name",
-          "mabar_type",
-          "date",
-          "time_start",
-          "time_end"
-        ],
-        "type": "object",
-        "properties": {
-          "field_id": {
-            "type": "string",
-            "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
-          },
-          "name": {
-            "type": "string",
-            "example": "Mabar Anak Kece HMIF"
-          },
-          "mabar_type": {
-            "type": "string",
-            "description": "Could be filled with 'competitive' or 'friendly'",
-            "example": "competitive"
-          },
-          "date": {
-            "type": "string",
-            "example": "2024-03-20"
-          },
-          "time_start": {
-            "type": "string",
-            "description": "minutes and seconds always 00",
-            "example": "08:00:00"
-          },
-          "time_end": {
-            "type": "string",
-            "description": "minutes and seconds always 59",
-            "example": "13:59:59"
-          }
-        },
-        "xml": {
-          "name": "PlayerCreateBookingBody"
-        }
-      },
-      "PlayerCreateBookingResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "create_status": {
+          "upload_status": {
             "type": "boolean"
           },
           "data": {
             "type": "object",
             "properties": {
+              "url_image": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "PlayerUploadBookingCredentialResponse"
+      }
+    },
+    "PlayerGetSportVenueListBody": {
+      "type": "object",
+      "properties": {
+        "is_car_parking": {
+          "type": "boolean",
+          "example": null
+        },
+        "is_bike_parking": {
+          "type": "boolean",
+          "example": true
+        },
+        "name": {
+          "type": "string",
+          "example": null
+        },
+        "Sport_Kind_id": {
+          "type": "string",
+          "example": null
+        },
+        "sort_by": {
+          "type": "string",
+          "example": "distance"
+        },
+        "coordinate": {
+          "type": "string",
+          "example": "-6.894797, 107.610590"
+        }
+      },
+      "xml": {
+        "name": "PlayerGetSportVenueListBody"
+      }
+    },
+    "PlayerGetSportVenueListResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "get_status": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
               "id": {
-                "type":"string"
-              },
-              "Field_id": {
                 "type": "string"
               },
-              "Player_username": {
+              "Sport_Kind_id": {
                 "type": "string"
+              },
+              "Sport_Kind_Name": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "last_edited": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "rules": {
+                "type": "string"
+              },
+              "geo_coordinate": {
+                "type": "string"
+              },
+              "distance": {
+                "type": "float"
+              },
+              "is_bike_parking": {
+                "type": "boolean"
+              },
+              "is_car_parking": {
+                "type": "boolean"
+              },
+              "is_public": {
+                "type": "boolean"
               },
               "name": {
                 "type": "string"
               },
-              "mabar_type": {
+              "time_open": {
                 "type": "string"
               },
-              "date": {
+              "time_closed": {
                 "type": "string"
               },
-              "time_start": {
+              "price_per_hour": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "PlayerGetSportVenueListResponse"
+      }
+    },
+    "AdminGetReservationListResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "get_status": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field_id": {
+                "type": "string"
+              },
+              "field_number": {
+                "type": "integer"
+              },
+              "host_name": {
+                "type": "string"
+              },
+              "mabar_name": {
+                "type": "string"
+              },
+              "playing_date": {
+                "type": "string"
+              },
+              "reservation_id": {
+                "type": "string"
+              },
+              "sport_kind_id": {
+                "type": "string"
+              },
+              "sport_kind_name": {
                 "type": "string"
               },
               "time_end": {
                 "type": "string"
               },
-              "booking_status": {
+              "time_start": {
                 "type": "string"
               },
-              "payment_credential_url": {
+              "total_price": {
+                "type": "integer"
+              },
+              "venue_id": {
                 "type": "string"
               },
-              "is_public": {
-                "type": "boolean"
-              },
-              "is_open_member": {
-                "type": "boolean"
+              "venue_name": {
+                "type": "string"
               }
             }
           }
-        },
-        "xml": {
-          "name": "PlayerCreateBookingResponse"
         }
       },
-      "SportKindResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "status_get": {
-            "type": "boolean"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type":"string"
-                },
-                "name": {
-                  "type":"string"
-                }
+      "xml": {
+        "name": "AdminGetReservationListResponse"
+      }
+    },
+    "PlayerCreateBookingBody": {
+      "required": [
+        "field_id",
+        "name",
+        "mabar_type",
+        "date",
+        "time_start",
+        "time_end"
+      ],
+      "type": "object",
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "example": "d28aa20b-d982-4b53-b56d-7307a4410339"
+        },
+        "name": {
+          "type": "string",
+          "example": "Mabar Anak Kece HMIF"
+        },
+        "mabar_type": {
+          "type": "string",
+          "description": "Could be filled with 'competitive' or 'friendly'",
+          "example": "competitive"
+        },
+        "date": {
+          "type": "string",
+          "example": "2024-03-20"
+        },
+        "time_start": {
+          "type": "string",
+          "description": "minutes and seconds always 00",
+          "example": "08:00:00"
+        },
+        "time_end": {
+          "type": "string",
+          "description": "minutes and seconds always 59",
+          "example": "13:59:59"
+        }
+      },
+      "xml": {
+        "name": "PlayerCreateBookingBody"
+      }
+    },
+    "PlayerCreateBookingResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "create_status": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "Field_id": {
+              "type": "string"
+            },
+            "Player_username": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "mabar_type": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            },
+            "time_start": {
+              "type": "string"
+            },
+            "time_end": {
+              "type": "string"
+            },
+            "booking_status": {
+              "type": "string"
+            },
+            "payment_credential_url": {
+              "type": "string"
+            },
+            "is_public": {
+              "type": "boolean"
+            },
+            "is_open_member": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "PlayerCreateBookingResponse"
+      }
+    },
+    "SportKindResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "status_get": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
               }
             }
           }
-        },
-        "xml": {
-          "name": "SportKindResponse"
         }
+      },
+      "xml": {
+        "name": "SportKindResponse"
       }
     }
   }
