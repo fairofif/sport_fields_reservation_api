@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 11/04/2024 03:16:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 11/04/2024 19:30:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.3"
+    "version": "1.5.4"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1075,7 +1075,7 @@
         ],
         "summary": "Get Reservation schedule in a month (with parameter year and month)",
         "description": "Get Reservation schedule in a month (with parameter year and month)",
-        "operationId": "getReservationSchedule",
+        "operationId": "playerGetReservationSchedule",
         "parameters": [
           {
             "name": "token",
@@ -1281,6 +1281,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminGetReservationListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/reservation/detail/{reservation_id}": {
+      "get": {
+        "tags": [
+          "adminBooking"
+        ],
+        "summary": "Get Detailed Reservation based on id",
+        "description": "Get Detailed Reservation based on id",
+        "operationId": "getBookingDetailAdmin",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetReservationDetailResponse"
                 }
               }
             }
@@ -2521,6 +2568,15 @@
                 },
                 "venue_name": {
                   "type": "string"
+                },
+                "booking_status": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "booking_creation_age_hour": {
+                  "type": "integer"
                 }
               }
             }
@@ -2528,6 +2584,79 @@
         },
         "xml": {
           "name": "AdminGetReservationListResponse"
+        }
+      },
+      "AdminGetReservationDetailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "field_id": {
+                "type": "string"
+              },
+              "field_number": {
+                "type": "integer"
+              },
+              "host_name": {
+                "type": "string"
+              },
+              "mabar_name": {
+                "type": "string"
+              },
+              "playing_date": {
+                "type": "string"
+              },
+              "reservation_id": {
+                "type": "string"
+              },
+              "sport_kind_id": {
+                "type": "string"
+              },
+              "sport_kind_name": {
+                "type": "string"
+              },
+              "time_end": {
+                "type": "string"
+              },
+              "time_start": {
+                "type": "string"
+              },
+              "total_price": {
+                "type": "integer"
+              },
+              "venue_id": {
+                "type": "string"
+              },
+              "venue_name": {
+                "type": "string"
+              },
+              "booking_status": {
+                "type": "string"
+              },
+              "payment_credential_url": {
+                "type": "string"
+              },
+              "upload_payment_timestamp": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "booking_creation_age_hour": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetReservationDetailResponse"
         }
       },
       "PlayerCreateBookingBody": {

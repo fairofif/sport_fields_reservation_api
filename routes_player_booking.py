@@ -338,7 +338,7 @@ def player_booking_configure_routes(app):
                         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                         url_image = f"{BASE_URL_IMAGE}/payments/{filename}"
 
-                        query = f"UPDATE Reservation SET payment_credential_url = '{url_image}', last_updated = CURRENT_TIMESTAMP(), booking_status = 'waiting_approval' WHERE id = '{booking_id}'"
+                        query = f"UPDATE Reservation SET payment_credential_url = '{url_image}', last_updated = CURRENT_TIMESTAMP(), booking_status = 'waiting_approval', upload_payment_timestamp = CURRENT_TIMESTAMP() WHERE id = '{booking_id}'"
                         conn = mysql.connect()
                         cursor = conn.cursor(pymysql.cursors.DictCursor)
                         cursor.execute(query)
