@@ -181,3 +181,42 @@ def admin_booking_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/admin/reservation/status', methods=['PUT'])
+    def admin_edit_booking_status():
+        token = request.headers['token']
+        body = request.json
+        if checkAdminToken(token):
+            status = body['status']
+            if status == 'approved' or status == 'waiting_approval' or status == 'rejected' or status == 'cancelled':
+                query = f"UPDATE Reservation SET booking_status = '{status}', last_updated = CURRENT_TIMESTAMP() WHERE id = '{body['reservation_id']}'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                conn.commit()
+                cursor.close()
+                conn.close()
+                response = {
+                    'edit_status': True,
+                    'message': f"Reservation {body['reservation_id']}'s booking_status has been updated into {status}",
+                    'data': {
+                        'reservation_id': body['reservation_id']
+                    }
+                }
+                code = 200
+            else:
+                response = {
+                    'edit_status': False,
+                    'message': 'Status is not in the option',
+                    'data': None
+                }
+                code = 400
+        else:
+            response = {
+                'edit_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code

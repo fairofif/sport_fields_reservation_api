@@ -281,7 +281,7 @@ def player_venue_info_cofigure_routes(app):
     def player_get_fields_reservation_in_a_month_and_year(field_id, month, year):
         token = request.headers['token']
         if checkPlayerToken(token):
-            query = f"SELECT id, Field_id, Player_username, name, mabar_type, date, time_start, time_end, booking_status, payment_credential_url, is_public, is_open_member FROM Reservation WHERE Field_id = '{field_id}' AND MONTH(date)={month} AND YEAR(date)={year}"
+            query = f"SELECT id, Field_id, Player_username, name, mabar_type, date, time_start, time_end, booking_status, payment_credential_url, is_public, is_open_member FROM Reservation WHERE Field_id = '{field_id}' AND MONTH(date)={month} AND YEAR(date)={year} AND booking_status NOT IN('cancelled', 'rejected')"
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             cursor.execute(query)

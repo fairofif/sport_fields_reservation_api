@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 11/04/2024 19:30:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 12/04/2024 02:54:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.4"
+    "version": "1.5.5"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1134,7 +1134,7 @@
         }
       }
     },
-    "/player/booking": {
+    "/player/reservation": {
       "post": {
         "tags": [
           "playerBooking"
@@ -1183,7 +1183,7 @@
         }
       }
     },
-    "/player/booking/upload/{booking_id}": {
+    "/player/reservation/upload/{reservation_id}": {
       "post": {
         "tags": [
           "playerBooking"
@@ -1202,13 +1202,13 @@
             }
           },
           {
-            "name": "booking_id",
+            "name": "reservation_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "booking id"
+            "description": "reservation id"
           }
         ],
         "requestBody": {
@@ -1268,7 +1268,7 @@
             "name": "booking_status",
             "in": "path",
             "required": true,
-            "description": "option: payment, waiting_approval, approved, declined",
+            "description": "option: payment, waiting_approval, approved, rejected, cancelled",
             "schema": {
               "type": "string"
             }
@@ -1328,6 +1328,55 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminGetReservationDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/reservation/status": {
+      "put": {
+        "tags": [
+          "adminBooking"
+        ],
+        "summary": "Edit booking_status of reservation/booking",
+        "description": "Edit booking_status of reservation/booking",
+        "operationId": "adminEditBookingStatus",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "option status: waiting_approval, approved, rejected, cancelled",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminEditBookingStatusBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEditBookingStatusResponse"
                 }
               }
             }
@@ -2755,6 +2804,49 @@
         },
         "xml": {
           "name": "PlayerCreateBookingResponse"
+        }
+      },
+      "AdminEditBookingStatusBody": {
+        "required": [
+          "reservation_id",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "reservation_id": {
+            "type": "string",
+            "example": "6d9aff9b-3422-4022-9092-8f6b70e00087"
+          },
+          "status": {
+            "type": "string",
+            "description": "option: waiting_approval, approved, rejected, cancelled",
+            "example": "rejected"
+          }
+        },
+        "xml": {
+          "name": "AdminEditBookingStatusBody"
+        }
+      },
+      "AdminEditBookingStatusResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "delete_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminEditBookingStatusResponse"
         }
       },
       "SportKindResponse": {

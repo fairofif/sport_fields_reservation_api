@@ -222,7 +222,7 @@ def player_booking_configure_routes(app):
         return data['Player_username']
 
     # =================== ROUTES ===================== #
-    @app.route('/player/booking', methods=['POST'])
+    @app.route('/player/reservation', methods=['POST'])
     def player_create_booking():
         token = request.headers['token']
         body = request.json
@@ -308,8 +308,8 @@ def player_booking_configure_routes(app):
         return jsonify(response), code
 
 
-    @app.route('/player/booking/upload/<booking_id>', methods=['POST'])
-    def player_uploads_payment(booking_id):
+    @app.route('/player/reservation/upload/<reservation_id>', methods=['POST'])
+    def player_uploads_payment(reservation_id):
         token = request.headers['token']
         if checkPlayerToken(token):
             username = findUsernameFromToken(token)
@@ -333,12 +333,12 @@ def player_booking_configure_routes(app):
                 else:
                     if image and allowed_file(image.filename):
                         file_extension = image.filename.rsplit('.', 1)[1].lower()
-                        custom_filename = f"{username}_{booking_id}_{get_current_time_string()}."
+                        custom_filename = f"{username}_{reservation_id}_{get_current_time_string()}."
                         filename = custom_filename+file_extension
                         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                         url_image = f"{BASE_URL_IMAGE}/payments/{filename}"
 
-                        query = f"UPDATE Reservation SET payment_credential_url = '{url_image}', last_updated = CURRENT_TIMESTAMP(), booking_status = 'waiting_approval', upload_payment_timestamp = CURRENT_TIMESTAMP() WHERE id = '{booking_id}'"
+                        query = f"UPDATE Reservation SET payment_credential_url = '{url_image}', last_updated = CURRENT_TIMESTAMP(), booking_status = 'waiting_approval', upload_payment_timestamp = CURRENT_TIMESTAMP() WHERE id = '{reservation_id}'"
                         conn = mysql.connect()
                         cursor = conn.cursor(pymysql.cursors.DictCursor)
                         cursor.execute(query)

@@ -260,7 +260,7 @@ def test_player_create_reservation_success():
         "time_end": "16:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -318,7 +318,7 @@ def test_player_create_reservation_schedule_is_out_of_field_range():
         "time_end": "16:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -382,7 +382,7 @@ def test_player_create_reservation_schedule_is_take_by_other_1():
         "time_end": "13:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -446,7 +446,7 @@ def test_player_create_reservation_schedule_is_take_by_other_2():
         "time_end": "10:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -510,7 +510,7 @@ def test_player_create_reservation_schedule_is_take_by_other_3():
         "time_end": "13:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -574,7 +574,7 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_1():
         "time_end": "12:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -638,7 +638,7 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_2():
         "time_end": "16:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -702,7 +702,7 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_3():
         "time_end": "16:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -766,7 +766,7 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_every_week_1()
         "time_end": "12:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -830,7 +830,7 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_every_week_2()
         "time_end": "16:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
@@ -894,7 +894,7 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_every_week_3()
         "time_end": "16:59:59"
     }
 
-    url = "/player/booking"
+    url = "/player/reservation"
     client = app.test_client()
 
     response = client.post(url, headers=header, json=body)
