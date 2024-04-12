@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 12/04/2024 02:54:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 12/04/2024 22:33:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.5"
+    "version": "1.5.6"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1233,6 +1233,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerUploadBookingCredentialResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/reservation/cancel/{reservation_id}": {
+      "put": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Cancel reservation (before approved by admin)",
+        "description": "Only could cancel if booking_status = payment or waiting_approval, outside that would be rejected",
+        "operationId": "playerCancelReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerCancelReservationResponse"
                 }
               }
             }
@@ -2833,7 +2881,7 @@
           "message": {
             "type": "string"
           },
-          "delete_status": {
+          "edit_status": {
             "type": "boolean"
           },
           "data": {
@@ -2847,6 +2895,28 @@
         },
         "xml": {
           "name": "AdminEditBookingStatusResponse"
+        }
+      },
+      "PlayerCancelReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "edit_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerCancelReservationResponse"
         }
       },
       "SportKindResponse": {

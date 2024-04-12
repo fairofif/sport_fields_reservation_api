@@ -369,3 +369,43 @@ def player_booking_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/player/reservation/cancel/<reservation_id>', methods=['PUT'])
+    def player_cancel_reservation(reservation_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            query = f"SELECT booking_status FROM Reservation WHERE id = '{reservation_id}'"
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query)
+            result = cursor.fetchone()
+            if result['booking_status'] == 'payment' or result['booking_status'] == 'waiting_approval':
+                query = f"UPDATE Reservation SET booking_status = 'cancelled' WHERE id = '{reservation_id}'"
+                cursor.execute(query)
+                conn.commit()
+                response = {
+                    'edit_status': True,
+                    'message': f"Reservation {reservation_id} has been cancelled successfully",
+                    'data': {
+                        'reservation_id': reservation_id
+                    }
+                }
+                code = 200
+            else:
+                response = {
+                    'edit_status': False,
+                    'message': f"Reservation with booking_status = '{result['booking_status']}' cannot be cancelled",
+                    'data': None
+                }
+                code = 403
+            cursor.close()
+            conn.close()
+        else:
+            response = {
+                'edit_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code

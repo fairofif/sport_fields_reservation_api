@@ -218,6 +218,14 @@ def insert_admin_unittest_blacklist(blacklist_id, field_id, date, fromTime, toTi
     cursor.close()
     conn.close()
 
+def change_reservation_status(booking_id, status):
+    query = f"UPDATE Reservation SET booking_status = '{status}' WHERE id = '{booking_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
 #### ======================= UNIT TEST =========================== ####
 
 def test_player_create_reservation_success():
@@ -912,3 +920,169 @@ def test_player_create_reservation_schedule_on_blacklist_schedule_every_week_3()
     assert response.status_code == 409
     assert response.get_json()['create_status'] == False
     assert response.get_json()['message'] == "Schedule that you choose is blaklisted by admin"
+
+def test_player_cancel_reservation_on_waiting_approval():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'waiting_approval')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/cancel/{booking_id}"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['edit_status'] == True
+    assert response.get_json()['message'] == f"Reservation {booking_id} has been cancelled successfully"
+
+
+def test_player_cancel_reservation_on_payment():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'payment')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/cancel/{booking_id}"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['edit_status'] == True
+    assert response.get_json()['message'] == f"Reservation {booking_id} has been cancelled successfully"
+
+def test_player_cancel_reservation_on_other_status():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/cancel/{booking_id}"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 403
+    assert response.get_json()['edit_status'] == False
+    assert response.get_json()['message'] == "Reservation with booking_status = 'approved' cannot be cancelled"
