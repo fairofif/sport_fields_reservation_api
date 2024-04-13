@@ -1344,3 +1344,232 @@ def test_player_change_open_member_status_not_host():
     assert response.status_code == 401
     assert response.get_json()['edit_status'] == False
     assert response.get_json()['message'] == f"Only host could edit open member status of reservation"
+
+def test_player_change_public_status_on_approved_status_to_public():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/public/{booking_id}/1"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['edit_status'] == True
+    assert response.get_json()['message'] == f"Reservation {booking_id} now is public"
+
+def test_player_change_public_status_to_unpublic():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/public/{booking_id}/0"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['edit_status'] == True
+    assert response.get_json()['message'] == f"Reservation {booking_id} now is unpublic"
+
+def test_player_change_public_status_on_except_approved_status_to_public():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'waiting_approval')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/public/{booking_id}/1"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 403
+    assert response.get_json()['edit_status'] == False
+    assert response.get_json()['message'] == f"Only approved reservation could public"
+
+def test_player_change_public_status_not_host():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'waiting_approval')
+
+    player2token = newUserToken()
+
+    player2device = newVirtualDeviceID()
+    insert_player_unittest_user_custom("not_host")
+    insert_unittest_device(player2device)
+    insert_player_unittest_token_custom(player2token, player2device, "not_host")
+
+    ## TEST
+    header = {
+        'token': player2token
+    }
+
+    url = f"/player/reservation/public/{booking_id}/1"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_unittest_device(player2device)
+    delete_player_unittest_user_custom("not_host")
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 401
+    assert response.get_json()['edit_status'] == False
+    assert response.get_json()['message'] == f"Only host could edit public status of reservation"

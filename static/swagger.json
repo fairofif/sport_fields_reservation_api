@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 13/04/2024 21:47:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 14/04/2024 01:15:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.7"
+    "version": "1.5.8"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1323,6 +1323,63 @@
           },
           {
             "name": "is_open_member",
+            "in": "path",
+            "required": true,
+            "description": "fill with 1 to change to True, 0 to False",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerCancelReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/reservation/public/{reservation_id}/{is_public}": {
+      "put": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Change condition is_public status of a reservation by Host",
+        "description": "Beside host cannot change condition of a reservation. Only approved reservation can be public reservation",
+        "operationId": "playerChangePublicReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "is_public",
             "in": "path",
             "required": true,
             "description": "fill with 1 to change to True, 0 to False",

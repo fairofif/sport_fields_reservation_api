@@ -498,3 +498,67 @@ def player_booking_configure_routes(app):
             code = 401
 
         return jsonify(response), code
+
+    @app.route('/player/reservation/public/<reservation_id>/<is_public>', methods=['PUT'])
+    def change_public_status(reservation_id, is_public):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if usernameIsAHost(username, reservation_id):
+                if is_public == '1':
+                    booking_status = findBookingStatusOfReservation(reservation_id)
+                    if booking_status == 'approved':
+                        query = f"UPDATE Reservation SET is_public = {is_public} WHERE id = '{reservation_id}'"
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+                        cursor.execute(query)
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
+                        response = {
+                            'edit_status': True,
+                            'message': f"Reservation {reservation_id} now is public",
+                            'data': {
+                                'reservation_id': reservation_id
+                            }
+                        }
+                        code = 200
+                    else:
+                        response = {
+                            'edit_status': False,
+                            'message': 'Only approved reservation could public',
+                            'data': None
+                        }
+                        code = 403
+                else:
+                    query = f"UPDATE Reservation SET is_public = {is_public} WHERE id = '{reservation_id}'"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    response = {
+                        'edit_status': True,
+                        'message': f"Reservation {reservation_id} now is unpublic",
+                        'data': {
+                            'reservation_id': reservation_id
+                        }
+                    }
+                    code = 200
+            else:
+                response = {
+                    'edit_status': False,
+                    'message': 'Only host could edit public status of reservation',
+                    'data': None
+                }
+                code = 401
+        else:
+            response = {
+                'edit_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
