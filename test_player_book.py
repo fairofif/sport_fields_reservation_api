@@ -30,6 +30,26 @@ def delete_player_unittest_user():
     cursor.close()
     conn.close()
 
+def insert_player_unittest_user_custom(username):
+    ava_url = os.getenv("DEFAULT_AVA_PATH")
+
+    query = 'INSERT INTO Player VALUES("'+username+'", "unittest", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), "08123456789")'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_player_unittest_user_custom(username):
+    query = 'DELETE FROM Player WHERE username = "'+username+'"'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def delete_player_unittest_token(token):
     query = "DELETE FROM Player_Login_Token WHERE token = '"+token+"'"
     conn = mysql.connect()
@@ -41,6 +61,15 @@ def delete_player_unittest_token(token):
 
 def insert_player_unittest_token(token, device_id):
     query = "INSERT INTO Player_Login_Token VALUES ('"+token+"', 'unittest', CURRENT_TIMESTAMP(), '"+device_id+"')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_player_unittest_token_custom(token, device_id, username):
+    query = f"INSERT INTO Player_Login_Token VALUES ('{token}', '{username}', CURRENT_TIMESTAMP(), '{device_id}')"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -1086,3 +1115,232 @@ def test_player_cancel_reservation_on_other_status():
     assert response.status_code == 403
     assert response.get_json()['edit_status'] == False
     assert response.get_json()['message'] == "Reservation with booking_status = 'approved' cannot be cancelled"
+
+def test_player_change_open_member_status_on_approved_status_to_open():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/open/{booking_id}/1"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['edit_status'] == True
+    assert response.get_json()['message'] == f"Reservation {booking_id} now is open member"
+
+def test_player_change_open_member_status_to_closed():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/open/{booking_id}/0"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['edit_status'] == True
+    assert response.get_json()['message'] == f"Reservation {booking_id} now is closed member"
+
+def test_player_change_open_member_status_on_except_approved_status_to_open():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'waiting_approval')
+
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    url = f"/player/reservation/open/{booking_id}/1"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 403
+    assert response.get_json()['edit_status'] == False
+    assert response.get_json()['message'] == f"Only approved reservation could open member"
+
+def test_player_change_open_member_status_not_host():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'waiting_approval')
+
+    player2token = newUserToken()
+
+    player2device = newVirtualDeviceID()
+    insert_player_unittest_user_custom("not_host")
+    insert_unittest_device(player2device)
+    insert_player_unittest_token_custom(player2token, player2device, "not_host")
+
+    ## TEST
+    header = {
+        'token': player2token
+    }
+
+    url = f"/player/reservation/open/{booking_id}/1"
+    client = app.test_client()
+
+    response = client.put(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_unittest_device(player2device)
+    delete_player_unittest_user_custom("not_host")
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 401
+    assert response.get_json()['edit_status'] == False
+    assert response.get_json()['message'] == f"Only host could edit open member status of reservation"

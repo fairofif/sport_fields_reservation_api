@@ -221,6 +221,31 @@ def player_booking_configure_routes(app):
         conn.close()
         return data['Player_username']
 
+    def usernameIsAHost(username, reservation_id):
+        query = f"SELECT * FROM Reservation WHERE Player_username = '{username}' AND id = '{reservation_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return False
+        else:
+            cursor.close()
+            conn.close()
+            return True
+
+    def findBookingStatusOfReservation(reservation_id):
+        query = f"SELECT booking_status FROM Reservation WHERE id = '{reservation_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        return result['booking_status']
+
     # =================== ROUTES ===================== #
     @app.route('/player/reservation', methods=['POST'])
     def player_create_booking():
@@ -400,6 +425,70 @@ def player_booking_configure_routes(app):
                 code = 403
             cursor.close()
             conn.close()
+        else:
+            response = {
+                'edit_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
+
+    @app.route('/player/reservation/open/<reservation_id>/<is_open_member>', methods=['PUT'])
+    def change_open_member_status(reservation_id, is_open_member):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if usernameIsAHost(username, reservation_id):
+                if is_open_member == '1':
+                    booking_status = findBookingStatusOfReservation(reservation_id)
+                    if booking_status == 'approved':
+                        query = f"UPDATE Reservation SET is_open_member = {is_open_member} WHERE id = '{reservation_id}'"
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+                        cursor.execute(query)
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
+                        response = {
+                            'edit_status': True,
+                            'message': f"Reservation {reservation_id} now is open member",
+                            'data': {
+                                'reservation_id': reservation_id
+                            }
+                        }
+                        code = 200
+                    else:
+                        response = {
+                            'edit_status': False,
+                            'message': 'Only approved reservation could open member',
+                            'data': None
+                        }
+                        code = 403
+                else:
+                    query = f"UPDATE Reservation SET is_open_member = {is_open_member} WHERE id = '{reservation_id}'"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    response = {
+                        'edit_status': True,
+                        'message': f"Reservation {reservation_id} now is closed member",
+                        'data': {
+                            'reservation_id': reservation_id
+                        }
+                    }
+                    code = 200
+            else:
+                response = {
+                    'edit_status': False,
+                    'message': 'Only host could edit open member status of reservation',
+                    'data': None
+                }
+                code = 401
         else:
             response = {
                 'edit_status': False,
