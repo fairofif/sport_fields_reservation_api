@@ -25,6 +25,7 @@ jobs:
 
   test:
     runs-on: self-hosted
+    needs: build
     env:
         DB_USER_: ${{ vars.DB_USER_ }}
         DB_PASSWORD_: ${{ vars.DB_PASSWORD_ }}

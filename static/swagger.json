@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 14/04/2024 01:15:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/04/2024 02:40:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.8"
+    "version": "1.5.9"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1395,6 +1395,81 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerCancelReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/reservation/public/{sport_kind_id}/{mabar_type}/{sort_by}": {
+      "get": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Get Public Reservation to join with",
+        "description": "With filter sport_kind, mabar_type, and sort_by distance or playing_date",
+        "operationId": "playerGetPublicReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "geo_coordinate",
+            "in": "header",
+            "required": false,
+            "description": "Current device's location coordinate, you could fill with blank",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sport_kind_id",
+            "in": "path",
+            "required": true,
+            "description": "sport_kind_id can gotten with sport_kind routes. you could fill with 'all' if doesn't need this filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mabar_type",
+            "in": "path",
+            "required": true,
+            "description": "friendly, competitive, or all",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "path",
+            "required": true,
+            "description": "distance or date",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetPublicReservationResponse"
                 }
               }
             }
@@ -3031,6 +3106,73 @@
         },
         "xml": {
           "name": "PlayerCancelReservationResponse"
+        }
+      },
+      "PlayerGetPublicReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "count_member": {
+                  "type": "integer"
+                },
+                "distance": {
+                  "type": "number"
+                },
+                "field_id": {
+                  "type": "string"
+                },
+                "field_number": {
+                  "type": "integer"
+                },
+                "host_name": {
+                  "type": "string"
+                },
+                "mabar_name": {
+                  "type": "string"
+                },
+                "playing_date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "reservation_id": {
+                  "type": "string"
+                },
+                "sport_kind_id": {
+                  "type": "string"
+                },
+                "sport_kind_name": {
+                  "type": "string"
+                },
+                "time_start": {
+                  "type": "string",
+                  "format": "time"
+                },
+                "time_end": {
+                  "type": "string",
+                  "format": "time"
+                },
+                "venue_id": {
+                  "type": "string"
+                },
+                "venue_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetPublicReservationResponse"
         }
       },
       "SportKindResponse": {

@@ -11,6 +11,7 @@ from uuid_generator import newBookingUUID
 import urllib.request
 from werkzeug.utils import secure_filename
 import os
+import haversine as hs
 
 load_dotenv(override=True)
 
@@ -245,6 +246,19 @@ def player_booking_configure_routes(app):
         conn.close()
 
         return result['booking_status']
+
+    def convertCoordinate(loc_string):
+        lat_str, lon_str = loc_string.split(',')
+        lat = float(lat_str.strip())
+        lon = float(lon_str.strip())
+
+        return (lat, lon)
+
+    def calculateDistance(loc1_str, loc2_str):
+        loc1 = convertCoordinate(loc1_str)
+        loc2 = convertCoordinate(loc2_str)
+
+        return hs.haversine(loc1, loc2)
 
     # =================== ROUTES ===================== #
     @app.route('/player/reservation', methods=['POST'])
@@ -556,6 +570,107 @@ def player_booking_configure_routes(app):
         else:
             response = {
                 'edit_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
+
+    @app.route('/player/reservation/public/<sport_kind_id>/<mabar_type>/<sort_by>', methods=['GET'])
+    def get_public_reservation_by_filters(sport_kind_id, mabar_type, sort_by):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            query_init = (
+                "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, "
+                + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
+            )
+            filters = []
+            filters = filters + ["Reservation.is_public = 1"]
+            if sport_kind_id != 'all':
+                filters = filters + [f"Sport_Kind.id = '{sport_kind_id}'"]
+            if mabar_type != 'all':
+                filters = filters + [f"Reservation.mabar_type = '{mabar_type}'"]
+            for i in range(len(filters)):
+                if i == 0:
+                    query_init = query_init + 'WHERE ' + filters[i] + ' '
+                else:
+                    query_init = query_init + 'AND ' + filters[i] + ' '
+            query_init = query_init + 'GROUP BY Reservation.id '
+            if sort_by == 'date':
+                query_final = query_init + 'ORDER BY playing_date, time_start '
+            else:
+                query_final = query_init
+
+            print(query_final)
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query_final)
+            results = cursor.fetchall()
+            rowcount = cursor.rowcount
+            cursor.close()
+            conn.close()
+            datas = []
+
+            if request.headers.get('geo_coordinate') != None and request.headers.get('geo_coordinate') != "":
+                geo_coordinate = request.headers['geo_coordinate']
+                for i in range(rowcount):
+                    data = {
+                        'reservation_id': results[i]['reservation_id'],
+                        'host_name': results[i]['host_name'],
+                        'mabar_name': results[i]['mabar_name'],
+                        'playing_date': str(results[i]['playing_date']),
+                        'time_start': str(results[i]['time_start']),
+                        'time_end': str(results[i]['time_end']),
+                        'distance': calculateDistance(geo_coordinate, str(results[i]['geo_coordinate'])),
+                        'venue_id': results[i]['venue_id'],
+                        'venue_name': results[i]['venue_name'],
+                        'sport_kind_id': results[i]['sport_kind_id'],
+                        'sport_kind_name': results[i]['sport_kind_name'],
+                        'field_id': results[i]['field_id'],
+                        'field_number': results[i]['field_number'],
+                        'count_member': results[i]['count_member']
+                    }
+                    datas = datas + [data]
+            else:
+                for i in range(rowcount):
+                    data = {
+                        'reservation_id': results[i]['reservation_id'],
+                        'host_name': results[i]['host_name'],
+                        'mabar_name': results[i]['mabar_name'],
+                        'playing_date': str(results[i]['playing_date']),
+                        'time_start': str(results[i]['time_start']),
+                        'time_end': str(results[i]['time_end']),
+                        'distance': None,
+                        'venue_id': results[i]['venue_id'],
+                        'venue_name': results[i]['venue_name'],
+                        'sport_kind_id': results[i]['sport_kind_id'],
+                        'sport_kind_name': results[i]['sport_kind_name'],
+                        'field_id': results[i]['field_id'],
+                        'field_number': results[i]['field_number'],
+                        'count_member': results[i]['count_member']
+                    }
+                    datas = datas + [data]
+            if sort_by == 'distance' and request.headers.get('geo_coordinate') != None and request.headers.get('geo_coordinate') != "":
+                datas = sorted(datas, key=lambda x: x['distance'])
+
+            response = {
+                'get_status': True,
+                'message': 'Retrieve public reservation success',
+                'data': datas
+            }
+            code = 200
+
+        else:
+            response = {
+                'get_status': False,
                 'message': 'Token is expired',
                 'data': None
             }
