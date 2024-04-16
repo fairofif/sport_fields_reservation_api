@@ -217,3 +217,12 @@ def insert_admin_unittest_blacklist(blacklist_id, field_id, date, fromTime, toTi
     conn.commit()
     cursor.close()
     conn.close()
+
+def change_reservation_status(booking_id, status):
+    query = f"UPDATE Reservation SET booking_status = '{status}' WHERE id = '{booking_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()

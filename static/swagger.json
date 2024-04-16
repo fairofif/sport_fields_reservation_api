@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/04/2024 02:40:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/04/2024 20:38:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.5.9"
+    "version": "1.6.1"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -56,6 +56,10 @@
     {
       "name": "adminBooking",
       "description": "Routes that related to Reservation/Booking Processing Admin"
+    },
+    {
+      "name": "venueControlSystem",
+      "description": "Routes that control system in a venue"
     }
   ],
   "paths": {
@@ -1627,6 +1631,66 @@
         }
       }
     },
+    "/controlsystem/hostinfo/{field_id}/{date}/{time}": {
+      "get": {
+        "tags": [
+          "venueControlSystem"
+        ],
+        "summary": "Check in a field is there any ongoing reservation or not",
+        "description": "Check by field_id, date, and time. Device/ESP would check every round hour (XX:00:00) and display host or mabar name in panel fields",
+        "operationId": "venueGetInfoScheduleOngoing",
+        "parameters": [
+          {
+            "name": "field_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "example": "a6d01bda-89b1-42b0-be6e-9164f5b8f03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "example": "2024-05-01",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "time",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "example": "14:00:00",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlSystemGetScheduleOngoingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -3173,6 +3237,34 @@
         },
         "xml": {
           "name": "PlayerGetPublicReservationResponse"
+        }
+      },
+      "ControlSystemGetScheduleOngoingResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "is_there_a_schedule": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "mabar_name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "ControlSystemGetScheduleOngoingResponse"
         }
       },
       "SportKindResponse": {
