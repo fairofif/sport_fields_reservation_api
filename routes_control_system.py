@@ -10,7 +10,7 @@ from datetime import datetime
 
 def control_system_configure_routes(app):
     def getReservationByFieldDateTime(field_id, date):
-        query = f"SELECT Player_username host, name mabar_name, time_start, time_end FROM Reservation WHERE date = '{date}' AND Field_id = '{field_id}'"
+        query = f"SELECT Player_username host, name mabar_name, time_start, time_end FROM Reservation WHERE date = '{date}' AND Field_id = '{field_id}' AND booking_status = 'approved'"
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(query)
