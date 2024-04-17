@@ -48,6 +48,35 @@ def insert_player_unittest_token(token, device_id):
     cursor.close()
     conn.close()
 
+def insert_player_unittest_token_custom(token, device_id, username):
+    query = f"INSERT INTO Player_Login_Token VALUES ('{token}', '{username}', CURRENT_TIMESTAMP(), '{device_id}')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_player_unittest_user_custom(username):
+    ava_url = os.getenv("DEFAULT_AVA_PATH")
+
+    query = 'INSERT INTO Player VALUES("'+username+'", "unittest", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), "08123456789")'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_player_unittest_user_custom(username):
+    query = 'DELETE FROM Player WHERE username = "'+username+'"'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 ## =============== Static Method Admin User ============== ##
 def insert_admin_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
@@ -220,6 +249,24 @@ def insert_admin_unittest_blacklist(blacklist_id, field_id, date, fromTime, toTi
 
 def change_reservation_status(booking_id, status):
     query = f"UPDATE Reservation SET booking_status = '{status}' WHERE id = '{booking_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def change_open_member_status(booking_id, status):
+    query = f"UPDATE Reservation SET is_open_member = '{status}' WHERE id = '{booking_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_member_reservation(booking_id, username):
+    query = f"INSERT INTO Reservation_Member VALUES ('{booking_id}', '{username}')"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)

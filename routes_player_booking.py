@@ -636,7 +636,7 @@ def player_booking_configure_routes(app):
                         'sport_kind_name': results[i]['sport_kind_name'],
                         'field_id': results[i]['field_id'],
                         'field_number': results[i]['field_number'],
-                        'count_member': results[i]['count_member']
+                        'count_member': results[i]['count_member'] + 1
                     }
                     datas = datas + [data]
             else:
@@ -655,7 +655,7 @@ def player_booking_configure_routes(app):
                         'sport_kind_name': results[i]['sport_kind_name'],
                         'field_id': results[i]['field_id'],
                         'field_number': results[i]['field_number'],
-                        'count_member': results[i]['count_member']
+                        'count_member': results[i]['count_member'] + 1
                     }
                     datas = datas + [data]
             if sort_by == 'distance' and request.headers.get('geo_coordinate') != None and request.headers.get('geo_coordinate') != "":

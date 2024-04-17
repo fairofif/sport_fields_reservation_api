@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/04/2024 20:38:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/04/2024 23:58:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.6.1"
+    "version": "1.7.1"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -58,8 +58,12 @@
       "description": "Routes that related to Reservation/Booking Processing Admin"
     },
     {
+      "name": "memberManagement",
+      "description": "Routes that related to Member/Player management in a reservation"
+    },
+    {
       "name": "venueControlSystem",
-      "description": "Routes that control system in a venue"
+      "description": "Routes that related to control system in a venue"
     }
   ],
   "paths": {
@@ -1691,6 +1695,54 @@
         }
       }
     },
+    "/player/reservation/join/{reservation_id}": {
+      "post": {
+        "tags": [
+          "memberManagement"
+        ],
+        "summary": "Join to a public reservation",
+        "description": "Join from a public reservation exploration",
+        "operationId": "playerJoinToPublicReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerJoinPublicReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -2762,6 +2814,28 @@
         },
         "xml": {
           "name": "PlayerUploadBookingCredentialResponse"
+        }
+      },
+      "PlayerJoinPublicReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "join_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerJoinPublicReservationResponse"
         }
       },
       "PlayerGetSportVenueListBody": {
