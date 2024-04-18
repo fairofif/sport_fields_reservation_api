@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/04/2024 23:58:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/04/2024 00:18:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.1"
+    "version": "1.7.2"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1743,6 +1743,63 @@
         }
       }
     },
+    "/player/reservation/invite/{reservation_id}/{invited_username}": {
+      "post": {
+        "tags": [
+          "memberManagement"
+        ],
+        "summary": "Invite Player to reservation by Host",
+        "description": "Host could invite directly even is_open_member and is_public is False",
+        "operationId": "playerInviteToReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invited_username",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerInviteToReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -2836,6 +2893,28 @@
         },
         "xml": {
           "name": "PlayerJoinPublicReservationResponse"
+        }
+      },
+      "PlayerInviteToReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "invite_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerInviteToReservationResponse"
         }
       },
       "PlayerGetSportVenueListBody": {

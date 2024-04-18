@@ -76,8 +76,84 @@ def member_management_configure_routes(app):
         else:
             return True
 
+    def isPlayerExists(username):
+        query = f"SELECT username FROM Player WHERE username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return True
+        else:
+            return False
+
 
     # ROUTES
+    @app.route('/player/reservation/invite/<reservation_id>/<invited_username>', methods=['POST'])
+    def invite_player_to_reservation(reservation_id, invited_username):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if not isPlayerNotAHost(reservation_id, username):
+                if isPlayerExists(invited_username):
+                    if isPlayerNotAHost(reservation_id, invited_username):
+                        if isPlayerNotAlreadyInAReservationAsMember(reservation_id, invited_username):
+                            query = f"INSERT INTO Reservation_Member VALUES ('{reservation_id}', '{invited_username}')"
+                            conn = mysql.connect()
+                            cursor = conn.cursor(pymysql.cursors.DictCursor)
+                            cursor.execute(query)
+                            conn.commit()
+                            cursor.close()
+                            conn.close()
+
+                            response = {
+                                'invite_status': True,
+                                'message': f"{invited_username} now is member of reservation {reservation_id}",
+                                'data': {
+                                    'reservation_id': reservation_id
+                                }
+                            }
+                            code = 200
+                        else:
+                            response = {
+                                'invite_status': False,
+                                'message': f"{invited_username} is already in reservation {reservation_id} before",
+                                'data': None
+                            }
+                            code = 409
+                    else:
+                        response = {
+                            'invite_status': False,
+                            'message': f"This user is already a host of reservation {reservation_id}",
+                            'data': None
+                        }
+                        code = 403
+                else:
+                    response = {
+                        'invite_status': False,
+                        'message': f"{invited_username} not found as a player in database",
+                        'data': None
+                    }
+                    code = 404
+            else:
+                response = {
+                    'invite_status': False,
+                    'message': f"{invited_username} failed to be invited, {username} not a host of reservation {reservation_id}",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'invite_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
 
     @app.route('/player/reservation/join/<reservation_id>', methods=['POST'])
     def join_a_reservation(reservation_id):
