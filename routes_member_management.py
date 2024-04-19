@@ -90,6 +90,19 @@ def member_management_configure_routes(app):
         else:
             return False
 
+    def isReservationExists(reservation_id):
+        query = f"SELECT id FROM Reservation WHERE id = '{reservation_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return True
+        else:
+            return False
 
     # ROUTES
     @app.route('/player/reservation/invite/<reservation_id>/<invited_username>', methods=['POST'])
@@ -209,4 +222,58 @@ def member_management_configure_routes(app):
             }
             code = 401
 
+        return jsonify(response), code
+
+    @app.route('/player/reservation/members/<reservation_id>', methods=['GET'])
+    def get_list_members_of_reservation(reservation_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            if isReservationExists(reservation_id):
+                members = []
+                query = f"SELECT Player_username FROM Reservation WHERE id = '{reservation_id}'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                result = cursor.fetchone()
+                cursor.close()
+                conn.close()
+                item = {
+                    'username': result['Player_username'],
+                    'role': 'host'
+                }
+                members = members + [item]
+                query = f"SELECT Player_username FROM Reservation_Member WHERE Reservation_id = '{reservation_id}'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                result = cursor.fetchall()
+                rowcount = cursor.rowcount
+                cursor.close()
+                conn.close()
+                for i in range(rowcount):
+                    item = {
+                        'username': result[i]['Player_username'],
+                        'role': 'member'
+                    }
+                    members = members + [item]
+                response = {
+                    'get_status': True,
+                    'message': f"List member of reservation {reservation_id} successfully retrieved",
+                    'data': members
+                }
+                code = 200
+            else:
+                response = {
+                    'get_status': False,
+                    'message': f"Reservation {reservation_id} is not exists",
+                    'data': None
+                }
+                code = 404
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
         return jsonify(response), code

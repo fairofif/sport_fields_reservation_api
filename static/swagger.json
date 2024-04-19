@@ -1800,6 +1800,54 @@
         }
       }
     },
+    "/player/reservation/members/{reservation_id}": {
+      "get": {
+        "tags": [
+          "memberManagement"
+        ],
+        "summary": "Get list of players in a reservation",
+        "description": "",
+        "operationId": "playerGetMembersOfReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetMemberOfReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -3390,6 +3438,34 @@
         },
         "xml": {
           "name": "PlayerGetPublicReservationResponse"
+        }
+      },
+      "PlayerGetMemberOfReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetMemberOfReservationResponse"
         }
       },
       "ControlSystemGetScheduleOngoingResponse": {
