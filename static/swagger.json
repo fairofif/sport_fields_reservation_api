@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 19/04/2024 20:55:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/04/2024 03:15:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.3"
+    "version": "1.7.4"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1848,6 +1848,63 @@
         }
       }
     },
+    "/player/reservation/kick/{reservation_id}/{username}": {
+      "delete": {
+        "tags": [
+          "memberManagement"
+        ],
+        "summary": "Remove a player from a reservation",
+        "description": "",
+        "operationId": "playerDeletePlayerFromReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerRemovePlayerFromReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -3494,6 +3551,28 @@
         },
         "xml": {
           "name": "ControlSystemGetScheduleOngoingResponse"
+        }
+      },
+      "PlayerRemovePlayerFromReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "kick_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerRemovePlayerFromReservationResponse"
         }
       },
       "SportKindResponse": {

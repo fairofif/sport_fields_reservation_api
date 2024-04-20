@@ -277,3 +277,65 @@ def member_management_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/player/reservation/kick/<reservation_id>/<username>', methods=['DELETE'])
+    def kick_a_member_from_reservation(reservation_id, username):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username_requester = findUsernameFromToken(token)
+            if isReservationExists(reservation_id):
+                if not isPlayerNotAHost(reservation_id, username_requester):
+                    if isPlayerNotAHost(reservation_id, username):
+                        if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username):
+                            query = f"DELETE FROM Reservation_Member WHERE Reservation_id = '{reservation_id}' AND Player_username = '{username}'"
+                            conn = mysql.connect()
+                            cursor = conn.cursor(pymysql.cursors.DictCursor)
+                            cursor.execute(query)
+                            conn.commit()
+                            cursor.close()
+                            conn.close()
+
+                            response = {
+                                'kick_status': True,
+                                'message': f"{username} has been removed from reservation {reservation_id}",
+                                'data': {
+                                    'reservation_id': reservation_id
+                                }
+                            }
+                            code = 200
+                        else:
+                            response = {
+                                'kick_status': False,
+                                'message': f"{username} is not a member of reservation {reservation_id}",
+                                'data': None
+                            }
+                            code = 404
+                    else:
+                        response = {
+                            'kick_status': False,
+                            'message': f"Can't kick a host",
+                            'data': None
+                        }
+                        code = 403
+                else:
+                    response = {
+                        'kick_status': False,
+                        'message': f"Only host could kick a member, {username_requester} is not a host of reservation {reservation_id}",
+                        'data': None
+                    }
+                    code = 403
+            else:
+                response = {
+                    'kick_status': False,
+                    'message': f"Reservation {reservation_id} is not exists",
+                    'data': None
+                }
+                code = 404
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
