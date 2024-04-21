@@ -28,6 +28,19 @@ def player_booking_configure_routes(app):
 
 
     # ============ Static Methods ================== #
+    def calculateHourFrom2Times(start_time_str, end_time_str):
+        # Parse time strings to datetime objects
+        start_time = datetime.datetime.strptime(start_time_str, "%H:%M:%S")
+        end_time = datetime.datetime.strptime(end_time_str, "%H:%M:%S")
+
+        # Calculate the time difference
+        time_difference = end_time - start_time
+
+        # Round up to the nearest hour
+        hours = (time_difference.total_seconds() + 3600 - 1) // 3600
+
+        return int(hours)
+
     def checkPlayerToken(token):
         query = "SELECT token FROM Player_Login_Token WHERE token = '"+token+"'"
 
@@ -259,6 +272,72 @@ def player_booking_configure_routes(app):
         loc2 = convertCoordinate(loc2_str)
 
         return hs.haversine(loc1, loc2)
+
+    def isPlayerNotAHost(reservation_id, username):
+        query = f"SELECT id, Player_username FROM Reservation WHERE id = '{reservation_id}' AND Player_username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return False
+        else:
+            return True
+
+    def isPlayerNotAlreadyInAReservationAsMember(reservation_id, username):
+        query = f"SELECT Reservation_id, Player_username FROM Reservation_Member WHERE Reservation_id = '{reservation_id}' AND Player_username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return False
+        else:
+            return True
+
+    def isPlayerExists(username):
+        query = f"SELECT username FROM Player WHERE username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return True
+        else:
+            return False
+
+    def isReservationExists(reservation_id):
+        query = f"SELECT id FROM Reservation WHERE id = '{reservation_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return True
+        else:
+            return False
+
+    def is_public_status(reservation_id):
+        query = f"SELECT is_public FROM Reservation WHERE id = '{reservation_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result['is_public']
 
     # =================== ROUTES ===================== #
     @app.route('/player/reservation', methods=['POST'])
@@ -676,4 +755,140 @@ def player_booking_configure_routes(app):
             }
             code = 401
 
+        return jsonify(response), code
+
+    @app.route('/player/reservation/details/<reservation_id>', methods=['GET'])
+    def get_reservation_details_by_player(reservation_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if isReservationExists(reservation_id):
+                is_host = not isPlayerNotAHost(reservation_id, username)
+                is_member = not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username)
+                if is_host or is_member:
+                    query = (
+                        "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                        + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, Reservation.name mabar_name, "
+                        + "Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
+                        + "Reservation.created_at FROM Sport_Field "
+                        + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                        + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                        + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                        + f"WHERE Reservation.id = '{reservation_id}'"
+                    )
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    results = cursor.fetchone()
+                    cursor.close()
+                    conn.close()
+                    item = {
+                        'reservation_id': results['reservation_id'],
+                        'host_name': results['host_name'],
+                        'mabar_name': results['mabar_name'],
+                        'playing_date': str(results['playing_date']),
+                        'time_start': str(results['time_start']),
+                        'time_end': str(results['time_end']),
+                        'venue_id': results['venue_id'],
+                        'venue_name': results['venue_name'],
+                        'total_price': int(results['price_per_hour']) * calculateHourFrom2Times(str(results['time_start']), str(results['time_end'])),
+                        'sport_kind_id': results['sport_kind_id'],
+                        'sport_kind_name': results['sport_kind_name'],
+                        'field_id': results['field_id'],
+                        'field_number': results['field_number'],
+                        'booking_status': results['booking_status'],
+                        'created_at': str(results['created_at'])
+                    }
+
+                    if is_host:
+                        role = "host"
+                    else:
+                        role = "member"
+
+                    response = {
+                        'get_status': True,
+                        'message': 'Retrieve reservation info successfully',
+                        'data': {
+                            'role': role,
+                            'info': item
+                        }
+                    }
+                    code = 200
+                else:
+                    if is_public_status(reservation_id):
+                        query = (
+                            "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                            + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                            + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, Reservation.name mabar_name, "
+                            + "Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
+                            + "Reservation.created_at FROM Sport_Field "
+                            + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                            + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                            + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                            + f"WHERE Reservation.id = '{reservation_id}'"
+                        )
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+                        cursor.execute(query)
+                        results = cursor.fetchone()
+                        cursor.close()
+                        conn.close()
+                        item = {
+                            'reservation_id': results['reservation_id'],
+                            'host_name': results['host_name'],
+                            'mabar_name': results['mabar_name'],
+                            'playing_date': str(results['playing_date']),
+                            'time_start': str(results['time_start']),
+                            'time_end': str(results['time_end']),
+                            'venue_id': results['venue_id'],
+                            'venue_name': results['venue_name'],
+                            'total_price': int(results['price_per_hour']) * calculateHourFrom2Times(str(results['time_start']), str(results['time_end'])),
+                            'sport_kind_id': results['sport_kind_id'],
+                            'sport_kind_name': results['sport_kind_name'],
+                            'field_id': results['field_id'],
+                            'field_number': results['field_number'],
+                            'booking_status': results['booking_status'],
+                            'created_at': str(results['created_at'])
+                        }
+                        role = "guest"
+                        response = {
+                            'get_status': True,
+                            'message': 'Retrieve reservation info successfully',
+                            'data': {
+                                'role': role,
+                                'info': item
+                            }
+                        }
+                        code = 200
+                    else:
+                        response = {
+                            'get_status': False,
+                            'message': 'Retrieve reservation info unsuccessfully',
+                            'data': {
+                                'role': None,
+                                'info': None
+                            }
+                        }
+                        code = 403
+            else:
+                response = {
+                    'get_status': False,
+                    'message': f"Reservation {reservation_id} is not found",
+                    'data': {
+                        'role': None,
+                        'info': None
+                    }
+                }
+                code = 404
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': {
+                    'role': None,
+                    'info': None
+                }
+            }
+            code = 401
         return jsonify(response), code

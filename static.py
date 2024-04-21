@@ -265,6 +265,15 @@ def change_open_member_status(booking_id, status):
     cursor.close()
     conn.close()
 
+def change_is_public_status(booking_id, status):
+    query = f"UPDATE Reservation SET is_public = '{status}' WHERE id = '{booking_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def insert_member_reservation(booking_id, username):
     query = f"INSERT INTO Reservation_Member VALUES ('{booking_id}', '{username}')"
     conn = mysql.connect()

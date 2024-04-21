@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/04/2024 20:49:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/04/2024 21:04:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.5"
+    "version": "1.7.6"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1848,6 +1848,54 @@
         }
       }
     },
+    "/player/reservation/details/{reservation_id}": {
+      "get": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Get details of reservation",
+        "description": "",
+        "operationId": "playerGetDetailsOfReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetReservationDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/player/reservation/kick/{reservation_id}/{username}": {
       "delete": {
         "tags": [
@@ -3313,6 +3361,84 @@
         },
         "xml": {
           "name": "AdminGetReservationDetailResponse"
+        }
+      },
+      "PlayerGetReservationDetailResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string"
+              },
+              "info": {
+                "type": "object",
+                "properties": {
+                  "field_id": {
+                    "type": "string"
+                  },
+                  "field_number": {
+                    "type": "integer"
+                  },
+                  "host_name": {
+                    "type": "string"
+                  },
+                  "mabar_name": {
+                    "type": "string"
+                  },
+                  "playing_date": {
+                    "type": "string"
+                  },
+                  "reservation_id": {
+                    "type": "string"
+                  },
+                  "sport_kind_id": {
+                    "type": "string"
+                  },
+                  "sport_kind_name": {
+                    "type": "string"
+                  },
+                  "time_end": {
+                    "type": "string"
+                  },
+                  "time_start": {
+                    "type": "string"
+                  },
+                  "total_price": {
+                    "type": "integer"
+                  },
+                  "venue_id": {
+                    "type": "string"
+                  },
+                  "venue_name": {
+                    "type": "string"
+                  },
+                  "booking_status": {
+                    "type": "string"
+                  },
+                  "payment_credential_url": {
+                    "type": "string"
+                  },
+                  "upload_payment_timestamp": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetReservationDetailResponse"
         }
       },
       "PlayerCreateBookingBody": {
