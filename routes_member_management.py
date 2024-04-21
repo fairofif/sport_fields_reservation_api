@@ -339,3 +339,49 @@ def member_management_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/player/reservation/leave/<reservation_id>', methods=['DELETE'])
+    def player_leave_from_party(reservation_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if isPlayerNotAHost(reservation_id, username):
+                if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username):
+                    query = f"DELETE FROM Reservation_Member WHERE Reservation_id = '{reservation_id}' AND Player_username = '{username}'"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+
+                    response = {
+                        'leave_status': True,
+                        'message': f"{username} has been leaved from reservation {reservation_id}",
+                        'data': {
+                            'reservation_id': reservation_id
+                        }
+                    }
+                    code = 200
+                else:
+                    response = {
+                        'leave_status': False,
+                        'message': f"{username} not a member of reservation {reservation_id}",
+                        'data': None
+                    }
+                    code = 404
+            else:
+                response = {
+                    'leave_status': False,
+                    'message': "Host can't leave his/her reservation",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'leave_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code

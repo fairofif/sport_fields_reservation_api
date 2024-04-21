@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/04/2024 03:15:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/04/2024 20:49:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.4"
+    "version": "1.7.5"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1905,6 +1905,54 @@
         }
       }
     },
+    "/player/reservation/leave/{reservation_id}": {
+      "delete": {
+        "tags": [
+          "memberManagement"
+        ],
+        "summary": "Leave from a reservation",
+        "description": "",
+        "operationId": "playerLeaveFromReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerLeaveFromReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -3573,6 +3621,28 @@
         },
         "xml": {
           "name": "PlayerRemovePlayerFromReservationResponse"
+        }
+      },
+      "PlayerLeaveFromReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "leave_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerLeaveFromReservationResponse"
         }
       },
       "SportKindResponse": {

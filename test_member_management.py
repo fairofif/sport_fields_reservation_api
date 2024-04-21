@@ -1009,3 +1009,209 @@ def test_kick_player_from_a_reservation_kick_himself():
     assert response.get_json()['kick_status'] == False
     assert response.get_json()['message'] == f"Can't kick a host"
     assert response.get_json()['data'] == None
+
+def test_leave_player_from_a_reservation():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+    change_open_member_status(booking_id, 1)
+
+    username_join = "wakacipuyyy"
+    insert_player_unittest_user_custom(username_join)
+    token_join = newUserToken()
+    device_join = newVirtualDeviceID()
+    insert_unittest_device(device_join)
+    insert_player_unittest_token_custom(token_join, device_join, username_join)
+    insert_member_reservation(booking_id, username_join)
+
+    ## TEST
+
+    url = f"/player/reservation/leave/{booking_id}"
+
+    header = {
+        'token': token_join
+    }
+
+    client = app.test_client()
+
+    response = client.delete(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_unittest_device(device_join)
+    delete_player_unittest_user_custom(username_join)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['leave_status'] == True
+    assert response.get_json()['message'] == f"{username_join} has been leaved from reservation {booking_id}"
+    assert response.get_json()['data'] != None
+
+def test_leave_player_from_a_reservation_host_self():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+    change_open_member_status(booking_id, 1)
+
+    username_join = "wakacipuyyy"
+    insert_player_unittest_user_custom(username_join)
+    token_join = newUserToken()
+    device_join = newVirtualDeviceID()
+    insert_unittest_device(device_join)
+    insert_player_unittest_token_custom(token_join, device_join, username_join)
+    insert_member_reservation(booking_id, username_join)
+
+    ## TEST
+
+    url = f"/player/reservation/leave/{booking_id}"
+
+    header = {
+        'token': player_token
+    }
+
+    client = app.test_client()
+
+    response = client.delete(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_unittest_device(device_join)
+    delete_player_unittest_user_custom(username_join)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 403
+    assert response.get_json()['leave_status'] == False
+    assert response.get_json()['message'] == f"Host can't leave his/her reservation"
+    assert response.get_json()['data'] == None
+
+def test_leave_player_from_a_reservation_not_a_member():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+    change_open_member_status(booking_id, 1)
+
+    username_join = "wakacipuyyy"
+    insert_player_unittest_user_custom(username_join)
+    token_join = newUserToken()
+    device_join = newVirtualDeviceID()
+    insert_unittest_device(device_join)
+    insert_player_unittest_token_custom(token_join, device_join, username_join)
+
+    ## TEST
+
+    url = f"/player/reservation/leave/{booking_id}"
+
+    header = {
+        'token': token_join
+    }
+
+    client = app.test_client()
+
+    response = client.delete(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_unittest_device(device_join)
+    delete_player_unittest_user_custom(username_join)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 404
+    assert response.get_json()['leave_status'] == False
+    assert response.get_json()['message'] == f"{username_join} not a member of reservation {booking_id}"
+    assert response.get_json()['data'] == None
