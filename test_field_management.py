@@ -247,10 +247,9 @@ def test_get_sport_venue_failed():
     delete_unittest_user()
     delete_unittest_sport_kind(sport_kind)
 
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert response.get_json()['get_status'] == False
 
-@pytest.mark.specify
 def test_register_sport_venue():
     """Test to register managed venue by admin"""
     device = newVirtualDeviceID()
@@ -403,7 +402,7 @@ def test_add_fields_to_venue_failed():
     delete_unittest_sport_kind(sport_kind)
     delete_unittest_sport_venue(sport_venue)
 
-    assert response.status_code == 200
+    assert response.status_code == 409
     assert response.get_json()['add_status'] == False
 
 def test_get_fields_from_venue_success():
@@ -467,7 +466,7 @@ def test_get_fields_from_venue_failed():
     delete_unittest_sport_kind(sport_kind)
     delete_unittest_sport_venue(sport_venue)
 
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert response.get_json()['get_status'] == False
 
 def test_delete_field_from_venue_success():
@@ -747,3 +746,61 @@ def test_get_reservation_list_in_a_field():
     ## validation
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
+
+def test_get_sport_venue_by_id_success():
+    """Test to get managed venue information by admin with valid request"""
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}"
+
+    header = {
+        "token": token
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+
+def test_get_sport_venue_by_id_not_his_own():
+    """Test to get managed venue information by admin with valid request"""
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{newSportFieldUUID()}"
+
+    header = {
+        "token": token
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 403
+    assert response.get_json()['get_status'] == False

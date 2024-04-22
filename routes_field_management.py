@@ -42,6 +42,20 @@ def field_management_configure_routes(app):
             conn.close()
             return True
 
+    def isUserOwnThisVenue(venue_id, username):
+        query = f"SELECT id FROM Sport_Field WHERE id = '{venue_id}' and Admin_username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return False
+        else:
+            cursor.close()
+            conn.close()
+            return True
+
     def isSportVenueExist(venue_id):
         query = "SELECT * FROM Sport_Field WHERE id = '"+venue_id+"'"
         conn = mysql.connect()
@@ -114,8 +128,9 @@ def field_management_configure_routes(app):
             "message": "Retrieve sport kinds successfully",
             "data": read_row
         }
+        code = 200
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue', methods=['GET'])
     def get_sport_venue():
@@ -139,19 +154,9 @@ def field_management_configure_routes(app):
                 for i in range(cursor.rowcount):
                     data = {
                         "id": read_row[i]['id'],
-                        "Sport_Kind_id": read_row[i]['Sport_Kind_id'],
                         "Sport_Kind_Name": read_row[i]['Sport_Kind_Name'],
                         "name": read_row[i]['name'],
-                        "created_at": str(read_row[i]['created_at']),
-                        "last_edited": str(read_row[i]['last_edited']),
-                        "geo_coordinate": str(read_row[i]['geo_coordinate']),
-                        "is_bike_parking": read_row[i]['is_bike_parking'],
-                        "is_car_parking": read_row[i]["is_car_parking"],
                         "is_public": read_row[i]['is_public'],
-                        "description": read_row[i]['description'],
-                        "rules": read_row[i]['rules'],
-                        "time_open": str(read_row[i]['time_open']),
-                        "time_closed": str(read_row[i]['time_closed']),
                         "price_per_hour": read_row[i]['price_per_hour']
                     }
                     datas = datas = [data]
@@ -160,6 +165,7 @@ def field_management_configure_routes(app):
                     "message": "Retrieve Sport Venue Successfully",
                     "data": datas
                 }
+                code = 200
                 cursor.close()
                 conn.close()
             else:
@@ -168,14 +174,16 @@ def field_management_configure_routes(app):
                     "message": "Admin Has Not Registered any Venue",
                     "data": None
                 }
+                code = 404
         else:
             response = {
                 "get_status": False,
                 "message": "Token is expired",
                 "data": None
             }
+            code = 401
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/register', methods=['POST'])
     def register_sport_venue():
@@ -241,14 +249,16 @@ def field_management_configure_routes(app):
                     "price_per_hour": read_row['price_per_hour']
                 }
             }
+            code = 200
         else:
             response = {
                 "status_register": False,
                 "message": "Token is expired",
                 "data": None
             }
+            code = 401
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/edit', methods=['PUT'])
     def edit_sport_venue():
@@ -317,6 +327,7 @@ def field_management_configure_routes(app):
                     "price_per_hour": read_row['price_per_hour']
                 }
             }
+            code = 200
         else:
             query = ("SELECT Sport_Field.id, Sport_Field.Sport_Kind_id, Sport_Kind.name Sport_Kind_Name, Sport_Field.name, "
                     +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, "
@@ -349,6 +360,7 @@ def field_management_configure_routes(app):
                     "price_per_hour": read_row['price_per_hour']
                 }
             }
+            code = 401
         cursor.close()
         conn.close()
 
@@ -374,6 +386,7 @@ def field_management_configure_routes(app):
                     "message": "Field Number already exist in this selected venue",
                     "data": read_row
                 }
+                code = 409
             else:
                 query = "INSERT INTO Fields VALUES ('"+newFieldUUID()+"', '"+venue_id+"', "+str(number)+", CURRENT_TIMESTAMP())"
                 conn = mysql.connect()
@@ -390,6 +403,7 @@ def field_management_configure_routes(app):
                     "message": "Field number "+str(number)+" has been added to venue "+venue_id+" successfully",
                     "data": read_row
                 }
+                code = 200
         else:
             query = "SELECT id, Sport_Field_id, number FROM Fields WHERE Sport_Field_id = '"+venue_id+"'"
             conn = mysql.connect()
@@ -402,10 +416,11 @@ def field_management_configure_routes(app):
                 "message": "Token is expired",
                 "data": read_row
             }
+            code = 401
         cursor.close()
         conn.close()
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/fields/delete', methods=['DELETE'])
     def delete_field_from_venue():
@@ -430,6 +445,7 @@ def field_management_configure_routes(app):
                 "message": "Field with id "+field_id+" has been removed successfully",
                 "data": read_row
             }
+            code = 200
 
             cursor.close()
             conn.close()
@@ -440,8 +456,9 @@ def field_management_configure_routes(app):
                 "message": "Token is expired",
                 "data": None
             }
+            code = 401
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/fields/<Sport_Venue_id>', methods=['GET'])
     def get_fields_from_venue(Sport_Venue_id):
@@ -462,6 +479,7 @@ def field_management_configure_routes(app):
                     "message": "Retrieve data fields from venue "+venue_id+" successfully",
                     "data": read_row
                 }
+                code = 200
                 cursor.close()
                 conn.close()
             else:
@@ -470,14 +488,15 @@ def field_management_configure_routes(app):
                     "message": "There is no Venue with id "+ venue_id,
                     "data": None
                 }
+                code = 404
         else:
             response = {
                 "get_status": False,
                 "message": "Token is expired",
                 "data": None
             }
-
-        return jsonify(response)
+            code = 401
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/fields/schedule/blacklist', methods=['POST'])
     def add_blacklist_schedule():
@@ -505,16 +524,19 @@ def field_management_configure_routes(app):
                     "blacklist_status": True,
                     "message": f"Schedule on {date} is already in blacklist schedule"
                 }
+                code = 200
             else:
                 response = {
                     "blacklist_status": True,
                     "message": f"Every {get_day_of_week(date)} from {from_time} to {to_time} is in blacklist schedule"
                 }
+                code = 200
         else:
             response = {
                 "blacklist_status": False,
                 "message": "Token is expired"
             }
+            code = 401
 
         return jsonify(response)
 
@@ -586,6 +608,7 @@ def field_management_configure_routes(app):
                     "message": "get blacklist schedule on this field is successfully",
                     "data": data
                 }
+                code = 200
                 cursor.close()
                 conn.close()
         else:
@@ -594,7 +617,8 @@ def field_management_configure_routes(app):
                 "message": "token is expired",
                 "data": None
             }
-        return jsonify(response)
+            code = 401
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/fields/schedule/blacklist', methods=['DELETE'])
     def delete_blacklist_schedule():
@@ -621,13 +645,15 @@ def field_management_configure_routes(app):
                     }
                 }
             }
+            code = 200
         else:
             response = {
                 "deleted_status": False,
                 "message": "Token is expired",
                 "data": None
             }
-        return jsonify(response)
+            code = 401
+        return jsonify(response), code
 
     @app.route('/admin/sportVenue/fields/schedule/reservation/<field_id>/<month>/<year>', methods=['GET'])
     def get_fields_reservation_in_a_month_and_year(field_id, month, year):
@@ -673,3 +699,61 @@ def field_management_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/admin/sportVenue/<venue_id>', methods=['GET'])
+    def admin_get_sport_venue_by_id(venue_id):
+        token = request.headers['token']
+        if checkAdminToken(token):
+            username = findUsernameFromToken(token)
+            if isUserOwnThisVenue(venue_id, username):
+                query = ("SELECT Sport_Field.id, Sport_Field.Sport_Kind_id, Sport_Kind.name Sport_Kind_Name, Sport_Field.name, "
+                        +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, "
+                        +"Sport_Field.is_bike_parking, Sport_Field.is_car_parking, Sport_Field.is_public, "
+                        +"Sport_Field.description, Sport_Field.rules, Sport_Field.time_open, Sport_Field.time_closed, "
+                        +"Sport_Field.price_per_hour FROM Sport_Field INNER JOIN Sport_Kind ON "
+                        +f"(Sport_Field.Sport_Kind_id = Sport_Kind.id) WHERE Sport_Field.id = '{venue_id}'")
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                read_row = cursor.fetchone()
+                data = {
+                    "id": read_row['id'],
+                    "Sport_Kind_id": read_row['Sport_Kind_id'],
+                    "Sport_Kind_Name": read_row['Sport_Kind_Name'],
+                    "name": read_row['name'],
+                    "created_at": str(read_row['created_at']),
+                    "last_edited": str(read_row['last_edited']),
+                    "geo_coordinate": str(read_row['geo_coordinate']),
+                    "is_bike_parking": read_row['is_bike_parking'],
+                    "is_car_parking": read_row["is_car_parking"],
+                    "is_public": read_row['is_public'],
+                    "description": read_row['description'],
+                    "rules": read_row['rules'],
+                    "time_open": str(read_row['time_open']),
+                    "time_closed": str(read_row['time_closed']),
+                    "price_per_hour": read_row['price_per_hour']
+                }
+                code = 200
+                response = {
+                    'get_status': True,
+                    'message': 'Retrieve venue info successfully',
+                    'data': data
+                }
+            else:
+                response = {
+                    'get_status': False,
+                    'message': f"{venue_id} is not {username}'s venue",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
+
+

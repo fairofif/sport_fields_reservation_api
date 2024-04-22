@@ -33,6 +33,7 @@ def relogin_configure_routes(app):
                         "role": None
                     }
                 }
+                code = 400
             else:
                 query = ("SELECT Admin.username, Admin.name, Admin.ava_url, Admin.phone, Admin_Login_Token.token FROM Admin"
                      + " INNER JOIN Admin_Login_Token ON"
@@ -51,6 +52,7 @@ def relogin_configure_routes(app):
                         "role": "admin"
                     }
                 }
+                code = 200
         else:
             query = ("SELECT Player.username, Player.name, Player.ava_url, Player.phone, Player_Login_Token.token FROM Player"
                      + " INNER JOIN Player_Login_Token ON"
@@ -69,7 +71,8 @@ def relogin_configure_routes(app):
                     "role": "player"
                 }
             }
+            code = 200
         cursor.close()
         conn.close()
 
-        return jsonify(response)
+        return jsonify(response), code

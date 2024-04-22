@@ -68,6 +68,13 @@ def player_venue_info_cofigure_routes(app):
             conn.close()
             return True
 
+    def isVenuePublic(venue_id):
+        query = f"SELECT is_public FROM Sport_Field WHERE id = '{venue_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        result = cursor.fetchone()
+        return bool(result['is_public'])
     # ====================== ROUTES ======================= #
 
     @app.route('/player/sportVenue', methods=['POST'])
@@ -107,20 +114,13 @@ def player_venue_info_cofigure_routes(app):
                 for i in range(cursor.rowcount):
                     data = {
                         "id": read_row[i]['id'],
-                        "Sport_Kind_id": read_row[i]['Sport_Kind_id'],
                         "Sport_Kind_Name": read_row[i]['Sport_Kind_Name'],
                         "name": read_row[i]['name'],
-                        "created_at": str(read_row[i]['created_at']),
-                        "last_edited": str(read_row[i]['last_edited']),
                         "geo_coordinate": str(read_row[i]['geo_coordinate']),
                         "distance": calculateDistance(body['coordinate'], str(read_row[i]['geo_coordinate'])),
                         "is_bike_parking": read_row[i]['is_bike_parking'],
                         "is_car_parking": read_row[i]["is_car_parking"],
                         "is_public": read_row[i]['is_public'],
-                        "description": read_row[i]['description'],
-                        "rules": read_row[i]['rules'],
-                        "time_open": str(read_row[i]['time_open']),
-                        "time_closed": str(read_row[i]['time_closed']),
                         "price_per_hour": read_row[i]['price_per_hour']
                     }
                     datas = datas + [data]
@@ -128,20 +128,13 @@ def player_venue_info_cofigure_routes(app):
                 for i in range(cursor.rowcount):
                     data = {
                         "id": read_row[i]['id'],
-                        "Sport_Kind_id": read_row[i]['Sport_Kind_id'],
                         "Sport_Kind_Name": read_row[i]['Sport_Kind_Name'],
                         "name": read_row[i]['name'],
-                        "created_at": str(read_row[i]['created_at']),
-                        "last_edited": str(read_row[i]['last_edited']),
                         "geo_coordinate": str(read_row[i]['geo_coordinate']),
                         "distance": None,
                         "is_bike_parking": read_row[i]['is_bike_parking'],
                         "is_car_parking": read_row[i]["is_car_parking"],
                         "is_public": read_row[i]['is_public'],
-                        "description": read_row[i]['description'],
-                        "rules": read_row[i]['rules'],
-                        "time_open": str(read_row[i]['time_open']),
-                        "time_closed": str(read_row[i]['time_closed']),
                         "price_per_hour": read_row[i]['price_per_hour']
                     }
                     datas = datas + [data]
@@ -155,12 +148,14 @@ def player_venue_info_cofigure_routes(app):
                 "message": "Retrieve Venues Successfully",
                 "data": datas
             }
+            code = 200
         else:
             response = {
                 "get_status": False,
                 "message": "Token is expired",
                 "data": None
             }
+            code = 401
         return jsonify(response)
 
     @app.route('/player/sportVenue/fields/<Sport_Venue_id>', methods=['GET'])
@@ -182,6 +177,7 @@ def player_venue_info_cofigure_routes(app):
                     "message": "Retrieve data fields from venue "+venue_id+" successfully",
                     "data": read_row
                 }
+                code = 200
                 cursor.close()
                 conn.close()
             else:
@@ -190,14 +186,16 @@ def player_venue_info_cofigure_routes(app):
                     "message": "There is no Venue with id "+ venue_id,
                     "data": None
                 }
+                code = 404
         else:
             response = {
                 "get_status": False,
                 "message": "Token is expired",
                 "data": None
             }
+            code = 401
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/player/sportVenue/fields/schedule/blacklist/<field_id>/<month>/<year>', methods=['GET'])
     def player_get_blacklist_schedule_from_month_and_year(field_id, month, year):
@@ -267,6 +265,7 @@ def player_venue_info_cofigure_routes(app):
                     "message": "get blacklist schedule on this field is successfully",
                     "data": data
                 }
+                code = 200
                 cursor.close()
                 conn.close()
         else:
@@ -275,7 +274,8 @@ def player_venue_info_cofigure_routes(app):
                 "message": "token is expired",
                 "data": None
             }
-        return jsonify(response)
+            code = 401
+        return jsonify(response), code
 
     @app.route('/player/sportVenue/fields/schedule/reservation/<field_id>/<month>/<year>', methods=['GET'])
     def player_get_fields_reservation_in_a_month_and_year(field_id, month, year):
@@ -313,6 +313,71 @@ def player_venue_info_cofigure_routes(app):
                 'data': datas
             }
             code = 200
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
+
+    @app.route('/player/sportVenue/<venue_id>')
+    def player_get_venue_info_by_id(venue_id):
+        token = request.headers['token']
+        body = request.json
+        if checkPlayerToken(token):
+            if isSportVenueExist(venue_id):
+                if isVenuePublic(venue_id):
+                    query = ("SELECT Sport_Field.id, Sport_Field.Sport_Kind_id, Sport_Kind.name Sport_Kind_Name, Sport_Field.name, "
+                        +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, "
+                        +"Sport_Field.is_bike_parking, Sport_Field.is_car_parking, Sport_Field.is_public, "
+                        +"Sport_Field.description, Sport_Field.rules, Sport_Field.time_open, Sport_Field.time_closed, "
+                        +"Sport_Field.price_per_hour FROM Sport_Field INNER JOIN Sport_Kind ON "
+                        +f"(Sport_Field.Sport_Kind_id = Sport_Kind.id) WHERE Sport_Field.id = '{venue_id}'")
+
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    read_row = cursor.fetchone()
+                    data = {
+                        "id": read_row['id'],
+                        "Sport_Kind_id": read_row['Sport_Kind_id'],
+                        "Sport_Kind_Name": read_row['Sport_Kind_Name'],
+                        "name": read_row['name'],
+                        "created_at": str(read_row['created_at']),
+                        "last_edited": str(read_row['last_edited']),
+                        "geo_coordinate": str(read_row['geo_coordinate']),
+                        "distance": calculateDistance(body['coordinate'], str(read_row['geo_coordinate'])),
+                        "is_bike_parking": read_row['is_bike_parking'],
+                        "is_car_parking": read_row["is_car_parking"],
+                        "is_public": read_row['is_public'],
+                        "description": read_row['description'],
+                        "rules": read_row['rules'],
+                        "time_open": str(read_row['time_open']),
+                        "time_closed": str(read_row['time_closed']),
+                        "price_per_hour": read_row['price_per_hour']
+                    }
+                    code = 200
+                    response = {
+                        'get_status': True,
+                        'message': 'Retrieve venue info successfully',
+                        'data': data
+                    }
+                else:
+                    response = {
+                        'get_status': False,
+                        'message': f"Venue {venue_id} is not public",
+                        'data': None
+                    }
+                    code = 403
+            else:
+                response = {
+                    'get_status': False,
+                    'message': f"Venue {venue_id} is not found",
+                    'data': None
+                }
+                code = 404
         else:
             response = {
                 'get_status': False,

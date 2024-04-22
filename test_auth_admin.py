@@ -108,7 +108,7 @@ def test_auth_admin_register_failed():
 
     delete_unittest_user()
 
-    assert response.status_code == 200
+    assert response.status_code == 409
     assert response.get_json()['register_status'] == False
 
 def test_auth_admin_login_success():
@@ -153,7 +153,7 @@ def test_auth_admin_login_username_not_found():
     delete_unittest_user()
     delete_unittest_device(device_id)
 
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert response.get_json()['login_status'] == False
     assert response.get_json()['message'] == "Username not found"
 
@@ -177,7 +177,7 @@ def test_auth_admin_login_password_wrong():
     delete_unittest_user()
     delete_unittest_device(device_id)
 
-    assert response.status_code == 200
+    assert response.status_code == 400
     assert response.get_json()['login_status'] == False
     assert response.get_json()['message'] == "Password doesn't match"
 
@@ -223,7 +223,7 @@ def test_auth_admin_relogin_token_invalid():
     delete_unittest_user()
     delete_unittest_device(device_id)
 
-    assert response.status_code == 200
+    assert response.status_code == 400
     assert response.get_json()['relogin_status'] == False
     assert response.get_json()['message'] == "Token is already expired"
     assert response.get_json()['data']['username'] == None

@@ -58,6 +58,15 @@ def insert_admin_unittest_user():
     cursor.close()
     conn.close()
 
+def changeIsPublic(venue_id, status):
+    query = f"UPDATE Sport_Field SET is_public = {status} WHERE id = '{venue_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def delete_admin_unittest_user():
     query = 'DELETE FROM Admin WHERE username = "unittest"'
     conn = mysql.connect()
@@ -585,3 +594,154 @@ def test_player_get_reservation_in_a_fields():
 
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
+
+def test_player_get_venue_by_id():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+    changeIsPublic(sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    # ============ TEST ============= #
+
+    header = {
+        "token": player_token
+    }
+
+    body = {
+        'coordinate': "-6.894797, 107.610590"
+    }
+
+    url = f"/player/sportVenue/{sport_venue_id}"
+    client = app.test_client()
+
+    response = client.get(url, headers=header, json=body)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+
+def test_player_get_venue_by_id_not_found():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+    changeIsPublic(sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    # ============ TEST ============= #
+
+    header = {
+        "token": player_token
+    }
+    body = {
+        'coordinate': "-6.894797, 107.610590"
+    }
+
+    url = f"/player/sportVenue/{newSportFieldUUID()}"
+    client = app.test_client()
+
+    response = client.get(url, headers=header, json=body)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 404
+    assert response.get_json()['get_status'] == False
+
+def test_player_get_venue_by_id_not_public():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+    changeIsPublic(sport_venue_id, 0)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    # ============ TEST ============= #
+
+    header = {
+        "token": player_token
+    }
+    body = {
+        'coordinate': "-6.894797, 107.610590"
+    }
+
+    url = f"/player/sportVenue/{sport_venue_id}"
+    client = app.test_client()
+
+    response = client.get(url, headers=header, json=body)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 403
+    assert response.get_json()['get_status'] == False

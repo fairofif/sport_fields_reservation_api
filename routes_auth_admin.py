@@ -30,16 +30,18 @@ def admin_auth_configure_routes(app):
                 "message": "Register Success",
                 "register_status": True
             }
+            code = 200
         else:
             response = {
                 "message": "Username is already Exists in Database",
                 "register_status": False
             }
+            code = 409
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify(response)
+        return jsonify(response), code
 
     @app.route('/admin/auth/login', methods=['POST'])
     def admin_login():
@@ -64,6 +66,7 @@ def admin_auth_configure_routes(app):
                     "phone": None
                 }
             }
+            code = 404
             cursor.close()
             conn.close()
         else:
@@ -83,6 +86,7 @@ def admin_auth_configure_routes(app):
                         "phone": None
                     }
                 }
+                code = 400
                 cursor.close()
                 conn.close()
             else:
@@ -116,7 +120,8 @@ def admin_auth_configure_routes(app):
                         "phone": read_row['phone']
                     }
                 }
-        return jsonify(response)
+                code = 200
+        return jsonify(response), code
 
     @app.route('/admin/auth/logout', methods=['DELETE'])
     def admin_logout():
@@ -133,5 +138,6 @@ def admin_auth_configure_routes(app):
             "logout_status": True,
             "message": "Logout user in this device is successfully"
         }
+        code = 200
 
-        return jsonify(response)
+        return jsonify(response), code
