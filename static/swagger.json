@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 23/04/2024 00:03:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 23/04/2024 22:43:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.7"
+    "version": "1.7.8"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -525,6 +525,52 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminGetVenueDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Delete Vnue by id",
+        "description": "",
+        "operationId": "deleteSportVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeleteVenueResponse"
                 }
               }
             }
@@ -2179,6 +2225,28 @@
           },
           "message": {
             "type": "string"
+          }
+        },
+        "xml": {
+          "name": "DeviceDeleteResponse"
+        }
+      },
+      "AdminDeleteVenueResponse": {
+        "type": "object",
+        "properties": {
+          "delete_status": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "venue_id": {
+                "type": "string"
+              }
+            }
           }
         },
         "xml": {

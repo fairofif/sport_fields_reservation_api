@@ -20,8 +20,28 @@ def insert_unittest_user():
     cursor.close()
     conn.close()
 
+def insert_unittest_user_custom(username):
+    ava_url = os.getenv("DEFAULT_AVA_PATH")
+
+    query = 'INSERT INTO Admin VALUES("'+username+'", "Unit Test", "unittest", "unittest", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def delete_unittest_user():
     query = 'DELETE FROM Admin WHERE username = "unittest"'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_unittest_user_custom(username):
+    query = f"DELETE FROM Admin WHERE username = '{username}'"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -40,6 +60,15 @@ def delete_unittest_token(token):
 
 def insert_unittest_token(token, device_id):
     query = "INSERT INTO Admin_Login_Token VALUES ('"+token+"', 'unittest', CURRENT_TIMESTAMP(), '"+device_id+"')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_unittest_token_custom(token, device_id, username):
+    query = f"INSERT INTO Admin_Login_Token VALUES ('{token}', '{username}', CURRENT_TIMESTAMP(), '{device_id}')"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
@@ -804,3 +833,95 @@ def test_get_sport_venue_by_id_not_his_own():
 
     assert response.status_code == 403
     assert response.get_json()['get_status'] == False
+
+def test_delete_sport_venue_by_id_success():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}"
+
+    header = {
+        "token": token
+    }
+
+    response = client.delete(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['delete_status'] == True
+
+def test_delete_sport_venue_by_id_not_host():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    device2 = newVirtualDeviceID()
+    token2 = newUserToken()
+    insert_unittest_device(device2)
+    insert_unittest_user_custom('unittest2')
+    insert_unittest_token_custom(token2, device2, 'unittest2')
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}"
+
+    header = {
+        "token": token2
+    }
+
+    response = client.delete(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+    delete_unittest_device(device2)
+    delete_unittest_user_custom('unittest2')
+
+    assert response.status_code == 403
+    assert response.get_json()['delete_status'] == False
+
+def test_delete_sport_venue_by_id_not_found():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{newSportFieldUUID()}"
+
+    header = {
+        "token": token
+    }
+
+    response = client.delete(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 404
+    assert response.get_json()['delete_status'] == False

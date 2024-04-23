@@ -112,6 +112,21 @@ def field_management_configure_routes(app):
             cursor.close()
             conn.close()
             return True
+
+    def itIsAdminVenue(username, venue_id):
+        query = f"SELECT id FROM Sport_Field WHERE id = '{venue_id}' AND Admin_username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return False
+        else:
+            cursor.close()
+            conn.close()
+            return True
+
     ### ================ ROUTES ==================== ###
 
     @app.route('/sport_kinds', methods=['GET'])
@@ -755,5 +770,53 @@ def field_management_configure_routes(app):
             code = 401
 
         return jsonify(response), code
+
+    @app.route('/admin/sportVenue/<venue_id>', methods=['DELETE'])
+    def delete_venue_by_id(venue_id):
+        token = request.headers['token']
+        if checkAdminToken(token):
+            if isSportVenueExist(venue_id):
+                username = findUsernameFromToken(token)
+                if itIsAdminVenue(username, venue_id):
+                    query = f"DELETE FROM Sport_Field WHERE id = '{venue_id}'"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                    response = {
+                        'delete_status': True,
+                        'message': f"Venue {venue_id} has been deleted",
+                        'data': {
+                            'venue_id': venue_id
+                        }
+                    }
+                    code = 200
+                else:
+                    response = {
+                        'delete_status': False,
+                        'message': f"{username} is not admin of Venue {venue_id}",
+                        'data': None
+                    }
+                    code = 403
+
+            else:
+                response = {
+                    'delete_status': False,
+                    'message': f"Venue {venue_id} not found",
+                    'data': None
+                }
+                code = 404
+        else:
+            response = {
+                'delete_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
+
 
 
