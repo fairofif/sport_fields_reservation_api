@@ -256,6 +256,15 @@ def change_reservation_status(booking_id, status):
     cursor.close()
     conn.close()
 
+def insert_QR_records_unittest(booking_id):
+    query = f"INSERT INTO Reservation_QR VALUES ('{booking_id}', 'http://unittest.com')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def change_open_member_status(booking_id, status):
     query = f"UPDATE Reservation SET is_open_member = '{status}' WHERE id = '{booking_id}'"
     conn = mysql.connect()

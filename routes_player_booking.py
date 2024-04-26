@@ -12,6 +12,7 @@ import urllib.request
 from werkzeug.utils import secure_filename
 import os
 import haversine as hs
+import segno
 
 load_dotenv(override=True)
 
@@ -22,6 +23,8 @@ def player_booking_configure_routes(app):
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
     ALLOWED_EXTENSIONS = set(['heic', 'jpg', 'jpeg', 'png', 'gif'])
     BASE_URL_IMAGE = os.getenv("BASE_URL_IMAGE")
+
+    FOLDER_QR = os.getenv("FOLDER_QR")
 
     def allowed_file(filename):
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -287,6 +290,17 @@ def player_booking_configure_routes(app):
         else:
             return True
 
+    def reservationBookingStatus(reservation_id):
+        query = f"SELECT booking_status FROM Reservation WHERE id = '{reservation_id}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        return result['booking_status']
+
     def isPlayerNotAlreadyInAReservationAsMember(reservation_id, username):
         query = f"SELECT Reservation_id, Player_username FROM Reservation_Member WHERE Reservation_id = '{reservation_id}' AND Player_username = '{username}'"
         conn = mysql.connect()
@@ -303,6 +317,20 @@ def player_booking_configure_routes(app):
 
     def isPlayerExists(username):
         query = f"SELECT username FROM Player WHERE username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount != 0:
+            return True
+        else:
+            return False
+
+    def isQRAlreadyExists(reservation_id):
+        query = f"SELECT Reservation_id FROM Reservation_QR WHERE Reservation_id = '{reservation_id}'"
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(query)
@@ -889,6 +917,84 @@ def player_booking_configure_routes(app):
                     'role': None,
                     'info': None
                 }
+            }
+            code = 401
+        return jsonify(response), code
+
+    @app.route('/player/reservation/QR/<reservation_id>', methods=['POST'])
+    def get_post_qr_reservation(reservation_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if isReservationExists(reservation_id):
+                if not isPlayerNotAHost(reservation_id, username) or not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username):
+                    if reservationBookingStatus(reservation_id) == "approved":
+                        if isQRAlreadyExists(reservation_id):
+                            query = f"SELECT * FROM Reservation_QR WHERE Reservation_id = '{reservation_id}'"
+                            conn = mysql.connect()
+                            cursor = conn.cursor(pymysql.cursors.DictCursor)
+                            cursor.execute(query)
+                            result = cursor.fetchone()
+                            cursor.close()
+                            conn.close()
+
+                            response = {
+                                'get_status': True,
+                                'message': 'QR had created before, get QR successfully',
+                                'data': {
+                                    'url_qr': result['url']
+                                }
+                            }
+                            code = 200
+                        else:
+                            qr = segno.make_qr(reservation_id)
+                            qr.save(
+                                f"{FOLDER_QR}/{reservation_id}.png",
+                                scale = 30
+                            )
+                            url = f"{BASE_URL_IMAGE}/qr/{reservation_id}.png"
+                            query = f"INSERT INTO Reservation_QR VALUES ('{reservation_id}', '{url}')"
+                            conn = mysql.connect()
+                            cursor = conn.cursor(pymysql.cursors.DictCursor)
+                            cursor.execute(query)
+                            conn.commit()
+                            cursor.close()
+                            conn.close()
+
+                            response = {
+                                'get_status': True,
+                                'message': 'New QR Created successfully',
+                                'data': {
+                                    'url_qr': url
+                                }
+                            }
+                            code = 200
+                    else:
+                        response = {
+                            'get_status': False,
+                            'message': f"Reservation {reservation_id} not approved yet",
+                            'data': None
+                        }
+                        code = 403
+                else:
+                    response = {
+                        'get_status': False,
+                        'message': f"This user is not host or member of reservation {reservation_id}",
+                        'data': None
+                    }
+                    code = 403
+            else:
+                response = {
+                    'get_status': False,
+                    'message': f"Reservation {reservation_id} is not found",
+                    'data': None
+                }
+                code = 404
+        else:
+            response = {
+                'get_status': False,
+                'message': f"Token is expired",
+                'data': None
             }
             code = 401
         return jsonify(response), code

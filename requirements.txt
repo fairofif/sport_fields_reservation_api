@@ -18,3 +18,4 @@ pytest
 python-dotenv
 flask-swagger-ui
 haversine
+segno

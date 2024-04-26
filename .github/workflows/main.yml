@@ -34,6 +34,7 @@ jobs:
         DEFAULT_AVA_PATH: ${{ vars.DEFAULT_AVA_PATH }}
         UPLOAD_FOLDER_PAYMENT: ${{ vars.UPLOAD_FOLDER_PAYMENT }}
         BASE_URL_IMAGE: ${{ vars.BASE_URL_IMAGE }}
+        FOLDER_QR: ${{ vars.FOLDER_QR }}
 
     steps:
       - uses: actions/checkout@v4

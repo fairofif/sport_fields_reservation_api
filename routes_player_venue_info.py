@@ -322,7 +322,7 @@ def player_venue_info_cofigure_routes(app):
             code = 401
         return jsonify(response), code
 
-    @app.route('/player/sportVenue/<venue_id>')
+    @app.route('/player/sportVenue/<venue_id>', methods=['POST'])
     def player_get_venue_info_by_id(venue_id):
         token = request.headers['token']
         body = request.json

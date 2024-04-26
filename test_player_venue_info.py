@@ -631,7 +631,7 @@ def test_player_get_venue_by_id():
     url = f"/player/sportVenue/{sport_venue_id}"
     client = app.test_client()
 
-    response = client.get(url, headers=header, json=body)
+    response = client.post(url, headers=header, json=body)
 
     # =========== Clean data TEST ============ #
 
@@ -681,7 +681,7 @@ def test_player_get_venue_by_id_not_found():
     url = f"/player/sportVenue/{newSportFieldUUID()}"
     client = app.test_client()
 
-    response = client.get(url, headers=header, json=body)
+    response = client.post(url, headers=header, json=body)
 
     # =========== Clean data TEST ============ #
 
@@ -731,7 +731,7 @@ def test_player_get_venue_by_id_not_public():
     url = f"/player/sportVenue/{sport_venue_id}"
     client = app.test_client()
 
-    response = client.get(url, headers=header, json=body)
+    response = client.post(url, headers=header, json=body)
 
     # =========== Clean data TEST ============ #
 
