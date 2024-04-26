@@ -2048,7 +2048,7 @@
         }
       }
     },
-    "/player/reservation/qr/{reservation_id}": {
+    "/player/reservation/QR/{reservation_id}": {
       "post": {
         "tags": [
           "playerBooking"
