@@ -5,10 +5,14 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 from token_generator import newUserToken
+from datetime import datetime
 from virtual_device_id_generator import newVirtualDeviceID
 from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID
 
 # ================= Static Method Player User ================ #
+
+def get_current_date():
+    return datetime.now().strftime("%Y-%m-%d")
 
 def insert_player_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")

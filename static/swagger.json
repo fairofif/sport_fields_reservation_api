@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 27/04/2024 02:52:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 28/04/2024 00:42:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.9"
+    "version": "1.7.10"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1834,6 +1834,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ControlSystemGetScheduleOngoingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/controlsystem/unlock/{venue_id}/{reservation_id}": {
+      "get": {
+        "tags": [
+          "venueControlSystem"
+        ],
+        "summary": "Unlock venue door by venue_id and reservation_id that scanned from QR Code",
+        "description": "if venue, reservation, schedule date, arrival time with time open/close venue doesn't match, access to unlock not granted",
+        "operationId": "unlockDoorVenue",
+        "parameters": [
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "example": "a6d01bda-89b1-42b0-be6e-9164f5b8f03d",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "example": "a6d01bda-89b1-42b0-be6e-9164f5b8f03d",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlSystemUnlockVenueDoorResponse"
                 }
               }
             }
@@ -4039,6 +4089,28 @@
         },
         "xml": {
           "name": "ControlSystemGetScheduleOngoingResponse"
+        }
+      },
+      "ControlSystemUnlockVenueDoorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "unlock_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "reservation_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "ControlSystemUnlockVenueDoorResponse"
         }
       },
       "PlayerRemovePlayerFromReservationResponse": {
