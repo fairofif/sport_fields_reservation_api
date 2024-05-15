@@ -7,6 +7,7 @@ import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
 from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID
+from static import insert_member_reservation
 
 # ================= Static Method Player User ================ #
 
@@ -1777,3 +1778,313 @@ def test_player_get_public_reservation_3():
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
     assert response.get_json()['message'] == "Retrieve public reservation success"
+
+def test_player_get_user_reservation_all():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'payment')
+
+    booking_id2 = newBookingUUID()
+    insert_booking_unittest(booking_id2, field_id, "2024-05-02", "13:00:00", "14:59:59")
+    change_reservation_status(booking_id2, 'waiting_approval')
+
+    booking_id3 = newBookingUUID()
+    insert_booking_unittest(booking_id3, field_id, "2024-05-03", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id3, 'approved')
+
+    booking_id4 = newBookingUUID()
+    insert_booking_unittest(booking_id4, field_id, "2024-05-04", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id4, 'rejected')
+
+    booking_id5 = newBookingUUID()
+    insert_booking_unittest(booking_id5, field_id, "2024-05-05", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id5, 'cancelled')
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    # /player/reservation/booking_status
+    url = f"/player/reservation/all"
+    client = app.test_client()
+
+    response = client.get(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+    assert response.get_json()['message'] == "Retrieve user reservation success"
+    assert len(response.get_json()['data']) == 5
+
+def test_player_get_user_reservation_with_booking_status():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'payment')
+
+    booking_id2 = newBookingUUID()
+    insert_booking_unittest(booking_id2, field_id, "2024-05-01", "13:00:00", "14:59:59")
+    change_reservation_status(booking_id2, 'waiting_approval')
+
+    booking_id3 = newBookingUUID()
+    insert_booking_unittest(booking_id3, field_id, "2024-05-02", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id3, 'approved')
+
+    booking_id4 = newBookingUUID()
+    insert_booking_unittest(booking_id4, field_id, "2024-05-03", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id4, 'rejected')
+
+    booking_id5 = newBookingUUID()
+    insert_booking_unittest(booking_id5, field_id, "2024-05-03", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id5, 'cancelled')
+    ## TEST
+    header = {
+        'token': player_token
+    }
+
+    # /player/reservation/booking_status
+    url = f"/player/reservation/rejected"
+    client = app.test_client()
+
+    response = client.get(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # =========== VALIDATION =========== #
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+    assert response.get_json()['message'] == "Retrieve user reservation success"
+    assert len(response.get_json()['data']) == 1
+
+def test_player_get_joined_reservation_all():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    player_join_device = newVirtualDeviceID()
+    player_join_token = newUserToken()
+    insert_unittest_device(player_join_device)
+    player_join_username = 'unittest_join'
+    insert_player_unittest_user_custom(player_join_username)
+    insert_player_unittest_token_custom(player_join_token, player_join_device, player_join_username)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    booking_id2 = newBookingUUID()
+    insert_booking_unittest(booking_id2, field_id, "2024-05-02", "13:00:00", "14:59:59")
+    change_reservation_status(booking_id2, 'approved')
+
+    booking_id3 = newBookingUUID()
+    insert_booking_unittest(booking_id3, field_id, "2024-05-03", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id3, 'approved')
+
+    insert_member_reservation(booking_id, player_join_username)
+    insert_member_reservation(booking_id2, player_join_username)
+
+    ## TEST
+    header = {
+        'token': player_join_token
+    }
+
+    # /player/reservation/booking_status
+    url = f"/player/reservation/joined/all"
+    client = app.test_client()
+
+    response = client.get(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    delete_player_unittest_user_custom(player_join_username)
+    delete_unittest_device(player_join_device)
+
+    # =========== VALIDATION =========== #
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+    assert response.get_json()['message'] == "Retrieve joined reservation success"
+    assert len(response.get_json()['data']) == 2
+
+def test_player_get_joined_reservation_all():
+    ## ============ admin prerequirement ============= #
+
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
+
+    sport_kind_id_2 = insert_admin_unittest_sport_kind()
+    sport_venue_id_2 = newSportFieldUUID()
+
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+    insert_admin_unittest_sport_venue(sport_venue_id_2, sport_kind_id_2)
+
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+
+    field_id_2 = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id_2, sport_venue_id_2, 1)
+
+    ## ============ player prerequirement ============= #
+
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
+
+    player_join_device = newVirtualDeviceID()
+    player_join_token = newUserToken()
+    insert_unittest_device(player_join_device)
+    player_join_username = 'unittest_join'
+    insert_player_unittest_user_custom(player_join_username)
+    insert_player_unittest_token_custom(player_join_token, player_join_device, player_join_username)
+
+    ## ============== condition requirement =============== #
+
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, "2024-05-01", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
+
+    booking_id2 = newBookingUUID()
+    insert_booking_unittest(booking_id2, field_id, "2024-05-02", "13:00:00", "14:59:59")
+    change_reservation_status(booking_id2, 'approved')
+
+    booking_id3 = newBookingUUID()
+    insert_booking_unittest(booking_id3, field_id, "2024-05-03", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id3, 'approved')
+
+    booking_id4 = newBookingUUID()
+    insert_booking_unittest(booking_id4, field_id_2, "2024-05-03", "09:00:00", "11:59:59")
+    change_reservation_status(booking_id4, 'approved')
+
+    insert_member_reservation(booking_id, player_join_username)
+    insert_member_reservation(booking_id2, player_join_username)
+    insert_member_reservation(booking_id4, player_join_username)
+
+    ## TEST
+    header = {
+        'token': player_join_token
+    }
+
+    # /player/reservation/booking_status
+    url = f"/player/reservation/joined/{sport_kind_id_2}"
+    client = app.test_client()
+
+    response = client.get(url, headers=header)
+
+    # =========== Clean data TEST ============ #
+
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_admin_unittest_sport_kind(sport_kind_id_2)
+
+    delete_player_unittest_user_custom(player_join_username)
+    delete_unittest_device(player_join_device)
+
+    # =========== VALIDATION =========== #
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+    assert response.get_json()['message'] == "Retrieve joined reservation success"
+    assert len(response.get_json()['data']) == 1

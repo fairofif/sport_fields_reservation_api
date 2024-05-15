@@ -367,6 +367,20 @@ def player_booking_configure_routes(app):
         conn.close()
         return result['is_public']
 
+    def isPlayerHasAReservation(username):
+        query = f"SELECT id FROM Reservation WHERE Player_username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rows = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rows > 0:
+            return True
+        else:
+            return False
+
     # =================== ROUTES ===================== #
     @app.route('/player/reservation', methods=['POST'])
     def player_create_booking():
@@ -716,7 +730,6 @@ def player_booking_configure_routes(app):
             else:
                 query_final = query_init
 
-            print(query_final)
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
             cursor.execute(query_final)
@@ -783,6 +796,176 @@ def player_booking_configure_routes(app):
             }
             code = 401
 
+        return jsonify(response), code
+
+    @app.route('/player/reservation/<booking_status>', methods=['GET'])
+    def get_user_reservation_with_booking_status(booking_status):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if isPlayerHasAReservation(username):
+                if booking_status == 'all':
+                    query = (
+                        "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                        + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                        + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
+                        + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                        + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                        + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                        + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                        + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
+                        + f"WHERE Reservation.Player_username = '{username}' "
+                        + "GROUP BY Reservation.id ORDER BY Reservation.created_at DESC"
+                    )
+                else:
+                    query = (
+                        "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                        + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                        + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
+                        + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                        + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                        + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                        + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                        + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
+                        + f"WHERE Reservation.Player_username = '{username}' AND Reservation.booking_status = '{booking_status}' "
+                        + "GROUP BY Reservation.id ORDER BY Reservation.created_at DESC"
+                    )
+
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                results = cursor.fetchall()
+                rowcount = cursor.rowcount
+                cursor.close()
+                conn.close()
+                datas = []
+
+                for i in range(rowcount):
+                    item = {
+                        'reservation_id': results[i]['reservation_id'],
+                        'host_name': results[i]['host_name'],
+                        'mabar_name': results[i]['mabar_name'],
+                        'playing_date': str(results[i]['playing_date']),
+                        'time_start': str(results[i]['time_start']),
+                        'time_end': str(results[i]['time_end']),
+                        'venue_id': results[i]['venue_id'],
+                        'venue_name': results[i]['venue_name'],
+                        'sport_kind_id': results[i]['sport_kind_id'],
+                        'sport_kind_name': results[i]['sport_kind_name'],
+                        'field_id': results[i]['field_id'],
+                        'field_number': results[i]['field_number'],
+                        'count_member': results[i]['count_member'] + 1
+                    }
+                    datas = datas + [item]
+
+                response = {
+                    'get_status': True,
+                    'message': "Retrieve user reservation success",
+                    'data': datas
+                }
+                code = 200
+
+            else:
+                response = {
+                    'get_status': False,
+                    'message': "Player have not been created any reservation",
+                    'data': None
+                }
+                code = 404
+        else:
+            response = {
+                'get_status': False,
+                'message': "Token is expired",
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
+
+    @app.route('/player/reservation/joined/<sport_kind_id>', methods=['GET'])
+    def get_joined_reservation(sport_kind_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if sport_kind_id == 'all':
+                query = (
+                    "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                    + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                    + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                    + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
+                    + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                    + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                    + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                    + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                    + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
+                    + f"WHERE Reservation_Member.Player_username = '{username}' "
+                    + "GROUP BY Reservation.id ORDER BY Reservation.created_at DESC"
+                )
+            else:
+                query = (
+                    "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
+                    + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                    + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                    + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
+                    + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                    + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
+                    + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
+                    + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
+                    + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
+                    + f"WHERE Reservation_Member.Player_username = '{username}' AND Sport_Kind.id = '{sport_kind_id}'"
+                    + "GROUP BY Reservation.id ORDER BY Reservation.created_at DESC"
+                )
+
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            rowcount = cursor.rowcount
+            cursor.close()
+            conn.close()
+            datas = []
+
+            for i in range(rowcount):
+                item = {
+                    'reservation_id': results[i]['reservation_id'],
+                    'host_name': results[i]['host_name'],
+                    'mabar_name': results[i]['mabar_name'],
+                    'playing_date': str(results[i]['playing_date']),
+                    'time_start': str(results[i]['time_start']),
+                    'time_end': str(results[i]['time_end']),
+                    'venue_id': results[i]['venue_id'],
+                    'venue_name': results[i]['venue_name'],
+                    'sport_kind_id': results[i]['sport_kind_id'],
+                    'sport_kind_name': results[i]['sport_kind_name'],
+                    'field_id': results[i]['field_id'],
+                    'field_number': results[i]['field_number'],
+                    'count_member': results[i]['count_member'] + 1
+                }
+                datas = datas + [item]
+
+            if rowcount > 0:
+                response = {
+                    'get_status': True,
+                    'message': "Retrieve joined reservation success",
+                    'data': datas
+                }
+                code = 200
+            else:
+                response = {
+                    'get_status': False,
+                    'message': "Player has not been joined any reservation / or has not been joined reservation with that sport_kind_id",
+                    'data': None
+                }
+                code = 404
+        else:
+            response = {
+                'get_status': False,
+                'message': "Token is expired",
+                'data': None
+            }
+            code = 401
         return jsonify(response), code
 
     @app.route('/player/reservation/details/<reservation_id>', methods=['GET'])

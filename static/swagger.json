@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 28/04/2024 00:42:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/05/2024 23:15:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.10"
+    "version": "1.7.11"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -1643,13 +1643,109 @@
         }
       }
     },
+    "/player/reservation/{booking_status}": {
+      "get": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Get Player's own Reservation",
+        "description": "Get all reservation that player has ever created with filter booking_status",
+        "operationId": "playerGetPlayersOwnReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "booking_status",
+            "in": "path",
+            "required": true,
+            "description": "payment / waiting_approval / approved / rejected / cancelled / all",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetPlayersOwnReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/reservation/joined/{sport_kind_id}": {
+      "get": {
+        "tags": [
+          "playerBooking"
+        ],
+        "summary": "Get Joined Reservation",
+        "description": "Get Reservation that player has been joined",
+        "operationId": "playerGetPlayersJoinedReservation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sport_kind_id",
+            "in": "path",
+            "required": true,
+            "description": "sport_kind_id can gotten by sport_kinds route (or fill with 'all' if you don't want to use this filter)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerGetPlayersJoinedReservationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/admin/reservation/{booking_status}": {
       "get": {
         "tags": [
           "adminBooking"
         ],
-        "summary": "Get All Reservation based on booking status",
-        "description": "Get All Reservation based on booking status",
+        "summary": "Get Reservation in all venue that he managed based on booking status",
+        "description": "Get Reservation in all venue that he managed based on booking status",
         "operationId": "getBookingListAdmin",
         "parameters": [
           {
@@ -1665,7 +1761,64 @@
             "name": "booking_status",
             "in": "path",
             "required": true,
-            "description": "option: payment, waiting_approval, approved, rejected, cancelled",
+            "description": "option: payment, waiting_approval, approved, rejected, cancelled, all",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetReservationListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/reservation/{venue_id}/{booking_status}": {
+      "get": {
+        "tags": [
+          "adminBooking"
+        ],
+        "summary": "Get Reservation in specific venue that he managed based on booking status",
+        "description": "Get Reservation in specific venue that he managed based on booking status",
+        "operationId": "getBookingListAdminInSpecificVenue",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "venue_id that admin (in token) manage",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "booking_status",
+            "in": "path",
+            "required": true,
+            "description": "option: payment, waiting_approval, approved, rejected, cancelled, all",
             "schema": {
               "type": "string"
             }
@@ -4033,6 +4186,134 @@
         },
         "xml": {
           "name": "PlayerGetPublicReservationResponse"
+        }
+      },
+      "PlayerGetPlayersOwnReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "count_member": {
+                  "type": "integer"
+                },
+                "field_id": {
+                  "type": "string"
+                },
+                "field_number": {
+                  "type": "integer"
+                },
+                "host_name": {
+                  "type": "string"
+                },
+                "mabar_name": {
+                  "type": "string"
+                },
+                "playing_date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "reservation_id": {
+                  "type": "string"
+                },
+                "sport_kind_id": {
+                  "type": "string"
+                },
+                "sport_kind_name": {
+                  "type": "string"
+                },
+                "time_start": {
+                  "type": "string",
+                  "format": "time"
+                },
+                "time_end": {
+                  "type": "string",
+                  "format": "time"
+                },
+                "venue_id": {
+                  "type": "string"
+                },
+                "venue_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetPlayersOwnReservationResponse"
+        }
+      },
+      "PlayerGetPlayersJoinedReservationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "count_member": {
+                  "type": "integer"
+                },
+                "field_id": {
+                  "type": "string"
+                },
+                "field_number": {
+                  "type": "integer"
+                },
+                "host_name": {
+                  "type": "string"
+                },
+                "mabar_name": {
+                  "type": "string"
+                },
+                "playing_date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "reservation_id": {
+                  "type": "string"
+                },
+                "sport_kind_id": {
+                  "type": "string"
+                },
+                "sport_kind_name": {
+                  "type": "string"
+                },
+                "time_start": {
+                  "type": "string",
+                  "format": "time"
+                },
+                "time_end": {
+                  "type": "string",
+                  "format": "time"
+                },
+                "venue_id": {
+                  "type": "string"
+                },
+                "venue_name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerGetPlayersJoinedReservationResponse"
         }
       },
       "PlayerGetMemberOfReservationResponse": {
