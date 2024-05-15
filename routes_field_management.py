@@ -174,7 +174,7 @@ def field_management_configure_routes(app):
                         "is_public": read_row[i]['is_public'],
                         "price_per_hour": read_row[i]['price_per_hour']
                     }
-                    datas = datas = [data]
+                    datas = datas + [data]
                 response = {
                     "get_status": True,
                     "message": "Retrieve Sport Venue Successfully",
