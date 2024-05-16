@@ -810,7 +810,7 @@ def player_booking_configure_routes(app):
                         + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
                         + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
                         + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
-                        + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                        + "Reservation.time_end, Reservation.booking_status, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                         + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
                         + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
                         + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
@@ -824,7 +824,7 @@ def player_booking_configure_routes(app):
                         + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
                         + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
                         + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
-                        + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
+                        + "Reservation.time_end, Reservation.booking_status, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                         + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
                         + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
                         + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
@@ -850,6 +850,7 @@ def player_booking_configure_routes(app):
                         'playing_date': str(results[i]['playing_date']),
                         'time_start': str(results[i]['time_start']),
                         'time_end': str(results[i]['time_end']),
+                        'booking_status': results[i]['booking_status'],
                         'venue_id': results[i]['venue_id'],
                         'venue_name': results[i]['venue_name'],
                         'sport_kind_id': results[i]['sport_kind_id'],
