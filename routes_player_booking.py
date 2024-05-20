@@ -705,7 +705,7 @@ def player_booking_configure_routes(app):
             query_init = (
                 "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
                 + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, "
                 + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, "
                 + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                 + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -756,7 +756,8 @@ def player_booking_configure_routes(app):
                         'sport_kind_name': results[i]['sport_kind_name'],
                         'field_id': results[i]['field_id'],
                         'field_number': results[i]['field_number'],
-                        'count_member': results[i]['count_member'] + 1
+                        'count_member': results[i]['count_member'] + 1,
+                        'is_open_member': bool(results[i]['is_open_member'])
                     }
                     datas = datas + [data]
             else:
@@ -775,7 +776,8 @@ def player_booking_configure_routes(app):
                         'sport_kind_name': results[i]['sport_kind_name'],
                         'field_id': results[i]['field_id'],
                         'field_number': results[i]['field_number'],
-                        'count_member': results[i]['count_member'] + 1
+                        'count_member': results[i]['count_member'] + 1,
+                        'is_open_member': bool(results[i]['is_open_member'])
                     }
                     datas = datas + [data]
             if sort_by == 'distance' and request.headers.get('geo_coordinate') != None and request.headers.get('geo_coordinate') != "":
@@ -808,7 +810,7 @@ def player_booking_configure_routes(app):
                     query = (
                         "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
                         + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, "
                         + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
                         + "Reservation.time_end, Reservation.booking_status, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                         + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -822,7 +824,7 @@ def player_booking_configure_routes(app):
                     query = (
                         "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
                         + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, "
                         + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
                         + "Reservation.time_end, Reservation.booking_status, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                         + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -857,7 +859,8 @@ def player_booking_configure_routes(app):
                         'sport_kind_name': results[i]['sport_kind_name'],
                         'field_id': results[i]['field_id'],
                         'field_number': results[i]['field_number'],
-                        'count_member': results[i]['count_member'] + 1
+                        'count_member': results[i]['count_member'] + 1,
+                        'is_open_member': bool(results[i]['is_open_member'])
                     }
                     datas = datas + [item]
 
@@ -894,7 +897,7 @@ def player_booking_configure_routes(app):
                 query = (
                     "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
                     + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                    + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                    + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, "
                     + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
                     + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                     + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -908,7 +911,7 @@ def player_booking_configure_routes(app):
                 query = (
                     "SELECT Sport_Field.id venue_id, Sport_Field.name venue_name, "
                     + "Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                    + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, "
+                    + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, "
                     + "Reservation.name mabar_name, Reservation.date playing_date, Reservation.time_start, Reservation.created_at booking_created_at, "
                     + "Reservation.time_end, Sport_Field.geo_coordinate, COUNT(Reservation_Member.Player_username) count_member FROM Sport_Field "
                     + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -942,7 +945,8 @@ def player_booking_configure_routes(app):
                     'sport_kind_name': results[i]['sport_kind_name'],
                     'field_id': results[i]['field_id'],
                     'field_number': results[i]['field_number'],
-                    'count_member': results[i]['count_member'] + 1
+                    'count_member': results[i]['count_member'] + 1,
+                    'is_open_member': bool(results[i]['is_open_member'])
                 }
                 datas = datas + [item]
 
@@ -981,7 +985,7 @@ def player_booking_configure_routes(app):
                     query = (
                         "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
                         + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, Reservation.name mabar_name, "
+                        + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, Reservation.name mabar_name, "
                         + "Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
                         + "Reservation.created_at FROM Sport_Field "
                         + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -1010,7 +1014,8 @@ def player_booking_configure_routes(app):
                         'field_id': results['field_id'],
                         'field_number': results['field_number'],
                         'booking_status': results['booking_status'],
-                        'created_at': str(results['created_at'])
+                        'created_at': str(results['created_at']),
+                        'is_open_member': results['is_open_member']
                     }
 
                     if is_host:
@@ -1032,7 +1037,7 @@ def player_booking_configure_routes(app):
                         query = (
                             "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
                             + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
-                            + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.Player_username host_name, Reservation.name mabar_name, "
+                            + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, Reservation.name mabar_name, "
                             + "Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
                             + "Reservation.created_at FROM Sport_Field "
                             + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
@@ -1061,7 +1066,8 @@ def player_booking_configure_routes(app):
                             'field_id': results['field_id'],
                             'field_number': results['field_number'],
                             'booking_status': results['booking_status'],
-                            'created_at': str(results['created_at'])
+                            'created_at': str(results['created_at']),
+                            'is_open_member': results['is_open_member']
                         }
                         role = "guest"
                         response = {

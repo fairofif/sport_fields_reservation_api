@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/05/2024 22:22:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/05/2024 21:13:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.12"
+    "version": "1.7.13"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -3948,6 +3948,9 @@
                   },
                   "created_at": {
                     "type": "string"
+                  },
+                  "is_open_member": {
+                    "type": "boolean"
                   }
                 }
               }
@@ -4179,6 +4182,9 @@
                 },
                 "venue_name": {
                   "type": "string"
+                },
+                "is_open_member": {
+                  "type": "boolean"
                 }
               }
             }
@@ -4246,6 +4252,9 @@
                 },
                 "venue_name": {
                   "type": "string"
+                },
+                "is_open_member": {
+                  "type": "boolean"
                 }
               }
             }
@@ -4310,6 +4319,9 @@
                 },
                 "venue_name": {
                   "type": "string"
+                },
+                "is_open_member": {
+                  "type": "boolean"
                 }
               }
             }
