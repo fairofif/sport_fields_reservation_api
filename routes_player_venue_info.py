@@ -330,7 +330,7 @@ def player_venue_info_cofigure_routes(app):
             if isSportVenueExist(venue_id):
                 if isVenuePublic(venue_id):
                     query = ("SELECT Sport_Field.id, Sport_Field.Sport_Kind_id, Sport_Kind.name Sport_Kind_Name, Sport_Field.name, "
-                        +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, "
+                        +"Sport_Field.created_at, Sport_Field.last_edited, Sport_Field.geo_coordinate, Sport_Field.Admin_username admin_username,"
                         +"Sport_Field.is_bike_parking, Sport_Field.is_car_parking, Sport_Field.is_public, "
                         +"Sport_Field.description, Sport_Field.rules, Sport_Field.time_open, Sport_Field.time_closed, "
                         +"Sport_Field.price_per_hour FROM Sport_Field INNER JOIN Sport_Kind ON "
@@ -342,6 +342,7 @@ def player_venue_info_cofigure_routes(app):
                     read_row = cursor.fetchone()
                     data = {
                         "id": read_row['id'],
+                        "admin_username": read_row['admin_username'],
                         "Sport_Kind_id": read_row['Sport_Kind_id'],
                         "Sport_Kind_Name": read_row['Sport_Kind_Name'],
                         "name": read_row['name'],

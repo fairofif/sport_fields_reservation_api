@@ -986,7 +986,7 @@ def player_booking_configure_routes(app):
                         "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
                         + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
                         + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, Reservation.name mabar_name, "
-                        + "Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
+                        + "Reservation.is_public is_public, Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
                         + "Reservation.created_at FROM Sport_Field "
                         + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
                         + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
@@ -1015,6 +1015,7 @@ def player_booking_configure_routes(app):
                         'field_number': results['field_number'],
                         'booking_status': results['booking_status'],
                         'created_at': str(results['created_at']),
+                        'is_public': results['is_public'],
                         'is_open_member': results['is_open_member']
                     }
 
@@ -1038,7 +1039,7 @@ def player_booking_configure_routes(app):
                             "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
                             + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
                             + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, Reservation.name mabar_name, "
-                            + "Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
+                            + "Reservation.is_public is_public, Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
                             + "Reservation.created_at FROM Sport_Field "
                             + "INNER JOIN Fields ON (Sport_Field.id = Fields.Sport_Field_id) "
                             + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
@@ -1067,6 +1068,7 @@ def player_booking_configure_routes(app):
                             'field_number': results['field_number'],
                             'booking_status': results['booking_status'],
                             'created_at': str(results['created_at']),
+                            'is_public': results['is_public'],
                             'is_open_member': results['is_open_member']
                         }
                         role = "guest"

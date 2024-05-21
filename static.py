@@ -7,7 +7,7 @@ import os
 from token_generator import newUserToken
 from datetime import datetime
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID, newChatMatchUUID
 
 # ================= Static Method Player User ================ #
 
@@ -289,6 +289,24 @@ def change_is_public_status(booking_id, status):
 
 def insert_member_reservation(booking_id, username):
     query = f"INSERT INTO Reservation_Member VALUES ('{booking_id}', '{username}')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_chat_match(chat_match_id):
+    query = f"DELETE FROM Chat_Match WHERE id = '{chat_match_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_chat_match(id, admin, player):
+    query = f"INSERT INTO Chat_Match VALUES ('{id}', '{admin}', '{player}')"
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)

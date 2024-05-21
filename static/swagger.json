@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 16/05/2024 21:13:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/05/2024 23:49:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.13"
+    "version": "1.7.14"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -3175,6 +3175,9 @@
               "id": {
                 "type": "string"
               },
+              "admin_username": {
+                "type": "string"
+              },
               "Sport_Kind_id": {
                 "type": "string"
               },
@@ -3948,6 +3951,9 @@
                   },
                   "created_at": {
                     "type": "string"
+                  },
+                  "is_public": {
+                    "type": "boolean"
                   },
                   "is_open_member": {
                     "type": "boolean"
