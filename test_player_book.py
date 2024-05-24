@@ -2087,4 +2087,4 @@ def test_player_get_joined_reservation_all():
     assert response.status_code == 200
     assert response.get_json()['get_status'] == True
     assert response.get_json()['message'] == "Retrieve joined reservation success"
-    assert len(response.get_json()['data']) == 1
+    assert len(response.get_json()['data']) == 3
