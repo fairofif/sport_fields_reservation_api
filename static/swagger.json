@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 21/05/2024 23:49:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 24/05/2024 09:41:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.14"
+    "version": "1.7.15"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -64,6 +64,10 @@
     {
       "name": "venueControlSystem",
       "description": "Routes that related to control system in a venue"
+    },
+    {
+      "name": "playerChat",
+      "description": "Routes that related to player chat with admin venue"
     }
   ],
   "paths": {
@@ -2404,6 +2408,55 @@
         }
       }
     },
+    "/player/chatmatch": {
+      "post": {
+        "tags": [
+          "playerChat"
+        ],
+        "summary": "Post and Get a Chat Match with Admin",
+        "description": "Create new match chat with admin, if had already chated before, it will return existing chat match",
+        "operationId": "playerChatMatch",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerChatMatchBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerChatMatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/sport_kinds": {
       "get": {
         "tags": [
@@ -4106,6 +4159,43 @@
         },
         "xml": {
           "name": "AdminEditBookingStatusResponse"
+        }
+      },
+      "PlayerChatMatchBody": {
+        "required": [
+          "admin_username"
+        ],
+        "type": "object",
+        "properties": {
+          "admin_username": {
+            "type": "string",
+            "example": "admin_huehue"
+          }
+        },
+        "xml": {
+          "name": "PlayerChatMatchBody"
+        }
+      },
+      "PlayerChatMatchResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id_chat_match": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerChatMatchResponse"
         }
       },
       "PlayerCancelReservationResponse": {
