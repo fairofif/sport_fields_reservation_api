@@ -904,7 +904,7 @@ def player_booking_configure_routes(app):
                     + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
                     + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
                     + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
-                    + f"WHERE Reservation_Member.Player_username = '{username}' "
+                    + f"WHERE Reservation.id IN (SELECT Reservation_id FROM Reservation_Member WHERE Player_username = '{username}') "
                     + "GROUP BY Reservation.id ORDER BY Reservation.created_at DESC"
                 )
             else:
@@ -918,7 +918,7 @@ def player_booking_configure_routes(app):
                     + "INNER JOIN Sport_Kind ON (Sport_Field.Sport_Kind_id = Sport_Kind.id) "
                     + "INNER JOIN Reservation ON (Fields.id = Reservation.Field_id) "
                     + "LEFT JOIN Reservation_Member ON (Reservation.id = Reservation_Member.Reservation_id) "
-                    + f"WHERE Reservation_Member.Player_username = '{username}' AND Sport_Kind.id = '{sport_kind_id}'"
+                    + f"WHERE Reservation.id IN (SELECT Reservation_id FROM Reservation_Member WHERE Player_username = '{username}') "
                     + "GROUP BY Reservation.id ORDER BY Reservation.created_at DESC"
                 )
 
