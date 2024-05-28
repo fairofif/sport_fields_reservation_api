@@ -7,6 +7,7 @@ import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
 from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID
+from static import insert_album_photo, soft_delete_photo_album
 import pytest
 
 def insert_unittest_user():
@@ -925,3 +926,246 @@ def test_delete_sport_venue_by_id_not_found():
 
     assert response.status_code == 404
     assert response.get_json()['delete_status'] == False
+
+def test_get_album_by_owner():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1', 'url1')
+    insert_album_photo(sport_venue, 'file2', 'url2')
+    insert_album_photo(sport_venue, 'file3', 'url3')
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album"
+
+    header = {
+        "token": token
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+    assert len(response.get_json()['data']) == 3
+
+def test_get_album_by_owner_deleted_1():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1', 'url1')
+    insert_album_photo(sport_venue, 'file2', 'url2')
+    insert_album_photo(sport_venue, 'file3', 'url3')
+    soft_delete_photo_album(sport_venue, 'file2')
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album"
+
+    header = {
+        "token": token
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['get_status'] == True
+    assert len(response.get_json()['data']) == 2
+
+def test_get_album_by_not_owner():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1', 'url1')
+    insert_album_photo(sport_venue, 'file2', 'url2')
+    insert_album_photo(sport_venue, 'file3', 'url3')
+
+    username = 'adminunittest'
+    device_2 = newVirtualDeviceID()
+    token_2 = newUserToken()
+    insert_unittest_device(device_2)
+    insert_unittest_user_custom(username)
+    insert_unittest_token_custom(token_2, device_2, username)
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album"
+
+    header = {
+        "token": token_2
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+    delete_unittest_user_custom(username)
+    delete_unittest_device(device_2)
+
+    assert response.status_code == 403
+    assert response.get_json()['get_status'] == False
+    assert response.get_json()['data'] == None
+
+def test_get_album_by_token_expired():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1', 'url1')
+    insert_album_photo(sport_venue, 'file2', 'url2')
+    insert_album_photo(sport_venue, 'file3', 'url3')
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album"
+
+    header = {
+        "token": newUserToken()
+    }
+
+    response = client.get(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 401
+    assert response.get_json()['get_status'] == False
+    assert response.get_json()['data'] == None
+
+def test_delete_album_by_owner():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1.jpg', 'url1')
+    insert_album_photo(sport_venue, 'file2.heic', 'url2')
+    insert_album_photo(sport_venue, 'file3.png', 'url3')
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album/file2.heic"
+
+    header = {
+        "token": token
+    }
+
+    response = client.delete(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 200
+    assert response.get_json()['delete_status'] == True
+    assert len(response.get_json()['data']) == 2
+
+def test_delete_album_by_not_owner():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1', 'url1')
+    insert_album_photo(sport_venue, 'file2', 'url2')
+    insert_album_photo(sport_venue, 'file3', 'url3')
+
+    username = 'adminunittest'
+    device_2 = newVirtualDeviceID()
+    token_2 = newUserToken()
+    insert_unittest_device(device_2)
+    insert_unittest_user_custom(username)
+    insert_unittest_token_custom(token_2, device_2, username)
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album/file2"
+
+    header = {
+        "token": token_2
+    }
+
+    response = client.delete(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+    delete_unittest_user_custom(username)
+    delete_unittest_device(device_2)
+
+    assert response.status_code == 403
+    assert response.get_json()['delete_status'] == False
+    assert response.get_json()['data'] == None
+
+def test_delete_album_by_owner_filename_not_found():
+    device = newVirtualDeviceID()
+    token = newUserToken()
+    sport_kind = insert_unittest_sport_kind()
+    sport_venue = newSportFieldUUID()
+
+    insert_unittest_device(device)
+    insert_unittest_user()
+    insert_unittest_token(token, device)
+    insert_unittest_sport_venue(sport_venue, sport_kind)
+    insert_album_photo(sport_venue, 'file1.jpg', 'url1')
+    insert_album_photo(sport_venue, 'file2.heic', 'url2')
+    insert_album_photo(sport_venue, 'file3.png', 'url3')
+
+    client = app.test_client()
+    url = f"/admin/sportVenue/{sport_venue}/album/file5.heic"
+
+    header = {
+        "token": token
+    }
+
+    response = client.delete(url, headers=header)
+
+    delete_unittest_device(device)
+    delete_unittest_user()
+    delete_unittest_sport_kind(sport_kind)
+    delete_unittest_sport_venue(sport_venue)
+
+    assert response.status_code == 404
+    assert response.get_json()['delete_status'] == False
+    assert response.get_json()['data'] != None

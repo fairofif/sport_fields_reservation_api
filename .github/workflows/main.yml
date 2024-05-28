@@ -33,6 +33,7 @@ jobs:
         DB_HOST_: ${{ vars.DB_HOST_ }}
         DEFAULT_AVA_PATH: ${{ vars.DEFAULT_AVA_PATH }}
         UPLOAD_FOLDER_PAYMENT: ${{ vars.UPLOAD_FOLDER_PAYMENT }}
+        UPLOAD_FOLDER_ALBUM: ${{ vars.UPLOAD_FOLDER_ALBUM }}
         BASE_URL_IMAGE: ${{ vars.BASE_URL_IMAGE }}
         FOLDER_QR: ${{ vars.FOLDER_QR }}
 

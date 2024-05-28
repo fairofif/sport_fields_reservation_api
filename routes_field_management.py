@@ -6,15 +6,45 @@ from flask import (
 from db_config import mysql
 from dotenv import load_dotenv
 from uuid_generator import newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID
-import datetime
+import datetime, os
 import calendar
 load_dotenv(override=True)
 
 def field_management_configure_routes(app):
+     # ==== SETUP ===== #
+    UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER_ALBUM")
+    app.config['UPLOAD_FOLDER_ALBUM'] = UPLOAD_FOLDER
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    ALLOWED_EXTENSIONS = set(['heic', 'jpg', 'jpeg', 'png', 'gif'])
+    BASE_URL_IMAGE = os.getenv("BASE_URL_IMAGE")
+
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
     ### ================ STATIC METHOD ==================== ###
+    def get_current_time_string():
+        current_time = datetime.datetime.now().time()
+        formatted_time = current_time.strftime('%H%M%S%f')[:-3]  # Exclude microseconds
+        return formatted_time
+
     def checkAdminToken(token):
         query = "SELECT token FROM Admin_Login_Token WHERE token = '"+token+"'"
 
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return False
+        else:
+            cursor.close()
+            conn.close()
+            return True
+
+    def isFileExistsInVenueId(venue_id, filename):
+        query = f"SELECT * FROM Venue_Album WHERE Sport_Field_id = '{venue_id}' AND filename = '{filename}'"
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         cursor.execute(query)
@@ -818,5 +848,235 @@ def field_management_configure_routes(app):
 
         return jsonify(response), code
 
+    @app.route('/admin/sportVenue/<venue_id>/album', methods=['GET'])
+    def admin_get_album_venue(venue_id):
+        token = request.headers['token']
+        if checkAdminToken(token):
+            username = findUsernameFromToken(token)
+            if isUserOwnThisVenue(venue_id, username):
+                query = f"SELECT Sport_Field_id venue_id, filename, url, uploaded_at FROM Venue_Album WHERE deleted_at is null AND Sport_Field_id = '{venue_id}' ORDER BY filename ASC"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                results = cursor.fetchall()
+                rows = cursor.rowcount
+                cursor.close()
+                conn.close()
 
+                data = []
+                for i in range(rows):
+                    item = {
+                        'venue_id': results[i]['venue_id'],
+                        'filename': results[i]['filename'],
+                        'url': results[i]['url'],
+                        'uploaded_at': str(results[i]['uploaded_at'])
+                    }
+                    data = data + [item]
 
+                response = {
+                    'get_status': True,
+                    'message': 'Retrieve image list success',
+                    'data': data
+                }
+                code = 200
+            else:
+                response = {
+                    'get_status': False,
+                    'message': "Venue is not this user's",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
+
+    @app.route('/admin/sportVenue/<venue_id>/album', methods=['POST'])
+    def admin_uploads_album(venue_id):
+        token = request.headers.get('token')
+        if checkAdminToken(token):
+            username = findUsernameFromToken(token)
+            if isUserOwnThisVenue(venue_id, username):
+
+                if 'file' not in request.files:
+                    response = {
+                        'upload_status': False,
+                        'message': 'No file part in request',
+                        'data': None
+                    }
+                    code = 400
+                else:
+                    files = request.files.getlist('file')
+                    if not files:
+                        response = {
+                            'upload_status': False,
+                            'message': 'No selected files',
+                            'data': None
+                        }
+                        code = 400
+                    else:
+                        uploaded_files = 0
+                        loops = 0
+                        for image in files:
+                            if image and allowed_file(image.filename):
+                                file_extension = image.filename.rsplit('.', 1)[1].lower()
+                                custom_filename = f"{venue_id}_{get_current_time_string()}."
+                                filename = custom_filename + file_extension
+                                image.save(os.path.join(app.config['UPLOAD_FOLDER_ALBUM'], filename))
+                                url_image = f"{BASE_URL_IMAGE}/venue_album/{filename}"
+
+                                query = f"INSERT INTO Venue_Album VALUES('{venue_id}', '{filename}', '{url_image}', CURRENT_TIMESTAMP(), null)"
+                                conn = mysql.connect()
+                                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                                cursor.execute(query)
+                                conn.commit()
+                                cursor.close()
+                                conn.close()
+                                uploaded_files += 1
+                            loops += 1
+
+                        query = f"SELECT Sport_Field_id venue_id, filename, url, uploaded_at FROM Venue_Album WHERE deleted_at is null AND Sport_Field_id = '{venue_id}' ORDER BY filename ASC"
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+                        cursor.execute(query)
+                        results = cursor.fetchall()
+                        rows = cursor.rowcount
+                        cursor.close()
+                        conn.close()
+
+                        data = []
+                        for i in range(rows):
+                            item = {
+                                'venue_id': results[i]['venue_id'],
+                                'filename': results[i]['filename'],
+                                'url': results[i]['url'],
+                                'uploaded_at': str(results[i]['uploaded_at'])
+                            }
+                            data = data + [item]
+
+                        if uploaded_files == loops:
+                            response = {
+                                'upload_status': True,
+                                'message': 'All image uploaded successfully',
+                                'data': data
+                            }
+                            code = 200
+
+                        elif uploaded_files == 0:
+                            response = {
+                                'upload_status': False,
+                                'message': 'Extensions of all files are not allowed',
+                                'data': data
+                            }
+                            code = 400
+                        else:
+                            response = {
+                                'upload_status': True,
+                                'message': 'Extensions of some files are not allowed',
+                                'data': data
+                            }
+                            code = 207
+            else:
+                response = {
+                    'upload_status': False,
+                    'message': "Venue is not this user's",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'upload_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code
+
+    @app.route('/admin/sportVenue/<venue_id>/album/<filename>', methods=['DELETE'])
+    def delete_uploads_album(venue_id, filename):
+        token = request.headers.get('token')
+        if checkAdminToken(token):
+            username = findUsernameFromToken(token)
+            if isUserOwnThisVenue(venue_id, username):
+                if isFileExistsInVenueId(venue_id, filename):
+                    query = f"UPDATE Venue_Album SET deleted_at = CURRENT_TIMESTAMP() WHERE Sport_Field_id = '{venue_id}' AND filename = '{filename}'"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+
+                    query = f"SELECT Sport_Field_id venue_id, filename, url, uploaded_at FROM Venue_Album WHERE deleted_at is null AND Sport_Field_id = '{venue_id}' ORDER BY filename ASC"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    rows = cursor.rowcount
+                    cursor.close()
+                    conn.close()
+
+                    data = []
+                    for i in range(rows):
+                        item = {
+                            'venue_id': results[i]['venue_id'],
+                            'filename': results[i]['filename'],
+                            'url': results[i]['url'],
+                            'uploaded_at': str(results[i]['uploaded_at'])
+                        }
+                        data = data + [item]
+
+                    response = {
+                        'delete_status': True,
+                        'message': f"filename {filename} deleted successfully",
+                        'data': data
+                    }
+                    code = 200
+
+                else:
+                    query = f"SELECT Sport_Field_id venue_id, filename, url, uploaded_at FROM Venue_Album WHERE deleted_at is null AND Sport_Field_id = '{venue_id}' ORDER BY filename ASC"
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    rows = cursor.rowcount
+                    cursor.close()
+                    conn.close()
+
+                    data = []
+                    for i in range(rows):
+                        item = {
+                            'venue_id': results[i]['venue_id'],
+                            'filename': results[i]['filename'],
+                            'url': results[i]['url'],
+                            'uploaded_at': str(results[i]['uploaded_at'])
+                        }
+                        data = data + [item]
+
+                    response = {
+                        'delete_status': False,
+                        'message': "filename not found in that venue id",
+                        'data': data
+                    }
+                    code = 404
+            else:
+                response = {
+                    'delete_status': False,
+                    'message': "Venue is not this user's",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'delete_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+
+        return jsonify(response), code

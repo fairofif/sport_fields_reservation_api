@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 25/05/2024 00:10:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 29/05/2024 00:36:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.16"
+    "version": "1.7.17"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -545,7 +545,7 @@
         "tags": [
           "sportVenue"
         ],
-        "summary": "Delete Vnue by id",
+        "summary": "Delete Venue by id",
         "description": "",
         "operationId": "deleteSportVenue",
         "parameters": [
@@ -1011,6 +1011,175 @@
         }
       }
     },
+    "/admin/sportVenue/{venue_id}/album": {
+      "get": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Get venue photos",
+        "description": "Get Venue photos by admin",
+        "operationId": "getVenueAlbum",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetAlbumResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Upload Photos for Venue Album",
+        "description": "Photos could be multiple",
+        "operationId": "uploadPhotosAlbum",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUploadPhotosResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/admin/sportVenue/{venue_id}/album/{filename}": {
+      "delete": {
+        "tags": [
+          "sportVenue"
+        ],
+        "summary": "Delete photo from venue album",
+        "description": "Delete photo from venue album",
+        "operationId": "deletePhotoVenueAlbum",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeletePhotoFromAlbumResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
     "/player/sportVenue": {
       "post": {
         "tags": [
@@ -1105,6 +1274,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlayerGetVenueDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "404": {
+            "description": "not found"
+          }
+        }
+      }
+    },
+    "/player/sportVenue/{venue_id}/album": {
+      "get": {
+        "tags": [
+          "playerVenueInfo"
+        ],
+        "summary": "Get venue photos",
+        "description": "Get Venue photos by player",
+        "operationId": "getVenueAlbumPlayer",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "venue_id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminGetAlbumResponse"
                 }
               }
             }
@@ -3495,6 +3712,108 @@
         },
         "xml": {
           "name": "AdminGetBlacklistScheduleResponse"
+        }
+      },
+      "AdminGetAlbumResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "get_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "venue_id": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "uploaded_at": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminGetAlbumResponse"
+        }
+      },
+      "AdminUploadPhotosResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "upload_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "venue_id": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "uploaded_at": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminUploadPhotosResponse"
+        }
+      },
+      "AdminDeletePhotoFromAlbumResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "delete_status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "venue_id": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "uploaded_at": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "AdminDeletePhotoFromAlbumResponse"
         }
       },
       "PlayerGetBlacklistScheduleResponse": {

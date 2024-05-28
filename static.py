@@ -313,3 +313,21 @@ def insert_chat_match(id, admin, player):
     conn.commit()
     cursor.close()
     conn.close()
+
+def insert_album_photo(venue_id, filename, url):
+    query = f"INSERT INTO Venue_Album VALUES ('{venue_id}', '{filename}', '{url}', CURRENT_TIMESTAMP, null)"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def soft_delete_photo_album(venue_id, filename):
+    query = f"UPDATE Venue_Album SET deleted_at = CURRENT_TIMESTAMP() WHERE Sport_Field_id = '{venue_id}' AND filename = '{filename}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()

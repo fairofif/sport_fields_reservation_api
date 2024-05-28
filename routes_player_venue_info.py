@@ -387,3 +387,49 @@ def player_venue_info_cofigure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/player/sportVenue/<venue_id>/album', methods=['GET'])
+    def player_get_album(venue_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            if isVenuePublic(venue_id):
+                query = f"SELECT Sport_Field_id venue_id, filename, url, uploaded_at FROM Venue_Album WHERE deleted_at is null AND Sport_Field_id = '{venue_id}' ORDER BY filename ASC"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                results = cursor.fetchall()
+                rows = cursor.rowcount
+                cursor.close()
+                conn.close()
+
+                data = []
+                for i in range(rows):
+                    item = {
+                        'venue_id': results[i]['venue_id'],
+                        'filename': results[i]['filename'],
+                        'url': results[i]['url'],
+                        'uploaded_at': str(results[i]['uploaded_at'])
+                    }
+                    data = data + [item]
+
+                response = {
+                    'get_status': True,
+                    'message': 'Get album photos success',
+                    'data': data
+                }
+                code = 200
+            else:
+                response = {
+                    'get_status': False,
+                    'message': 'Venue is not public',
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'get_status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
