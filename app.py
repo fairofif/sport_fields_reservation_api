@@ -11,6 +11,7 @@ from routes_admin_booking_system import admin_booking_configure_routes
 from routes_control_system import control_system_configure_routes
 from routes_member_management import member_management_configure_routes
 from routes_chat_player import chat_player_configure_routes
+from routes_match_history import match_history_configure_routes
 
 device_configure_routes(app)
 configure_routes(app)
@@ -24,6 +25,7 @@ admin_booking_configure_routes(app)
 control_system_configure_routes(app)
 member_management_configure_routes(app)
 chat_player_configure_routes(app)
+match_history_configure_routes(app)
 
 
 

@@ -1,13 +1,12 @@
 from db_config import mysql
 import pymysql
-from app import app
 from dotenv import load_dotenv
 load_dotenv()
 import os
 from token_generator import newUserToken
 from datetime import datetime
 from virtual_device_id_generator import newVirtualDeviceID
-from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID, newChatMatchUUID
+from uuid_generator import newSportKindUUID, newSportFieldUUID, newFieldUUID, newBlacklistScheduleUUID, newBookingUUID, newChatMatchUUID, newMatchHistoryUUID
 
 # ================= Static Method Player User ================ #
 
@@ -329,5 +328,18 @@ def soft_delete_photo_album(venue_id, filename):
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
     conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_new_match_history(reservation_id:str, times:int):
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    for i in range(times):
+        query = (
+            "INSERT INTO Match_History (id, Reservation_id, number, created_at, last_updated) "
+            + f"VALUES ('{newMatchHistoryUUID()}', '{reservation_id}', '{i}', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
+        )
+        cursor.execute(query)
+        conn.commit()
     cursor.close()
     conn.close()

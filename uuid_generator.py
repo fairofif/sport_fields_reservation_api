@@ -145,3 +145,27 @@ def newChatMatchUUID():
         return newUUID
     else:
         return newChatMatchUUID()
+
+def newMatchHistoryUUID():
+    query = "SELECT * FROM Match_History"
+    conn = mysql.connect()
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    read_row = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    newUUID = str(uuid.uuid4())
+
+    i = 0
+    found = False
+    while found == False and i < len(read_row):
+        if read_row[i]['id'] == newUUID:
+            found = True
+        i += 1
+
+    if found == False:
+        return newUUID
+    else:
+        return newMatchHistoryUUID()
