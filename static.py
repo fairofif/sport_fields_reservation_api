@@ -343,3 +343,15 @@ def insert_new_match_history(reservation_id:str, times:int):
         conn.commit()
     cursor.close()
     conn.close()
+
+def insert_new_match_history_custom(reservation_id:str, match_history_id:str, number:int):
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    query = (
+        "INSERT INTO Match_History (id, Reservation_id, number, created_at, last_updated) "
+        + f"VALUES ('{match_history_id}', '{reservation_id}', '{number}', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
+    )
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()

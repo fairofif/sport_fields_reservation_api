@@ -86,10 +86,9 @@ def match_history_configure_routes(app):
 
     # ROUTES
 
-    @app.route('/player/reservation/match-history', methods=['GET'])
-    def get_match_history():
+    @app.route('/player/reservation/match-history/<reservation_id>', methods=['GET'])
+    def get_match_history(reservation_id):
         token = request.headers['token']
-        reservation_id = request.json['reservation_id']
         if checkPlayerToken(token):
             username = findUsernameFromToken(token)
             query = f"SELECT * FROM Match_History WHERE Reservation_id = '{reservation_id}'"
@@ -168,6 +167,46 @@ def match_history_configure_routes(app):
                 response = {
                     'status': False,
                     'message': f"Reservation {body['reservation_id']} is not approved",
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
+
+    @app.route('/player/reservation/match-history', methods=['DELETE'])
+    def delete_match_history():
+        token = request.headers['token']
+        reservation_id = request.json['reservation_id']
+        match_id = request.json['match_history_id']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username) or usernameIsAHost(username, reservation_id):
+                query = f"DELETE FROM Match_History WHERE id = '{match_id}'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                conn.commit()
+                cursor.close()
+                conn.close()
+
+                response = {
+                    'status': True,
+                    'message': 'Delete match history success',
+                    'data': {
+                        'deleted_match_history_id': match_id
+                    }
+                }
+                code = 200
+            else:
+                response = {
+                    'status': False,
+                    'message': 'User is not host or member in this reservation, delete failed',
                     'data': None
                 }
                 code = 403
