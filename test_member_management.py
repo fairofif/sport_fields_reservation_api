@@ -1,4 +1,5 @@
 from static import *
+from app import app
 
 def test_join_to_public_reservation_normal():
     ## ============ admin prerequirement ============= #

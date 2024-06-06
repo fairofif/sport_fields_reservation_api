@@ -1,4 +1,5 @@
 from static import *
+from app import app
 
 def test_get_all_reservation_from_player():
     # Player prerequirements

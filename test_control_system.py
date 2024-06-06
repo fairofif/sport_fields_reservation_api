@@ -1,4 +1,5 @@
 from static import *
+from app import app
 
 # ============= UNIT TEST ============ #
 def test_get_username_that_playing_on_a_field_with_schedule_on_schedule_1():

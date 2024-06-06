@@ -1,4 +1,5 @@
 from static import *
+from app import app
 
 def test_create_chat_match_unposted():
     # prereq

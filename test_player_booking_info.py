@@ -1,4 +1,5 @@
 from static import *
+from app import app
 
 FOLDER_QR = os.getenv('FOLDER_QR')
 
