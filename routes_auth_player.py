@@ -9,6 +9,27 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 import os
 
+# ===== STATIC ===== #
+def usernameIsNotExists(username: str):
+    found = 0
+    query = f"SELECT username FROM Admin WHERE username = '{username}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    if cursor.rowcount > 0:
+        found = found + 1
+    query = f"SELECT username FROM Player WHERE username = '{username}'"
+    cursor.execute(query)
+    if cursor.rowcount > 0:
+        found = found + 1
+    cursor.close()
+    conn.close()
+    if found > 0:
+        return False
+    else:
+        return True
+
+
 def player_auth_configure_routes(app):
     # ============================= ROUTES ==================================== #
 
@@ -21,11 +42,10 @@ def player_auth_configure_routes(app):
         name = data['name']
         phone = data['phone']
         ava_url = os.getenv("DEFAULT_AVA_PATH")
-        query = 'SELECT username FROM Player WHERE username = "'+str(username)+'"'
-        conn = mysql.connect()
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute(query)
-        if cursor.rowcount == 0:
+
+        if usernameIsNotExists(username):
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
             query_insert = "INSERT INTO Player VALUES ('"+username+"', '"+password+"', '"+name+"', '"+ava_url+"', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), '"+phone+"')"
             cursor.execute(query_insert)
             response = {
@@ -33,16 +53,15 @@ def player_auth_configure_routes(app):
                 "register_status": True
             }
             code = 200
+            conn.commit()
+            cursor.close()
+            conn.close()
         else:
             response = {
                 "message": "Username is already Exists in Database",
                 "register_status": False
             }
             code = 409
-        conn.commit()
-        cursor.close()
-        conn.close()
-
         return jsonify(response), code
 
     @app.route('/player/auth/login', methods=['POST'])
