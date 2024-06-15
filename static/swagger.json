@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 14/06/2024 15:33:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/06/2024 12:53:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
@@ -36,6 +36,10 @@
     {
       "name": "relogintoken",
       "description": "relogin token for admin and player"
+    },
+    {
+      "name": "userProfile",
+      "description": "Routes that related to user profile"
     },
     {
       "name": "sportKind",
@@ -2844,6 +2848,60 @@
         }
       }
     },
+    "/user-info/{username}": {
+      "get": {
+        "tags": [
+          "userProfile"
+        ],
+        "summary": "Get user public information",
+        "description": "Get user public information",
+        "operationId": "getUserPublicInformation",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserPublicInformationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
     "/player/chatmatch": {
       "post": {
         "tags": [
@@ -2991,6 +3049,40 @@
         },
         "xml": {
           "name": "DeviceDeleteResponse"
+        }
+      },
+      "GetUserPublicInformationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "ava_url": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "GetUserPublicInformationResponse"
         }
       },
       "PlayerRegisterBody": {

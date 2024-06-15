@@ -110,6 +110,35 @@ def insert_admin_unittest_token(token, device_id):
     cursor.close()
     conn.close()
 
+def insert_admin_unittest_token_custom(token, device_id, username):
+    query = f"INSERT INTO Admin_Login_Token VALUES ('{token}', '{username}', CURRENT_TIMESTAMP(), '{device_id}')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def insert_admin_unittest_user_custom(username):
+    ava_url = os.getenv("DEFAULT_AVA_PATH")
+
+    query = 'INSERT INTO Admin VALUES("'+username+'", "Unit Test", "unittest", "08123456789", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def delete_admin_unittest_user_custom(username):
+    query = 'DELETE FROM Admin WHERE username = "'+username+'"'
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def insert_admin_unittest_sport_kind():
     uuid = newSportKindUUID()
     query = "INSERT INTO Sport_Kind (id, name) VALUES ('"+uuid+"', 'unittest_sport')"
