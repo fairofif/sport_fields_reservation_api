@@ -287,3 +287,42 @@ def match_history_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/player/reservation/match-history/score', methods=['PUT'])
+    def edit_match_history_score():
+        token = request.headers['token']
+        body = request.json
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if usernameIsAHost(username, body['reservation_id']) or not isPlayerNotAlreadyInAReservationAsMember(body['reservation_id'], username):
+                query = f"UPDATE Match_History SET score_a = {body['score_a']}, score_b = {body['score_b']} WHERE id = '{body['match_history_id']}'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query)
+                conn.commit()
+                cursor.close()
+                conn.close()
+
+                response = {
+                    'status': True,
+                    'message': 'Edit score match success',
+                    'data': {
+                        'match_history_id': body['match_history_id']
+                    }
+                }
+                code = 200
+            else:
+                response = {
+                    'status': False,
+                    'message': 'Player not a member of this reservation',
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code

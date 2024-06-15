@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/06/2024 12:53:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/06/2024 15:13:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
@@ -2848,6 +2848,61 @@
         }
       }
     },
+    "/player/reservation/match-history/score": {
+      "put": {
+        "tags": [
+          "matchHistory"
+        ],
+        "summary": "Edit score of a Match History",
+        "description": "Edit score of a match history by host or member",
+        "operationId": "editScoreMatchHistory",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerEditScoreMatchHistoryBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerEditScoreMatchHistoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
     "/user-info/{username}": {
       "get": {
         "tags": [
@@ -4957,6 +5012,58 @@
         },
         "xml": {
           "name": "PlayerEditNumberMatchHistoryResponse"
+        }
+      },
+      "PlayerEditScoreMatchHistoryBody": {
+        "required": [
+          "reservation_id",
+          "match_history_id",
+          "score_a",
+          "score_b"
+        ],
+        "type": "object",
+        "properties": {
+          "reservation_id": {
+            "type": "string",
+            "example": "8239dc8d-8db0-4768-a3bf-18f238fc2655"
+          },
+          "match_number": {
+            "type": "string",
+            "example": "8239dc8d-8db0-4768-a3bf-hnfwin121321"
+          },
+          "score_a": {
+            "type": "integer",
+            "example": 21
+          },
+          "score_b": {
+            "type": "integer",
+            "example": 18
+          }
+        },
+        "xml": {
+          "name": "PlayerEditScoreMatchHistoryBody"
+        }
+      },
+      "PlayerEditScoreMatchHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "match_history_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerEditScoreMatchHistoryResponse"
         }
       },
       "PlayerGetMatchHistoriesResponse": {
