@@ -2,11 +2,11 @@
   "openapi": "3.0.3",
   "info": {
     "title": "API Documentation Field Reservation System",
-    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 15/06/2024 15:13:XX",
+    "description": "by Rofif Fairuz Hawary\n\nLast Updated: 17/06/2024 01:24:XX",
     "contact": {
       "email": "rofifhawary@gmail.com"
     },
-    "version": "1.7.18"
+    "version": "1.7.19"
   },
   "externalDocs": {
     "description": "Github repository of this project",
@@ -2903,6 +2903,61 @@
         }
       }
     },
+    "/player/reservation/match-history/player": {
+      "post": {
+        "tags": [
+          "matchHistory"
+        ],
+        "summary": "Add a player to a match history",
+        "description": "Add a player to a match history (also to team a or team b)",
+        "operationId": "addMemberToAMatch",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Required",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayerAddMemberToMatchHistoryBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerAddMemberToMatchHistoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
     "/user-info/{username}": {
       "get": {
         "tags": [
@@ -4979,7 +5034,7 @@
             "type": "string",
             "example": "8239dc8d-8db0-4768-a3bf-18f238fc2655"
           },
-          "match_number": {
+          "match_history_id": {
             "type": "string",
             "example": "8239dc8d-8db0-4768-a3bf-hnfwin121321"
           },
@@ -5027,7 +5082,7 @@
             "type": "string",
             "example": "8239dc8d-8db0-4768-a3bf-18f238fc2655"
           },
-          "match_number": {
+          "match_history_id": {
             "type": "string",
             "example": "8239dc8d-8db0-4768-a3bf-hnfwin121321"
           },
@@ -5064,6 +5119,64 @@
         },
         "xml": {
           "name": "PlayerEditScoreMatchHistoryResponse"
+        }
+      },
+      "PlayerAddMemberToMatchHistoryBody": {
+        "required": [
+          "reservation_id",
+          "match_history_id",
+          "username",
+          "team"
+        ],
+        "type": "object",
+        "properties": {
+          "reservation_id": {
+            "type": "string",
+            "example": "8239dc8d-8db0-4768-a3bf-18f238fc2655"
+          },
+          "match_history_id": {
+            "type": "string",
+            "example": "8239dc8d-8db0-4768-a3bf-hnfwin121321"
+          },
+          "username": {
+            "type": "string",
+            "example": "acoolusername"
+          },
+          "team": {
+            "type": "string",
+            "example": "a"
+          }
+        },
+        "xml": {
+          "name": "PlayerAddMemberToMatchHistoryBody"
+        }
+      },
+      "PlayerAddMemberToMatchHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "match_history_id": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "team": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "PlayerAddMemberToMatchHistoryResponse"
         }
       },
       "PlayerGetMatchHistoriesResponse": {

@@ -83,7 +83,7 @@ def match_history_configure_routes(app):
 
         return result['booking_status']
 
-    def isNumberExistsInMatchHistory(reservation_id, number):
+    def isNumberNotExistsInMatchHistory(reservation_id, number):
         query = f"SELECT id FROM Match_History WHERE Reservation_id = '{reservation_id}' AND number = '{number}'"
         conn = mysql.connect()
         cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -97,6 +97,19 @@ def match_history_configure_routes(app):
         else:
             return True
 
+    def isMemberAlreadyInAMatch(username, match_id):
+        query = f"SELECT * FROM Match_Player WHERE Match_History_id = '{match_id}' AND Player_username = '{username}'"
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        cursor.execute(query)
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+
+        if rowcount == 0:
+            return False
+        else:
+            return True
 
     # ROUTES
 
@@ -150,7 +163,7 @@ def match_history_configure_routes(app):
             username = findUsernameFromToken(token)
             if reservationStatus(body['reservation_id']) == 'approved':
                 if usernameIsAHost(username, body['reservation_id']) or not isPlayerNotAlreadyInAReservationAsMember(body['reservation_id'], username):
-                    if isNumberExistsInMatchHistory(body['reservation_id'], body['match_number']):
+                    if isNumberNotExistsInMatchHistory(body['reservation_id'], body['match_number']):
                         match_id = newMatchHistoryUUID()
                         query = (
                             "INSERT INTO Match_History (id, Reservation_id, number, created_at, last_updated) "
@@ -248,7 +261,7 @@ def match_history_configure_routes(app):
         if checkPlayerToken(token):
             username = findUsernameFromToken(token)
             if usernameIsAHost(username, body['reservation_id']) or not isPlayerNotAlreadyInAReservationAsMember(body['reservation_id'], username):
-                if isNumberExistsInMatchHistory(body['reservation_id'], body['new_number']):
+                if isNumberNotExistsInMatchHistory(body['reservation_id'], body['new_number']):
                     query = f"UPDATE Match_History SET number = '{body['new_number']}' WHERE id = '{body['match_history_id']}'"
                     conn = mysql.connect()
                     cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -315,6 +328,74 @@ def match_history_configure_routes(app):
                 response = {
                     'status': False,
                     'message': 'Player not a member of this reservation',
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
+
+    @app.route('/player/reservation/match-history/player', methods=['POST'])
+    def add_player_to_a_player_match():
+        token = request.headers['token']
+        reservation_id = request.json['reservation_id']
+        match_id = request.json['match_history_id']
+        team = request.json['team']
+        username_add = request.json['username']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username) or usernameIsAHost(username, reservation_id):
+                if findBookingStatusOfReservation(reservation_id) == 'approved':
+                    if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username_add) or usernameIsAHost(username_add, reservation_id):
+                        if not isMemberAlreadyInAMatch(username_add, match_id):
+                            query = f"INSERT INTO Match_Player VALUES ('{match_id}', '{username_add}', '{team}')"
+                            conn = mysql.connect()
+                            cursor = conn.cursor(pymysql.cursors.DictCursor)
+                            cursor.execute(query)
+                            conn.commit()
+                            cursor.close()
+                            conn.close()
+
+                            response = {
+                                'status': True,
+                                'message': 'Add player to a match success',
+                                'data': {
+                                    'username': username_add,
+                                    'team': team,
+                                    'match_history_id': match_id
+                                }
+                            }
+                            code = 200
+                        else:
+                            response = {
+                                'status': False,
+                                'message': f"{username_add} is already in this match history",
+                                'data': None
+                            }
+                            code = 409
+                    else:
+                        response = {
+                            'status': False,
+                            'message': 'Only host or member that could added to a match history',
+                            'data': None
+                        }
+                        code = 403
+                else:
+                    response = {
+                        'status': False,
+                        'message': 'Reservation is not approved by admin',
+                        'data': None
+                    }
+                    code = 403
+            else:
+                response = {
+                    'status': False,
+                    'message': 'Host or member only that could add a member to match player',
                     'data': None
                 }
                 code = 403

@@ -384,3 +384,12 @@ def insert_new_match_history_custom(reservation_id:str, match_history_id:str, nu
     conn.commit()
     cursor.close()
     conn.close()
+
+def insert_match_player(match_id:str, username:str, team:str):
+    query = f"INSERT INTO Match_Player VALUES ('{match_id}', '{username}', '{team}')"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    conn.commit()
+    cursor.close()
+    conn.close()
