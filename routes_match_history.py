@@ -466,3 +466,62 @@ def match_history_configure_routes(app):
             code = 401
         return jsonify(response), code
 
+    @app.route('/player/reservation/match-history/<reservation_id>/<match_history_id>', methods=['GET'])
+    def get_history_match_detail(reservation_id, match_history_id):
+        token = request.headers['token']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username) or usernameIsAHost(username, reservation_id):
+                query_match = f"SELECT * FROM Match_History WHERE id = '{match_history_id}'"
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(query_match)
+                result_match = cursor.fetchone()
+                query_player = f"SELECT * FROM Match_Player WHERE Match_History_id = '{match_history_id}'"
+                cursor.execute(query_player)
+                player_count = cursor.rowcount
+                result_player = cursor.fetchall()
+                cursor.close()
+                conn.close()
+
+                team_a = []
+                team_b = []
+                for i in range(player_count):
+                    player_match = {
+                        'username': result_player[i]['Player_username']
+                    }
+                    if result_player[i]['team'] == 'a':
+                        team_a = team_a + [player_match]
+                    elif result_player[i]['team'] == 'b':
+                        team_b = team_b + [player_match]
+
+                response = {
+                    'status': True,
+                    'message': 'Get match history details success',
+                    'data': {
+                        'match_history_id': result_match['id'],
+                        'reservation_id': result_match['Reservation_id'],
+                        'number': result_match['number'],
+                        'score_a': result_match['score_a'],
+                        'score_b': result_match['score_b'],
+                        'is_done': result_match['is_done'],
+                        'team_a': team_a,
+                        'team_b': team_b
+                    }
+                }
+                code = 200
+            else:
+                response = {
+                    'status': False,
+                    'message': 'Host or member only that could get match history details',
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code

@@ -1024,3 +1024,57 @@ def test_delete_player_from_match_history_kicker_valid():
     assert response.get_json()['status'] == True
     assert response.get_json()['message'] == f"{username_player_member} has been removed from match {match_id}"
     assert response.get_json()['data'] != None
+
+def test_get_match_history_detail():
+    # preparation
+    username_admin = 'unittest'
+    username_player = 'unittest'
+    username_player_member = 'unittest_pm'
+    insert_admin_unittest_user_custom(username_admin)
+    insert_player_unittest_user_custom(username_player)
+    insert_player_unittest_user_custom(username_player_member)
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    venue_id = newSportFieldUUID()
+    insert_admin_unittest_sport_venue(venue_id, sport_kind_id)
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, venue_id, 1)
+
+    reservation_id = newBookingUUID()
+    insert_booking_unittest(reservation_id, field_id, '2024-06-12', '09:00:00', '11:00:00')
+    change_reservation_status(reservation_id, 'waiting_approval')
+    insert_member_reservation(reservation_id, username_player_member)
+
+    device_pm = newVirtualDeviceID()
+    insert_unittest_device(device_pm)
+    token_pm = newUserToken()
+    insert_player_unittest_token_custom(token_pm, device_pm, username_player_member)
+    match_id = newMatchHistoryUUID()
+    insert_new_match_history_custom(reservation_id, match_id, 1)
+    insert_match_player(match_id, username_player_member, 'a')
+    insert_match_player(match_id, username_player, 'b')
+
+    # condition
+    header = {
+        'token': token_pm
+    }
+
+    # test
+    url = f"/player/reservation/match-history/{reservation_id}/{match_id}"
+    client = app.test_client()
+    response = client.get(url, headers=header)
+
+    # cleaning
+    delete_admin_unittest_user_custom(username_admin)
+    delete_player_unittest_user_custom(username_player)
+    delete_player_unittest_user_custom(username_player_member)
+
+    delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_unittest_device(device_pm)
+
+    # assert
+    assert response.status_code == 200
+    assert response.get_json()['status'] == True
+    assert response.get_json()['data'] != None
+    assert len(response.get_json()['data']['team_a']) > 0
+    assert len(response.get_json()['data']['team_b']) > 0
