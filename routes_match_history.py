@@ -407,3 +407,62 @@ def match_history_configure_routes(app):
             }
             code = 401
         return jsonify(response), code
+
+    @app.route('/player/reservation/match-history/player', methods=['DELETE'])
+    def remove_player_match():
+        token = request.headers['token']
+        reservation_id = request.json['reservation_id']
+        match_id = request.json['match_history_id']
+        username_remove = request.json['username']
+        if checkPlayerToken(token):
+            username = findUsernameFromToken(token)
+            if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username) or usernameIsAHost(username, reservation_id):
+                if not isPlayerNotAlreadyInAReservationAsMember(reservation_id, username_remove) or usernameIsAHost(username_remove, reservation_id):
+                    if isMemberAlreadyInAMatch(username_remove, match_id):
+                        query = f"DELETE FROM Match_Player WHERE Match_History_id = '{match_id}' AND Player_username = '{username_remove}'"
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+                        cursor.execute(query)
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
+
+                        response = {
+                            'status': True,
+                            'message': f"{username_remove} has been removed from match {match_id}",
+                            'data': {
+                                'username_removed': username_remove,
+                                'match_history_id': match_id
+                            }
+                        }
+                        code = 200
+                    else:
+                        response = {
+                            'status': False,
+                            'message': f"{username_remove} is not in match {match_id}",
+                            'data': None
+                        }
+                        code = 404
+                else:
+                    response = {
+                        'status': False,
+                        'message': f"{username_remove} is not member or host of reservation {reservation_id}",
+                        'data': None
+                    }
+                    code = 404
+            else:
+                response = {
+                    'status': False,
+                    'message': 'Host or member only that could remove a member from match player',
+                    'data': None
+                }
+                code = 403
+        else:
+            response = {
+                'status': False,
+                'message': 'Token is expired',
+                'data': None
+            }
+            code = 401
+        return jsonify(response), code
+
