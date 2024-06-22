@@ -1078,3 +1078,67 @@ def test_get_match_history_detail():
     assert response.get_json()['data'] != None
     assert len(response.get_json()['data']['team_a']) > 0
     assert len(response.get_json()['data']['team_b']) > 0
+
+def test_edit_id_done_match_history_by_host_or_member():
+    # preparation
+    device_admin = newVirtualDeviceID()
+    insert_unittest_device(device_admin)
+    insert_admin_unittest_user()
+    token_admin = newUserToken()
+    insert_admin_unittest_token(token_admin, device_admin)
+
+    sport_kind_id = insert_admin_unittest_sport_kind()
+
+    venue_id = newSportFieldUUID()
+    insert_admin_unittest_sport_venue(venue_id, sport_kind_id)
+    field_id = newSportFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, venue_id, 1)
+
+    device_player = newVirtualDeviceID()
+    insert_unittest_device(device_player)
+    insert_player_unittest_user()
+    token_player = newUserToken()
+    insert_player_unittest_token(token_player, device_player)
+
+    reservation_id = newBookingUUID()
+    insert_booking_unittest(reservation_id, field_id, '2025-05-28', '09:00:00', '11:00:00')
+    change_reservation_status(reservation_id, 'approved')
+
+    # condition
+    match_id = newMatchHistoryUUID()
+    insert_new_match_history_custom(reservation_id, match_id, 1)
+
+    header = {
+        'token': token_player
+    }
+    body = {
+        'reservation_id': reservation_id,
+        'match_history_id': match_id,
+        'is_done': True
+    }
+
+    # test
+    url = f"/player/reservation/match-history/is_done"
+    client = app.test_client()
+    response = client.put(url, headers=header, json=body)
+
+    query = f"SELECT is_done FROM Match_History WHERE id = '{match_id}'"
+    conn = mysql.connect()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    # clean test data
+    delete_admin_unittest_user()
+    delete_player_unittest_user()
+    delete_unittest_device(device_admin)
+    delete_unittest_device(device_player)
+    delete_admin_unittest_sport_kind(sport_kind_id)
+
+    # assertion
+    assert response.status_code == 200
+    assert response.get_json()['status'] == True
+    assert response.get_json()['data'] != None
+    assert result['is_done'] == body['is_done']
