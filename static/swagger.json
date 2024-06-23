@@ -5162,7 +5162,7 @@
             "type": "string",
             "example": "8239dc8d-8db0-4768-a3bf-18f238fc2655"
           },
-          "match_number": {
+          "match_history_id": {
             "type": "string",
             "example": "8239dc8d-8db0-4768-a3bf-hnfwin121321"
           }
