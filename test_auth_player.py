@@ -6,13 +6,19 @@ load_dotenv()
 import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
+from hashlib import blake2b
 
 # ============================= Local Function ==============================
 
 def insert_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
 
-    query = 'INSERT INTO Player VALUES("unittest", "unittest", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), "08123456789")'
+    password = 'unittest'
+    h = blake2b()
+    h.update(password.encode())
+    password = h.hexdigest()
+
+    query = 'INSERT INTO Player VALUES("unittest", "'+password+'", "Unit Test", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), "08123456789")'
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)

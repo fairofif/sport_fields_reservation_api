@@ -6,11 +6,17 @@ load_dotenv()
 import os
 from token_generator import newUserToken
 from virtual_device_id_generator import newVirtualDeviceID
+from hashlib import blake2b
 
 def insert_unittest_user():
     ava_url = os.getenv("DEFAULT_AVA_PATH")
+    password = 'unittest'
+    h = blake2b()
+    h.update(password.encode())
+    password = h.hexdigest()
 
-    query = 'INSERT INTO Admin VALUES("unittest", "Unit Test", "unittest", "unittest", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())'
+
+    query = 'INSERT INTO Admin VALUES("unittest", "Unit Test", "'+password+'", "unittest", "'+ava_url+'", CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())'
     conn = mysql.connect()
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)

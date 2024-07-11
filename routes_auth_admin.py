@@ -8,6 +8,7 @@ from token_generator import newUserToken
 from dotenv import load_dotenv
 load_dotenv(override=True)
 import os
+from hashlib import blake2b
 
 # ===== STATIC ===== #
 def usernameIsNotExists(username: str):
@@ -41,6 +42,10 @@ def admin_auth_configure_routes(app):
         name = data['name']
         phone = data['phone']
         ava_url = os.getenv("DEFAULT_AVA_PATH")
+
+        h = blake2b()
+        h.update(password.encode())
+        password = h.hexdigest()
 
         if usernameIsNotExists(username):
             conn = mysql.connect()
@@ -92,6 +97,10 @@ def admin_auth_configure_routes(app):
             conn.close()
         else:
             ## username exist
+            h = blake2b()
+            h.update(password.encode())
+            password = h.hexdigest()
+
             query = "SELECT * FROM Admin WHERE username = '"+username+"' AND password = '"+password+"'"
             cursor.execute(query)
             if cursor.rowcount == 0:
