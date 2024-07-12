@@ -984,7 +984,7 @@ def player_booking_configure_routes(app):
                 if is_host or is_member:
                     query = (
                         "SELECT Sport_Field.Admin_username, Sport_Field.id venue_id, Sport_Field.name venue_name, "
-                        + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, "
+                        + "Sport_Field.price_per_hour, Sport_Kind.id sport_kind_id, Fields.id field_id, Fields.number field_number, Reservation.payment_credential_url, Reservation.upload_payment_timestamp, "
                         + "Sport_Kind.name sport_kind_name, Reservation.id reservation_id, Reservation.is_open_member is_open_member, Reservation.Player_username host_name, Reservation.name mabar_name, "
                         + "Reservation.is_public is_public, Reservation.date playing_date, Reservation.time_start, Reservation.time_end, Reservation.booking_status, "
                         + "Reservation.created_at FROM Sport_Field "
@@ -1014,6 +1014,8 @@ def player_booking_configure_routes(app):
                         'field_id': results['field_id'],
                         'field_number': results['field_number'],
                         'booking_status': results['booking_status'],
+                        'payment_credential_url': results['payment_credential_url'],
+                        'upload_payment_timestamp': results['upload_payment_timestamp'],
                         'created_at': str(results['created_at']),
                         'is_public': results['is_public'],
                         'is_open_member': results['is_open_member']
