@@ -149,7 +149,7 @@ def profile_configure_routes(app):
             username, role = getUsernameFromToken(token)
             if 'file' not in request.files:
                 response = {
-                    'upload_status': False,
+                    'status': False,
                     'message': 'No file part in request',
                     'data': None
                 }
@@ -211,14 +211,14 @@ def profile_configure_routes(app):
                         code = 200
                     else:
                         response = {
-                            'upload_status': False,
+                            'status': False,
                             'message': 'Extension of the file is not allowed',
                             'data': None
                         }
                         code = 400
         else:
             response = {
-                'upload_status': False,
+                'status': False,
                 'message': 'Token is expired',
                 'data': None
             }

@@ -160,22 +160,14 @@ def control_system_configure_routes(app):
             if isReservationAndVenueMatch(venue_id, reservation_id):
                 if booking_status(reservation_id) == "approved":
                     if isCurrentDateMatchWithReservationDate(get_current_date(), reservation_id):
-                        if isCurrentTimeInsideVenueTimeOpen(venue_id, get_current_time()):
-                            response = {
-                                'unlock_status': True,
-                                'message': "Reservation ID is valid, unlock granted",
-                                'data': {
-                                    'reservation_id': reservation_id
-                                }
+                        response = {
+                            'unlock_status': True,
+                            'message': "Reservation ID is valid, unlock granted",
+                            'data': {
+                                'reservation_id': reservation_id
                             }
-                            code = 200
-                        else:
-                            response = {
-                                'unlock_status': False,
-                                'message': "Venue is not opened yet, unlock not granted",
-                                'data': None
-                            }
-                            code = 403
+                        }
+                        code = 200
                     else:
                         response = {
                             'unlock_status': False,

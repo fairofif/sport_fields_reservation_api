@@ -214,58 +214,58 @@ def test_get_username_that_playing_on_a_field_with_schedule_outside_schedule_2()
     assert response.get_json()['message'] == "There isn't any ongoing schedule"
     assert response.get_json()['data'] == None
 
-# def test_unlock_door_by_reservation_id():
-#     ## ============ admin prerequirement ============= #
+def test_unlock_door_by_reservation_id():
+    ## ============ admin prerequirement ============= #
 
-#     admin_device = newVirtualDeviceID()
-#     admin_token = newUserToken()
+    admin_device = newVirtualDeviceID()
+    admin_token = newUserToken()
 
-#     sport_kind_id = insert_admin_unittest_sport_kind()
-#     sport_venue_id = newSportFieldUUID()
+    sport_kind_id = insert_admin_unittest_sport_kind()
+    sport_venue_id = newSportFieldUUID()
 
-#     insert_unittest_device(admin_device)
-#     insert_admin_unittest_user()
-#     insert_admin_unittest_token(admin_token, admin_device)
-#     insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
+    insert_unittest_device(admin_device)
+    insert_admin_unittest_user()
+    insert_admin_unittest_token(admin_token, admin_device)
+    insert_admin_unittest_sport_venue(sport_venue_id, sport_kind_id)
 
-#     field_id = newFieldUUID()
-#     insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
+    field_id = newFieldUUID()
+    insert_admin_unittest_field_to_venue(field_id, sport_venue_id, 1)
 
-#     ## ============ player prerequirement ============= #
+    ## ============ player prerequirement ============= #
 
-#     player_device = newVirtualDeviceID()
-#     player_token = newUserToken()
-#     insert_unittest_device(player_device)
-#     insert_player_unittest_user()
-#     insert_player_unittest_token(player_token, player_device)
+    player_device = newVirtualDeviceID()
+    player_token = newUserToken()
+    insert_unittest_device(player_device)
+    insert_player_unittest_user()
+    insert_player_unittest_token(player_token, player_device)
 
-#     ## ============== condition requirement =============== #
+    ## ============== condition requirement =============== #
 
-#     booking_id = newBookingUUID()
-#     insert_booking_unittest(booking_id, field_id, get_current_date(), "09:00:00", "11:59:59")
-#     change_reservation_status(booking_id, 'approved')
+    booking_id = newBookingUUID()
+    insert_booking_unittest(booking_id, field_id, get_current_date(), "09:00:00", "11:59:59")
+    change_reservation_status(booking_id, 'approved')
 
-#     ## TEST
+    ## TEST
 
-#     url = f"/controlsystem/unlock/{sport_venue_id}/{booking_id}"
-#     client = app.test_client()
+    url = f"/controlsystem/unlock/{sport_venue_id}/{booking_id}"
+    client = app.test_client()
 
-#     response = client.get(url)
+    response = client.get(url)
 
-#     # =========== Clean data TEST ============ #
+    # =========== Clean data TEST ============ #
 
-#     delete_player_unittest_user()
-#     delete_admin_unittest_user()
-#     delete_unittest_device(admin_device)
-#     delete_unittest_device(player_device)
-#     delete_admin_unittest_sport_kind(sport_kind_id)
+    delete_player_unittest_user()
+    delete_admin_unittest_user()
+    delete_unittest_device(admin_device)
+    delete_unittest_device(player_device)
+    delete_admin_unittest_sport_kind(sport_kind_id)
 
-#     # =========== VALIDATION =========== #
+    # =========== VALIDATION =========== #
 
-#     assert response.status_code == 200
-#     assert response.get_json()['unlock_status'] == True
-#     assert response.get_json()['message'] == "Reservation ID is valid, unlock granted"
-#     assert response.get_json()['data'] != None
+    assert response.status_code == 200
+    assert response.get_json()['unlock_status'] == True
+    assert response.get_json()['message'] == "Reservation ID is valid, unlock granted"
+    assert response.get_json()['data'] != None
 
 def test_unlock_door_by_reservation_id_not_in_schedule():
     ## ============ admin prerequirement ============= #
