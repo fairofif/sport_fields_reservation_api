@@ -1999,7 +1999,7 @@ def test_player_get_joined_reservation_all():
     assert response.get_json()['message'] == "Retrieve joined reservation success"
     assert len(response.get_json()['data']) == 2
 
-def test_player_get_joined_reservation_all():
+def test_player_get_joined_reservation_with_sport_kind():
     ## ============ admin prerequirement ============= #
 
     admin_device = newVirtualDeviceID()

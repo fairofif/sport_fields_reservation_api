@@ -604,7 +604,7 @@ def test_get_blacklist_schedule_one_time_only():
         "year": 2024
     }
 
-    url = f"admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
+    url = f"/admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
     client = app.test_client()
 
     response = client.get(url, headers=header)
@@ -644,7 +644,7 @@ def test_get_blacklist_schedule_every_week():
         "year": 2024
     }
 
-    url = f"admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
+    url = f"/admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
     client = app.test_client()
     response = client.get(url, headers=header)
 
@@ -684,7 +684,7 @@ def test_get_blacklist_schedule_every_week_failed():
         "year": 2019
     }
 
-    url = f"admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
+    url = f"/admin/sportVenue/fields/schedule/blacklist/{param['field_id']}/{str(param['month'])}/{str(param['year'])}"
     client = app.test_client()
     response = client.get(url, headers=header)
 
@@ -721,7 +721,7 @@ def test_delete_blacklist_schedule():
         "blacklist_id": blacklist_id
     }
 
-    url = 'admin/sportVenue/fields/schedule/blacklist'
+    url = '/admin/sportVenue/fields/schedule/blacklist'
     client = app.test_client()
     response = client.delete(url, headers=header, json=body)
 
@@ -760,7 +760,7 @@ def test_get_reservation_list_in_a_field():
         'token': admin_token
     }
 
-    url = f"admin/sportVenue/fields/schedule/reservation/{field_id}/5/2024"
+    url = f"/admin/sportVenue/fields/schedule/reservation/{field_id}/5/2024"
 
     client = app.test_client()
     response = client.get(url, headers=header)

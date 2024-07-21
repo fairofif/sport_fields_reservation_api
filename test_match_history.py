@@ -911,7 +911,7 @@ def test_insert_player_to_a_match_history_user_already_in_a_match():
     assert response.get_json()['message'] == f"unittest is already in this match history"
     assert response.get_json()['data'] == None
 
-def test_insert_player_to_a_match_history_user_already_in_a_match():
+def test_insert_player_to_a_match_history_not_approved():
     # preparation
     username_admin = 'unittest'
     username_player = 'unittest'
